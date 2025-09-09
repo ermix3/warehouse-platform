@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\OrderStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,10 +14,11 @@ return new class extends Migration {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_number')->unique();
-            $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
-            $table->enum('status', ['draft', 'pending', 'confirmed', 'shipped', 'delivered', 'cancelled'])->default('draft');
+            $table->enum('status', OrderStatus::values())->default(OrderStatus::DRAFT->value);
             $table->decimal('total', 12, 2)->default(0);
-            $table->timestamp('placed_at')->nullable();
+
+            $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
+
             $table->timestamps();
         });
     }

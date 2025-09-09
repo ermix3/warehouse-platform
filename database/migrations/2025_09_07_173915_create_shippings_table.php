@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ShippingStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,12 +13,12 @@ return new class extends Migration {
     {
         Schema::create('shippings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->string('tracking_number')->nullable();
             $table->string('carrier')->nullable();
-            $table->enum('status', ['pending', 'in_transit', 'delivered', 'returned'])->default('pending');
-            $table->timestamp('shipped_at')->nullable();
+            $table->enum('status', ShippingStatus::values())->default(ShippingStatus::PENDING->value);
             $table->decimal('cost', 12, 2)->default(0);
+
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

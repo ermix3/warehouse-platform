@@ -12,11 +12,11 @@ return new class extends Migration {
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
+            $table->integer('quantity')->default(1);
+            $table->decimal('unit_price', 12, 2)->default(0);
+
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->integer('quantity')->default(1);
-            $table->decimal('unit_price', 12, 2);
-            $table->decimal('line_total', 12, 2);
             $table->timestamps();
         });
     }
