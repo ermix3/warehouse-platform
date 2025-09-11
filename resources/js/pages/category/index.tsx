@@ -1,40 +1,34 @@
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious
-} from '@/components/ui/pagination';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AddNewItem from '@/components/shared/add-new-item';
+import { DataTable } from '@/components/shared/data-table';
+import DeleteItem from '@/components/shared/delete-item';
+import { Pagination } from '@/components/shared/pagination';
 import AppLayout from '@/layouts/app-layout';
-import { destroy, index } from '@/routes/categories';
+import { destroy } from '@/routes/categories';
 import type { BreadcrumbItem } from '@/types';
-import type { Category, CategoryPagination, PaginationLink as PaginationLinkType } from '@/types/category';
+import { Category, CategoryPagination } from '@/types/category';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { createColumns } from './columns';
 import CreateCategory from './CreateCategory';
 import EditCategory from './EditCategory';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Categories',
-        href: index().url,
-    },
-];
-
 interface PageProps {
     categories: CategoryPagination;
+    search: string;
     flash?: { success?: string };
     [key: string]: unknown;
 }
 
-export default function Index() {
-    const { categories, flash } = usePage<PageProps>().props;
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Categories',
+        href: '/categories',
+    },
+];
+
+export default function CategoriesPage() {
+    const { categories, search, flash } = usePage<PageProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -59,7 +53,7 @@ export default function Index() {
         if (!deleteCategory) return;
 
         setIsDeleting(true);
-        router.delete(destroy(deleteCategory.id).url, {
+        router.delete(destroy(deleteCategory.id), {
             onSuccess: () => {
                 toast.success(`Category "${deleteCategory.name}" deleted successfully`, {
                     description: 'The category has been permanently removed from your system.',
@@ -84,81 +78,26 @@ export default function Index() {
             setDeleteCategory(null);
         }
     };
-    console.log(categories, flash);
+
+    const columns = createColumns(openEditDialog, openDeleteDialog);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Categories" />
-            <div className="container mt-5 px-5">
-                {flash?.success && <div className="alert alert-success">{flash.success}</div>}
-                <Button onClick={openCreateDialog} className="mb-3">
-                    Create Category
-                </Button>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>ID</TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Description</TableHead>
-                            <TableHead>Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {categories.data.map((category: Category) => (
-                            <TableRow key={category.id}>
-                                <TableCell>{category.id}</TableCell>
-                                <TableCell>{category.name}</TableCell>
-                                <TableCell>{category.description}</TableCell>
-                                <TableCell>
-                                    <Button onClick={() => openEditDialog(category)} variant="outline" size="sm" className="mx-2">
-                                        Edit
-                                    </Button>
-                                    <Button onClick={() => openDeleteDialog(category)} variant="destructive" size="sm">
-                                        Delete
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
 
-                {/* Pagination links using Shadcn UI */}
-                <Pagination className="mt-4">
-                    <PaginationContent>
-                        {categories.links?.map((link: PaginationLinkType) => {
-                            if (link.label.includes('Previous')) {
-                                return (
-                                    <PaginationItem key={link.label + link.page}>
-                                        <PaginationPrevious href={link.url || undefined} preserveScroll aria-disabled={!link.url} />
-                                    </PaginationItem>
-                                );
-                            }
-                            if (link.label.includes('Next')) {
-                                return (
-                                    <PaginationItem key={link.label + link.page}>
-                                        <PaginationNext href={link.url || undefined} preserveScroll aria-disabled={!link.url} />
-                                    </PaginationItem>
-                                );
-                            }
-                            if (link.label === '...') {
-                                return (
-                                    <PaginationItem key={link.label + String(link.page)}>
-                                        <PaginationEllipsis />
-                                    </PaginationItem>
-                                );
-                            }
-                            return (
-                                <PaginationItem key={link.label + link.page}>
-                                    <PaginationLink
-                                        href={link.url || undefined}
-                                        isActive={link.active}
-                                        preserveScroll
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                    />
-                                </PaginationItem>
-                            );
-                        })}
-                    </PaginationContent>
-                </Pagination>
+            <div className="container mt-5 px-5">
+                {flash?.success && <div className="mb-4 rounded-md bg-green-50 p-4 text-green-800">{flash.success}</div>}
+
+                <AddNewItem title="Categories" description="Manage your categories" buttonLabel="Create Category" onButtonClick={openCreateDialog} />
+
+                <DataTable
+                    columns={columns}
+                    data={categories.data}
+                    searchValue={search}
+                    searchPlaceholder="Search categories by name or description..."
+                />
+
+                <Pagination links={categories.links} from={categories.from} to={categories.to} total={categories.total} />
             </div>
 
             {/* Create Dialog */}
@@ -168,28 +107,15 @@ export default function Index() {
             <EditCategory open={showEditDialog} onOpenChange={setShowEditDialog} category={editCategory} />
 
             {/* Delete Confirmation Dialog */}
-            <Dialog open={showDeleteDialog} onOpenChange={closeDeleteDialog}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Delete Category</DialogTitle>
-                    </DialogHeader>
-                    <div className="py-4">
-                        <p className="text-sm text-muted-foreground">
-                            Are you sure you want to delete the category <span className="font-semibold">{deleteCategory?.name}</span>?
-                        </p>
-                        <p className="mt-2 text-sm text-muted-foreground">This action cannot be undone.</p>
-                    </div>
-                    <div className="flex justify-end space-x-2">
-                        <Button variant="outline" onClick={closeDeleteDialog} disabled={isDeleting}>
-                            Cancel
-                        </Button>
-                        <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
-                            {isDeleting && <span className="mr-2">⏳</span>}
-                            {isDeleting ? 'Deleting...' : 'Delete'}
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <DeleteItem
+                open={showDeleteDialog}
+                onOpenChange={closeDeleteDialog}
+                title="Delete Category"
+                itemName={deleteCategory?.name}
+                description="This action cannot be undone."
+                isDeleting={isDeleting}
+                onDelete={handleDelete}
+            />
         </AppLayout>
     );
 }

@@ -1,9 +1,4 @@
-export interface PaginationLink {
-    url: string | null;
-    label: string;
-    page: number | null;
-    active: boolean;
-}
+import { PaginationLink } from '@/types';
 
 export interface Category {
     id: number;

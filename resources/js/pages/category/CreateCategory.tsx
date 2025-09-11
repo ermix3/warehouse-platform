@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { store } from '@/routes/categories';
 import { useForm } from '@inertiajs/react';
 
 interface CreateCategoryProps {
@@ -12,14 +11,14 @@ interface CreateCategoryProps {
 }
 
 export default function CreateCategory({ open, onOpenChange }: Readonly<CreateCategoryProps>) {
-    const form = useForm<{ name: string; description: string }>({
+    const form = useForm({
         name: '',
         description: '',
     });
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        form.post(store().url, {
+        form.post('/categories', {
             onSuccess: () => {
                 onOpenChange(false);
                 form.reset();
@@ -37,28 +36,42 @@ export default function CreateCategory({ open, onOpenChange }: Readonly<CreateCa
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent>
+            <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Create Category</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <Label htmlFor="create-name">Name</Label>
-                        <Input id="create-name" type="text" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
-                        {form.errors.name && <div className="mt-1 text-sm text-red-600">{form.errors.name}</div>}
+                    <div className="grid grid-cols-1 gap-4">
+                        <div>
+                            <Label htmlFor="create-name">Name *</Label>
+                            <Input
+                                id="create-name"
+                                type="text"
+                                value={form.data.name}
+                                onChange={(e) => form.setData('name', e.target.value)}
+                                placeholder="Enter category name"
+                            />
+                            {form.errors.name && <div className="mt-1 text-sm text-red-600">{form.errors.name}</div>}
+                        </div>
+
+                        <div>
+                            <Label htmlFor="create-description">Description</Label>
+                            <Textarea
+                                id="create-description"
+                                value={form.data.description}
+                                onChange={(e) => form.setData('description', e.target.value)}
+                                placeholder="Enter category description"
+                                rows={3}
+                            />
+                            {form.errors.description && <div className="mt-1 text-sm text-red-600">{form.errors.description}</div>}
+                        </div>
                     </div>
-                    <div>
-                        <Label htmlFor="create-description">Description</Label>
-                        <Textarea
-                            id="create-description"
-                            value={form.data.description}
-                            onChange={(e) => form.setData('description', e.target.value)}
-                        />
-                        {form.errors.description && <div className="mt-1 text-sm text-red-600">{form.errors.description}</div>}
+
+                    <div className="flex justify-end space-x-2">
+                        <Button type="submit" disabled={form.processing}>
+                            {form.processing ? 'Saving...' : 'Save'}
+                        </Button>
                     </div>
-                    <Button type="submit" disabled={form.processing}>
-                        {form.processing ? 'Creating...' : 'Create'}
-                    </Button>
                 </form>
             </DialogContent>
         </Dialog>
