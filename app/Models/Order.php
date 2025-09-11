@@ -6,30 +6,32 @@ use App\Enums\OrderStatus;
 use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
     /** @use HasFactory<OrderFactory> */
     use HasFactory;
 
-    protected $fillable = ['order_number', 'customer_id', 'status', 'total'];
+    protected $fillable = ['order_number',  'status', 'total', 'customer_id', 'shipping_id'];
 
     protected $casts = [
         'status' => OrderStatus::class,
     ];
 
-    public function customer()
+    public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
-    public function items()
+    public function items(): Order|HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    public function shipping()
+    public function shipping(): BelongsTo
     {
-        return $this->hasOne(Shipping::class);
+        return $this->belongsTo(Shipping::class);
     }
 }

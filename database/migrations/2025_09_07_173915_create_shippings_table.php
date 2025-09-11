@@ -18,7 +18,6 @@ return new class extends Migration {
             $table->enum('status', ShippingStatus::values())->default(ShippingStatus::PENDING->value);
             $table->decimal('cost', 12, 2)->default(0);
 
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
