@@ -28,6 +28,11 @@ const mainNavItems: NavItem[] = [
         href: categories.index(),
         icon: Folder,
     },
+    {
+        title: 'Suppliers',
+        href: '/suppliers',
+        icon: BookOpen,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
