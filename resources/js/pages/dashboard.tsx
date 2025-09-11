@@ -1,8 +1,42 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { OrdersByMonthChart } from '@/components/charts/orders-by-month-chart';
+import { RecentOrdersChart } from '@/components/charts/recent-orders-chart';
+import { AnalyticsCard } from '@/components/ui/analytics-card';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import { DollarSign, PackageCheck, ShoppingBasket, Users } from 'lucide-react';
+
+interface DashboardProps {
+    analytics: {
+        totals: {
+            customers: number;
+            products: number;
+            orders: number;
+            revenue: number;
+        };
+        ordersByMonth: Array<{
+            month: string;
+            count: number;
+            revenue: number;
+        }>;
+        recentOrders: Array<{
+            id: number;
+            total: number;
+            created_at: string;
+            customer: {
+                name: string;
+                email: string;
+            };
+            items: Array<{
+                quantity: number;
+                product: {
+                    name: string;
+                };
+            }>;
+        }>;
+    };
+}
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -11,24 +45,57 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard() {
+export default function Dashboard({ analytics }: Readonly<DashboardProps>) {
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'AED',
+        }).format(amount);
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
+            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-6">
+                {/* Analytics Cards */}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <AnalyticsCard
+                        title="Total Customers"
+                        value={analytics.totals.customers.toLocaleString()}
+                        icon={Users}
+                        description="Active customers"
+                    />
+                    <AnalyticsCard
+                        title="Total Products"
+                        value={analytics.totals.products.toLocaleString()}
+                        icon={ShoppingBasket}
+                        description="Available products"
+                    />
+                    <AnalyticsCard
+                        title="Total Orders"
+                        value={analytics.totals.orders.toLocaleString()}
+                        icon={PackageCheck}
+                        description="Orders placed"
+                    />
+                    <AnalyticsCard
+                        title="Total Revenue"
+                        value={formatCurrency(analytics.totals.revenue)}
+                        icon={DollarSign}
+                        description="Revenue generated"
+                    />
+                    {/*<AnalyticsCard*/}
+                    {/*    title="Low Stock Items"*/}
+                    {/*    value={analytics.lowStockProducts.length.toString()}*/}
+                    {/*    icon={Package}*/}
+                    {/*    description="Items need restocking"*/}
+                    {/*    variant="warning"*/}
+                    {/*/>*/}
                 </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+
+                {/* Charts */}
+                <div className="grid gap-6">
+                    <OrdersByMonthChart data={analytics.ordersByMonth} />
+                    <RecentOrdersChart data={analytics.recentOrders} />
                 </div>
             </div>
         </AppLayout>
