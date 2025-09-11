@@ -1,20 +1,14 @@
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem
-} from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import categories from '@/routes/categories';
+import products from '@/routes/products';
+import suppliers from '@/routes/suppliers';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, PackageCheck, Ship, ShoppingBasket, UserRoundCog, UsersRound } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -24,27 +18,42 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
+        title: 'Products',
+        href: products.index(),
+        icon: ShoppingBasket,
+    },
+    {
+        title: 'Orders',
+        href: '#',
+        icon: PackageCheck,
+    },
+    {
         title: 'Categories',
         href: categories.index(),
         icon: Folder,
     },
     {
         title: 'Suppliers',
-        href: '/suppliers',
+        href: suppliers.index(),
         icon: BookOpen,
+    },
+    {
+        title: 'Customers',
+        href: '/customers',
+        icon: UsersRound,
     },
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
+        title: 'Shippings',
         href: '#',
-        icon: Folder,
+        icon: Ship,
     },
     {
-        title: 'Documentation',
+        title: 'Users',
         href: '#',
-        icon: BookOpen,
+        icon: UserRoundCog,
     },
 ];
 
