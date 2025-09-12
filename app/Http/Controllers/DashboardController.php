@@ -15,7 +15,7 @@ class DashboardController extends Controller
     {
         // Get analytics data
         $analytics = $this->getAnalytics();
-return Inertia::render('dashboard', [
+        return Inertia::render('dashboard', [
             'analytics' => $analytics
         ]);
     }
@@ -46,12 +46,11 @@ return Inertia::render('dashboard', [
             'recentOrders' => $recentOrders,
         ];
     }
-
     private function getOrdersByMonthChart()
     {
         return DB::table('orders')
             ->select(
-                DB::raw("strftime('%Y-%m', created_at) as month"),
+                DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
                 DB::raw('COUNT(*) as count'),
                 DB::raw('SUM(total) as revenue')
             )

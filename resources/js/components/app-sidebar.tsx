@@ -1,14 +1,16 @@
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import categories from '@/routes/categories';
+import customers from '@/routes/customers';
+import orders from '@/routes/orders';
 import products from '@/routes/products';
+import shippings from '@/routes/shippings';
 import suppliers from '@/routes/suppliers';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, PackageCheck, Ship, ShoppingBasket, UserRoundCog, UsersRound } from 'lucide-react';
+import { BookmarkCheck, Handshake, LayoutGrid, Ship, ShoppingBag, ShoppingCart, UserRoundCog, UsersRound } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -20,26 +22,26 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Products',
         href: products.index(),
-        icon: ShoppingBasket,
+        icon: ShoppingBag,
     },
     {
         title: 'Orders',
-        href: '#',
-        icon: PackageCheck,
+        href: orders.index(),
+        icon: ShoppingCart,
     },
     {
         title: 'Categories',
         href: categories.index(),
-        icon: Folder,
+        icon: BookmarkCheck,
     },
     {
         title: 'Suppliers',
         href: suppliers.index(),
-        icon: BookOpen,
+        icon: Handshake,
     },
     {
         title: 'Customers',
-        href: '/customers',
+        href: customers.index(),
         icon: UsersRound,
     },
 ];
@@ -47,7 +49,7 @@ const mainNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [
     {
         title: 'Shippings',
-        href: '#',
+        href: shippings.index(),
         icon: Ship,
     },
     {
@@ -73,11 +75,12 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={mainNavItems} label="Platform" />
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
+                {/* <NavFooter items={footerNavItems} className="mt-auto" /> */}
+                <NavMain items={footerNavItems} label="Other" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
