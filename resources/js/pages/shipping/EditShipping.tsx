@@ -65,13 +65,23 @@ export default function EditShipping({ open, onOpenChange, shipping }: Readonly<
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                             <Label htmlFor="edit-tracking_number">Tracking Number</Label>
-                            <Input id="edit-tracking_number" type="text" value={form.data.tracking_number} onChange={(e) => form.setData('tracking_number', e.target.value)} />
+                            <Input
+                                id="edit-tracking_number"
+                                type="text"
+                                value={form.data.tracking_number}
+                                onChange={(e) => form.setData('tracking_number', e.target.value)}
+                            />
                             {form.errors.tracking_number && <div className="mt-1 text-sm text-red-600">{form.errors.tracking_number}</div>}
                         </div>
 
                         <div>
                             <Label htmlFor="edit-carrier">Carrier</Label>
-                            <Input id="edit-carrier" type="text" value={form.data.carrier} onChange={(e) => form.setData('carrier', e.target.value)} />
+                            <Input
+                                id="edit-carrier"
+                                type="text"
+                                value={form.data.carrier}
+                                onChange={(e) => form.setData('carrier', e.target.value)}
+                            />
                             {form.errors.carrier && <div className="mt-1 text-sm text-red-600">{form.errors.carrier}</div>}
                         </div>
 
@@ -93,7 +103,13 @@ export default function EditShipping({ open, onOpenChange, shipping }: Readonly<
 
                         <div>
                             <Label htmlFor="edit-total">Total *</Label>
-                            <Input id="edit-total" type="number" step="0.01" value={form.data.total} onChange={(e) => form.setData('total', e.target.value)} />
+                            <Input
+                                id="edit-total"
+                                type="number"
+                                step="0.01"
+                                value={form.data.total}
+                                onChange={(e) => form.setData('total', e.target.value)}
+                            />
                             {form.errors.total && <div className="mt-1 text-sm text-red-600">{form.errors.total}</div>}
                         </div>
                     </div>
@@ -114,5 +130,3 @@ export default function EditShipping({ open, onOpenChange, shipping }: Readonly<
         </Dialog>
     );
 }
-
-

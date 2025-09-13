@@ -53,57 +53,31 @@ export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCu
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <Label htmlFor="create-name">Name *</Label>
-                        <Input
-                            id="create-name"
-                            type="text"
-                            value={form.data.name}
-                            onChange={(e) => form.setData('name', e.target.value)}
-                            required
-                        />
+                        <Input id="create-name" type="text" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} required />
                         {form.errors.name && <div className="mt-1 text-sm text-red-600">{form.errors.name}</div>}
                     </div>
 
                     <div>
                         <Label htmlFor="create-email">Email</Label>
-                        <Input
-                            id="create-email"
-                            type="email"
-                            value={form.data.email}
-                            onChange={(e) => form.setData('email', e.target.value)}
-                        />
+                        <Input id="create-email" type="email" value={form.data.email} onChange={(e) => form.setData('email', e.target.value)} />
                         {form.errors.email && <div className="mt-1 text-sm text-red-600">{form.errors.email}</div>}
                     </div>
 
                     <div>
                         <Label htmlFor="create-phone">Phone</Label>
-                        <Input
-                            id="create-phone"
-                            type="tel"
-                            value={form.data.phone}
-                            onChange={(e) => form.setData('phone', e.target.value)}
-                        />
+                        <Input id="create-phone" type="tel" value={form.data.phone} onChange={(e) => form.setData('phone', e.target.value)} />
                         {form.errors.phone && <div className="mt-1 text-sm text-red-600">{form.errors.phone}</div>}
                     </div>
 
                     <div>
                         <Label htmlFor="create-address">Address</Label>
-                        <Textarea
-                            id="create-address"
-                            value={form.data.address}
-                            onChange={(e) => form.setData('address', e.target.value)}
-                            rows={3}
-                        />
+                        <Textarea id="create-address" value={form.data.address} onChange={(e) => form.setData('address', e.target.value)} rows={3} />
                         {form.errors.address && <div className="mt-1 text-sm text-red-600">{form.errors.address}</div>}
                     </div>
 
                     <div>
                         <Label htmlFor="create-notes">Notes</Label>
-                        <Textarea
-                            id="create-notes"
-                            value={form.data.notes}
-                            onChange={(e) => form.setData('notes', e.target.value)}
-                            rows={3}
-                        />
+                        <Textarea id="create-notes" value={form.data.notes} onChange={(e) => form.setData('notes', e.target.value)} rows={3} />
                         {form.errors.notes && <div className="mt-1 text-sm text-red-600">{form.errors.notes}</div>}
                     </div>
 

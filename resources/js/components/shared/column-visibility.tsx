@@ -10,7 +10,7 @@ interface ColumnVisibilityProps<TData> {
 
 export function ColumnVisibility<TData>({ table }: Readonly<ColumnVisibilityProps<TData>>) {
     const visibleColumns = table.getAllColumns().filter((column) => column.getCanHide());
-    
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -21,12 +21,10 @@ export function ColumnVisibility<TData>({ table }: Readonly<ColumnVisibilityProp
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px]" sideOffset={5}>
                 <div className="p-2">
-                    <div className="text-sm font-medium mb-2">Toggle columns</div>
+                    <div className="mb-2 text-sm font-medium">Toggle columns</div>
                     <div className="space-y-2">
                         {visibleColumns.map((column) => {
-                            const header = typeof column.columnDef.header === 'string' 
-                                ? column.columnDef.header 
-                                : column.id;
+                            const header = typeof column.columnDef.header === 'string' ? column.columnDef.header : column.id;
 
                             return (
                                 <div key={column.id} className="flex items-center space-x-2">
@@ -37,7 +35,7 @@ export function ColumnVisibility<TData>({ table }: Readonly<ColumnVisibilityProp
                                     />
                                     <label
                                         htmlFor={column.id}
-                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                     >
                                         {header}
                                     </label>
@@ -45,13 +43,8 @@ export function ColumnVisibility<TData>({ table }: Readonly<ColumnVisibilityProp
                             );
                         })}
                     </div>
-                    <div className="flex gap-2 mt-4 pt-2 border-t">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex-1"
-                            onClick={() => table.resetColumnVisibility()}
-                        >
+                    <div className="mt-4 flex gap-2 border-t pt-2">
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => table.resetColumnVisibility()}>
                             Reset
                         </Button>
                         <Button

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { User } from '@/types/user';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Pencil, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, MoreHorizontal, Pencil, Trash2, XCircle } from 'lucide-react';
 
 interface ActionsProps {
     user: User;
@@ -53,11 +53,7 @@ export const createColumns = (onEdit: (user: User) => void, onDelete: (user: Use
         header: 'Verified',
         cell: ({ row }) => (
             <div className="flex items-center justify-center">
-                {row.original.email_verified_at ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                ) : (
-                    <XCircle className="h-5 w-5 text-red-600" />
-                )}
+                {row.original.email_verified_at ? <CheckCircle className="h-5 w-5 text-green-600" /> : <XCircle className="h-5 w-5 text-red-600" />}
             </div>
         ),
     },

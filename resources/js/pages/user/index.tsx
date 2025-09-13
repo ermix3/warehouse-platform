@@ -90,12 +90,7 @@ export default function UsersPage() {
 
                 <AddNewItem title="Users" description="Manage your users" buttonLabel="Create User" onButtonClick={openCreateDialog} />
 
-                <DataTable
-                    columns={columns}
-                    data={users.data}
-                    searchValue={search}
-                    searchPlaceholder="Search users by name or email..."
-                />
+                <DataTable columns={columns} data={users.data} searchValue={search} searchPlaceholder="Search users by name or email..." />
 
                 <Pagination links={users.links} from={users.from} to={users.to} total={users.total} />
             </div>

@@ -84,9 +84,19 @@ export default function ShippingsPage() {
             <div className="container mt-5 px-5">
                 {flash?.success && <div className="mb-4 rounded-md bg-green-50 p-4 text-green-800">{flash.success}</div>}
 
-                <AddNewItem title="Shippings" description="Manage your shipping records" buttonLabel="Create Shipping" onButtonClick={openCreateDialog} />
+                <AddNewItem
+                    title="Shippings"
+                    description="Manage your shipping records"
+                    buttonLabel="Create Shipping"
+                    onButtonClick={openCreateDialog}
+                />
 
-                <DataTable columns={columns} data={shippings.data} searchValue={search} searchPlaceholder="Search shippings by tracking number, carrier, or status..." />
+                <DataTable
+                    columns={columns}
+                    data={shippings.data}
+                    searchValue={search}
+                    searchPlaceholder="Search shippings by tracking number, carrier, or status..."
+                />
 
                 <Pagination links={shippings.links} from={shippings.from} to={shippings.to} total={shippings.total} />
             </div>
@@ -110,5 +120,3 @@ export default function ShippingsPage() {
         </AppLayout>
     );
 }
-
-
