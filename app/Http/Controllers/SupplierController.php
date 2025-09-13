@@ -20,7 +20,7 @@ class SupplierController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Supplier::query();
+        $query = Supplier::query()->withCount('products');
 
         // Handle search across multiple fields
         if ($search = $request->get('search')) {
@@ -37,7 +37,7 @@ class SupplierController extends Controller
         $sortBy = $request->get('sort_by', 'id');
         $sortOrder = $request->get('sort_order', 'asc');
 
-        $allowedSortFields = ['id', 'name', 'email', 'phone', 'address', 'notes', 'created_at', 'updated_at'];
+        $allowedSortFields = ['id', 'name', 'email', 'phone', 'address', 'notes', 'products_count', 'created_at'];
         $allowedSortOrders = ['asc', 'desc'];
 
         if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {

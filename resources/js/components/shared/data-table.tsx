@@ -9,6 +9,7 @@ import { router } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, ArrowUpDown, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import { ColumnVisibility } from './column-visibility';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -22,6 +23,7 @@ export function DataTable<TData, TValue>({ columns, data, searchValue = '', sear
     const [isSorting, setIsSorting] = useState(false);
     const [sortBy, setSortBy] = useState('');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+    const [columnVisibility, setColumnVisibility] = useState({});
 
     // Initialize and sync sorting state with URL parameters
     useEffect(() => {
@@ -39,7 +41,15 @@ export function DataTable<TData, TValue>({ columns, data, searchValue = '', sear
         getCoreRowModel: getCoreRowModel(),
         manualSorting: true,
         manualFiltering: true,
+        state: {
+            columnVisibility,
+        },
+        onColumnVisibilityChange: setColumnVisibility,
     });
+
+    // Debug: Log table state
+    console.log('Table columns:', table.getAllColumns().length);
+    console.log('Column visibility state:', columnVisibility);
 
     const debouncedSearch = useDebouncedCallback((value: string) => {
         setIsSearching(true);
@@ -107,7 +117,7 @@ export function DataTable<TData, TValue>({ columns, data, searchValue = '', sear
 
     return (
         <div className="space-y-4">
-            {/* Search */}
+            {/* Search and Column Visibility */}
             <div className="flex items-center gap-2 py-4">
                 <div className="relative max-w-md flex-1">
                     <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -129,6 +139,7 @@ export function DataTable<TData, TValue>({ columns, data, searchValue = '', sear
                         Searching for: <span className="font-medium">"{searchValue}"</span>
                     </div>
                 )}
+                <ColumnVisibility table={table} />
             </div>
 
             {/* Table */}

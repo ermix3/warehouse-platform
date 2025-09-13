@@ -7,6 +7,8 @@ export interface Customer {
     phone?: string;
     address?: string;
     notes?: string;
+    unique_products_bought_count: number;
+    orders_count: number;
     created_at?: string;
     updated_at?: string;
 }

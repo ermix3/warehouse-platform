@@ -42,10 +42,12 @@ export const createColumns = (onEdit: (customer: Customer) => void, onDelete: (c
     {
         accessorKey: 'id',
         header: 'ID',
+        enableHiding: false,
     },
     {
         accessorKey: 'name',
         header: 'Name',
+        enableHiding: false,
     },
     {
         accessorKey: 'email',
@@ -64,8 +66,19 @@ export const createColumns = (onEdit: (customer: Customer) => void, onDelete: (c
         header: 'Notes',
     },
     {
+        accessorKey: 'unique_products_bought_count',
+        header: 'Products',
+        cell: ({ row }) => row.original?.unique_products_bought_count ?? 0,
+    },
+    {
+        accessorKey: 'orders_count',
+        header: 'Orders',
+        cell: ({ row }) => row.original?.orders_count ?? 0,
+    },
+    {
         id: 'actions',
         header: 'Actions',
+        enableHiding: false,
         cell: ({ row }) => <ActionsCell customer={row.original} onEdit={onEdit} onDelete={onDelete} />,
     },
 ];

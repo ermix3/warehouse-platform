@@ -37,10 +37,12 @@ export const createColumns = (onEdit: (supplier: Supplier) => void, onDelete: (s
     {
         accessorKey: 'id',
         header: 'ID',
+        enableHiding: false,
     },
     {
         accessorKey: 'name',
         header: 'Name',
+        enableHiding: false,
     },
     {
         accessorKey: 'email',
@@ -63,8 +65,14 @@ export const createColumns = (onEdit: (supplier: Supplier) => void, onDelete: (s
         cell: ({ row }) => row.original.notes || '-',
     },
     {
+        accessorKey: 'products_count',
+        header: 'Products',
+        cell: ({ row }) => row.original?.products_count ?? 0,
+    },
+    {
         id: 'actions',
         header: 'Actions',
+        enableHiding: false,
         cell: ({ row }) => <ActionsCell supplier={row.original} onEdit={onEdit} onDelete={onDelete} />,
     },
 ];

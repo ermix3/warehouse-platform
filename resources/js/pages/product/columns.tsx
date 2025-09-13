@@ -39,10 +39,12 @@ export const createColumns = (onEdit: (product: Product) => void, onDelete: (pro
     {
         accessorKey: 'id',
         header: 'ID',
+        enableHiding: false,
     },
     {
         accessorKey: 'barcode',
         header: 'Barcode',
+        enableHiding: false,
     },
     {
         accessorKey: 'name',
@@ -85,6 +87,7 @@ export const createColumns = (onEdit: (product: Product) => void, onDelete: (pro
     {
         id: 'actions',
         header: 'Actions',
+        enableHiding: false,
         cell: ({ row }) => <ActionsCell product={row.original} onEdit={onEdit} onDelete={onDelete} />,
     },
 ];

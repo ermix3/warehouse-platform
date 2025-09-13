@@ -20,8 +20,14 @@ class CustomerController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Customer::query();
-
+        $query = Customer::query()->withCount([
+            'orders as unique_products_bought_count' => function ($query) {
+                $query->join('order_items', 'orders.id', '=', 'order_items.order_id')
+                      ->selectRaw('count(distinct order_items.product_id)');
+            }
+        ])
+        ->withCount('orders');
+        
         // Handle search across multiple fields
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -37,7 +43,7 @@ class CustomerController extends Controller
         $sortBy = $request->get('sort_by', 'id');
         $sortOrder = $request->get('sort_order', 'asc');
 
-        $allowedSortFields = ['id', 'name', 'email', 'phone', 'address', 'notes', 'created_at', 'updated_at'];
+        $allowedSortFields = ['id', 'name', 'email', 'phone', 'address', 'notes', 'unique_products_bought_count', 'orders_count'];
         $allowedSortOrders = ['asc', 'desc'];
 
         if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {

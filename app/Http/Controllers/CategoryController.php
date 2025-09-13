@@ -20,7 +20,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Category::query();
+        $query = Category::query()->withCount('products');
 
         // Handle search across multiple fields
         if ($search = $request->get('search')) {
@@ -34,7 +34,7 @@ class CategoryController extends Controller
         $sortBy = $request->get('sort_by', 'id');
         $sortOrder = $request->get('sort_order', 'asc');
 
-        $allowedSortFields = ['id', 'name', 'description', 'created_at', 'updated_at'];
+        $allowedSortFields = ['id', 'name', 'description', 'products_count', 'created_at'];
         $allowedSortOrders = ['asc', 'desc'];
 
         if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {
