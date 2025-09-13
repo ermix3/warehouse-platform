@@ -47,10 +47,6 @@ export function DataTable<TData, TValue>({ columns, data, searchValue = '', sear
         onColumnVisibilityChange: setColumnVisibility,
     });
 
-    // Debug: Log table state
-    console.log('Table columns:', table.getAllColumns().length);
-    console.log('Column visibility state:', columnVisibility);
-
     const debouncedSearch = useDebouncedCallback((value: string) => {
         setIsSearching(true);
         const url = new URL(window.location.href);
