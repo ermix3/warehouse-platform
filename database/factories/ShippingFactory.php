@@ -15,7 +15,7 @@ class ShippingFactory extends Factory
             'tracking_number' => $this->faker->optional()->regexify('TRK[0-9]{8}'),
             'carrier' => $this->faker->optional()->company(),
             'status' => $this->faker->randomElement(ShippingStatus::values()),
-            'cost' => $this->faker->randomFloat(2, 10, 500),
+            'total' => $this->faker->randomFloat(2, 10, 500),
         ];
     }
 }

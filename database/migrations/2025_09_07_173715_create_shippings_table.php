@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string('tracking_number')->nullable();
             $table->string('carrier')->nullable();
             $table->enum('status', ShippingStatus::values())->default(ShippingStatus::PENDING->value);
-            $table->decimal('cost', 12, 2)->default(0);
+            $table->decimal('total', 12, 2)->default(0);
 
             $table->timestamps();
         });

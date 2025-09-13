@@ -1,13 +1,13 @@
 ## Data model (entities & key fields)
 
-> Entities you requested:
+> Entities:
 
 Category
 Customer
 Supplier
+Shipping
 Product
 Order
-Shipping
 
 ### Schemas (add fields as needed):
 
@@ -20,61 +20,55 @@ created_at / updated_at
 `Customer`
 id
 name
-email
-phone
-address
+email (nullable, unique)
+phone (nullable)
+address (nullable)
 notes (nullable)
 created_at / updated_at
 
 `Supplier`
 id
-name
-email
-phone
-address
-notes
+name // TODO: should be unique
+email (nullable) // TODO: should be unique
+phone (nullable)
+address (nullable)
+notes (nullable)
+created_at / updated_at
+
+`Shipping`
+id
+tracking_number (nullable)
+carrier (nullable)
+status (enum: pending, in_transit, delivered, returned)
+total (decimal)
 created_at / updated_at
 
 `Product`
 id
-sku (unique)
+barcode (unique)
 name
-description
-category_id (FK)
-supplier_id (FK, nullable)
-price (decimal)
-cost (decimal, nullable)
-stock_quantity (integer)
-reorder_point (integer)
+description (nullable)
+origin
+hs_code
+net_weight
+box_weight
+category_id (FK) ->  Remplacer par HSCODE
+supplier_id (FK, nullable) ->  Remplacer par origine
 created_at / updated_at
 
 `Order`
 id
-customer_id (FK)
 order_number (unique)
 status (enum: draft, pending, confirmed, shipped, delivered, cancelled)
 total (decimal)
-placed_at (datetime nullable)
+customer_id (FK)
+shipping_id (FK)
 created_at / updated_at
 
 `Order_Item` (pivot)
 id
-order_id
-product_id
 quantity
 unit_price
-line_total
-
-`Shipping`
-id
-order_id (FK)
-tracking_number
-carrier
-shipped_at (datetime)
-status (enum: pending, in_transit, delivered, returned)
-cost (decimal)
+order_id
+product_id
 created_at / updated_at
-
-### Relations
-Audit / Inventory transactions (recommended)
-stock_movements: id, product_id, change (int), reason, reference_id, created_at

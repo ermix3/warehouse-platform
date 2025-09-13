@@ -30,10 +30,10 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             CustomerSeeder::class,
             SupplierSeeder::class,
-            ShippingSeeder::class,
+            // ShippingSeeder::class,
             ProductSeeder::class,
             OrderSeeder::class,
-            OrderItemSeeder::class,
+            // OrderItemSeeder::class,
         ]);
     }
 }
