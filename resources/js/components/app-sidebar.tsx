@@ -8,6 +8,7 @@ import orders from '@/routes/orders';
 import products from '@/routes/products';
 import shippings from '@/routes/shippings';
 import suppliers from '@/routes/suppliers';
+import users from '@/routes/users';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BookmarkCheck, Handshake, LayoutGrid, Ship, ShoppingBag, ShoppingCart, UserRoundCog, UsersRound } from 'lucide-react';
@@ -54,7 +55,7 @@ const footerNavItems: NavItem[] = [
     },
     {
         title: 'Users',
-        href: '#',
+        href: users.index(),
         icon: UserRoundCog,
     },
 ];
