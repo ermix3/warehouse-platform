@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::apiResource('customers', CustomerController::class)->except('show');
     Route::apiResource('products', ProductController::class)->except('show');
     Route::apiResource('users', UserController::class)->except('show');
+    Route::apiResource('shippings', ShippingController::class)->except('show');
 });
 
 require __DIR__ . '/settings.php';
