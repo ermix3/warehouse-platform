@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { update } from '@/routes/categories';
 import { EditCategoryProps } from '@/types/category';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
@@ -27,12 +28,13 @@ export default function EditCategory({ open, onOpenChange, category }: Readonly<
             form.clearErrors();
             prevCategoryId.current = null;
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, category]);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (category) {
-            form.put(`/categories/${category.id}`, {
+            form.put(update.url(category.id), {
                 onSuccess: () => {
                     onOpenChange(false);
                 },

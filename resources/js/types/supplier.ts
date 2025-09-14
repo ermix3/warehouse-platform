@@ -1,4 +1,4 @@
-import type { DataPagination } from '@/types';
+import { DataPagination, Filters, Flash } from '@/types';
 
 export interface SupplierLite {
     id: number;
@@ -19,8 +19,8 @@ export interface Supplier {
 
 export interface PageSupplierProps {
     suppliers: DataPagination<Supplier>;
-    search: string;
-    flash?: { success?: string };
+    filters: Filters;
+    flash?: Flash;
     [key: string]: unknown;
 }
 

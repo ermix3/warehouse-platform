@@ -1,4 +1,4 @@
-import { PaginationLink } from '@/types';
+import { DataPagination, Filters, Flash } from '@/types';
 
 export interface User {
     id: number;
@@ -11,26 +11,10 @@ export interface User {
     [key: string]: unknown; // This allows for additional properties...
 }
 
-export interface UserPagination {
-    data: User[];
-    links: PaginationLink[];
-    meta: {
-        current_page: number;
-        from: number;
-        last_page: number;
-        per_page: number;
-        to: number;
-        total: number;
-    };
-    from: number;
-    to: number;
-    total: number;
-}
-
 export interface PageUserProps {
-    users: UserPagination;
-    search: string;
-    flash?: { success?: string };
+    users: DataPagination<User>;
+    flash?: Flash;
+    filters: Filters;
     [key: string]: unknown;
 }
 

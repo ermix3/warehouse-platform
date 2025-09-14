@@ -5,7 +5,6 @@ import { destroy } from '@/routes/products';
 import { BreadcrumbItem, PageProductProps, Product } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { createColumns } from './columns';
 import CreateProduct from './CreateProduct';
 import EditProduct from './EditProduct';
@@ -26,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function ProductsPage() {
-    const { products, categories, suppliers, search, flash } = usePage<PageProductProps>().props;
+    const { products, categories, suppliers, filters, flash } = usePage<PageProductProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -53,16 +52,11 @@ export default function ProductsPage() {
         setIsDeleting(true);
         router.delete(destroy(deleteProduct.id), {
             onSuccess: () => {
-                toast.success(`Product "${deleteProduct.name}" deleted successfully`, {
-                    description: 'The product has been permanently removed from your system.',
-                });
                 setShowDeleteDialog(false);
                 setDeleteProduct(null);
             },
-            onError: () => {
-                toast.error('Failed to delete product', {
-                    description: 'An error occurred while deleting the product. Please try again.',
-                });
+            onError: (error) => {
+                console.error('Failed to delete product: ', error);
             },
             onFinish: () => {
                 setIsDeleting(false);
@@ -80,12 +74,10 @@ export default function ProductsPage() {
     const columns = createColumns(openEditDialog, openDeleteDialog);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
             <Head title="Products" />
 
             <div className="container mt-5 px-5">
-                {flash?.success && <div className="mb-4 rounded-md bg-green-50 p-4 text-green-800">{flash.success}</div>}
-
                 <AddNewItem
                     title="Products"
                     description="Manage your product inventory"
@@ -96,7 +88,7 @@ export default function ProductsPage() {
                 <DataTable
                     columns={columns}
                     data={products.data}
-                    searchValue={search}
+                    filters={filters}
                     searchPlaceholder="Search products by barcode, name, origin, HS code, or description..."
                 />
 

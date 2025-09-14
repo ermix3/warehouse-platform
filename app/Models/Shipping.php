@@ -13,7 +13,7 @@ class Shipping extends Model
     /** @use HasFactory<ShippingFactory> */
     use HasFactory;
 
-    protected $fillable = ['tracking_number', 'carrier', 'status', 'total'];
+    protected $fillable = ['tracking_number', 'carrier', 'status', 'total', 'notes'];
 
     protected $casts = [
         'status' => ShippingStatus::class,

@@ -5,7 +5,6 @@ import { destroy, index } from '@/routes/suppliers';
 import { BreadcrumbItem, PageSupplierProps, Supplier } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { createColumns } from './columns';
 import CreateSupplier from './CreateSupplier';
 import EditSupplier from './EditSupplier';
@@ -26,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Index() {
-    const { suppliers, search, flash } = usePage<PageSupplierProps>().props;
+    const { suppliers, filters, flash } = usePage<PageSupplierProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -53,16 +52,11 @@ export default function Index() {
         setIsDeleting(true);
         router.delete(destroy(deleteSupplier.id).url, {
             onSuccess: () => {
-                toast.success(`Supplier "${deleteSupplier.name}" deleted successfully`, {
-                    description: 'The supplier has been permanently removed from your system.',
-                });
                 setShowDeleteDialog(false);
                 setDeleteSupplier(null);
             },
-            onError: () => {
-                toast.error('Failed to delete supplier', {
-                    description: 'An error occurred while deleting the supplier. Please try again.',
-                });
+            onError: (error) => {
+                console.error('Failed to delete supplier: ', error);
             },
             onFinish: () => {
                 setIsDeleting(false);
@@ -80,18 +74,16 @@ export default function Index() {
     const columns = createColumns(openEditDialog, openDeleteDialog);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
             <Head title="Suppliers" />
 
             <div className="container mt-5 px-5">
-                {flash?.success && <div className="mb-4 rounded-md bg-green-50 p-4 text-green-800">{flash.success}</div>}
-
                 <AddNewItem title="Suppliers" description="Manage your suppliers" buttonLabel="Create Supplier" onButtonClick={openCreateDialog} />
 
                 <DataTable
                     columns={columns}
                     data={suppliers.data}
-                    searchValue={search}
+                    filters={filters}
                     searchPlaceholder="Search suppliers by name, email, phone, address, or notes..."
                 />
 

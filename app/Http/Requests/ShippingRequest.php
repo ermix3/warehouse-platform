@@ -26,7 +26,7 @@ class ShippingRequest extends FormRequest
             'tracking_number' => 'nullable|string|max:255',
             'carrier' => 'nullable|string|max:255',
             'status' => 'required|in:pending,in_transit,delivered,returned',
-            'cost' => 'required|numeric|min:0|max:9999999999.99',
+            'notes' => 'nullable|string|max:255'
         ];
     }
 
@@ -39,7 +39,7 @@ class ShippingRequest extends FormRequest
             'tracking_number' => $this->tracking_number !== null ? trim((string) $this->tracking_number) : null,
             'carrier' => $this->carrier !== null ? trim((string) $this->carrier) : null,
             'status' => $this->status,
-            'cost' => is_numeric($this->cost) ? (float) $this->cost : $this->cost,
+            'notes' => $this->notes !== null ? trim((string) $this->notes) : null
         ]);
     }
 }

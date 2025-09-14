@@ -1,4 +1,4 @@
-import { DataPagination } from '@/types/index';
+import { DataPagination, type Filters, Flash } from '@/types/index';
 
 export interface CategoryLite {
     id: number;
@@ -16,8 +16,8 @@ export interface Category {
 
 export interface PageCategoryProps {
     categories: DataPagination<Category>;
-    search: string;
-    flash?: { success?: string };
+    filters: Filters;
+    flash?: Flash;
     [key: string]: unknown;
 }
 

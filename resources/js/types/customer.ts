@@ -1,4 +1,4 @@
-import { type DataPagination } from '@/types';
+import { type DataPagination, type Filters, Flash } from '@/types';
 
 export interface CustomerLite {
     id: number;
@@ -20,8 +20,8 @@ export interface Customer {
 
 export interface PageCustomerProps {
     customers: DataPagination<Customer>;
-    search: string;
-    flash?: { success?: string };
+    filters: Filters;
+    flash?: Flash;
     [key: string]: unknown;
 }
 

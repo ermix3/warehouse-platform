@@ -3,12 +3,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { OrderStatusIcons } from '@/lib/order-status-helper';
 import { update } from '@/routes/orders';
-import { EditOrderProps } from '@/types';
-import { useForm } from '@inertiajs/react';
+import { EditOrderProps, PageOrderProps } from '@/types';
+import { useForm, usePage } from '@inertiajs/react';
+import { CirclePlus, Clock } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 export default function EditOrder({ open, onOpenChange, order, customers, shippings, products }: Readonly<EditOrderProps>) {
+    const { enums } = usePage<PageOrderProps>().props;
     const form = useForm({
         order_number: '',
         status: 'draft',
@@ -59,7 +63,7 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
         if (order) {
             // auto compute total from items
             form.setData('total', itemsTotal.toFixed(2));
-            form.put(update(order.id).url, {
+            form.put(update.url(order.id), {
                 onSuccess: () => {
                     onOpenChange(false);
                 },
@@ -81,14 +85,7 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
         })),
     ];
 
-    const statusOptions = [
-        { value: 'draft', label: 'Draft' },
-        { value: 'pending', label: 'Pending' },
-        { value: 'confirmed', label: 'Confirmed' },
-        { value: 'shipped', label: 'Shipped' },
-        { value: 'delivered', label: 'Delivered' },
-        { value: 'cancelled', label: 'Cancelled' },
-    ];
+    const statusOptions = Object.values(enums.orderStatus);
 
     const productOptions = products.map((p) => ({ value: p.id.toString(), label: p.name }));
     const fieldErrors = form.errors as Record<string, string>;
@@ -126,22 +123,25 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
                         </div>
 
                         <div>
-                            <Label htmlFor="edit-status">Status *</Label>
-                            <SearchableSelect
-                                options={statusOptions}
-                                value={form.data.status}
-                                onValueChange={(value) => form.setData('status', value)}
-                                placeholder="Select status"
-                                emptyText="No status found."
-                                className={form.errors.status ? 'border-red-500' : ''}
-                            />
-                            {form.errors.status && <div className="mt-1 text-sm text-red-600">{form.errors.status}</div>}
-                        </div>
-
-                        <div>
-                            <Label htmlFor="edit-total">Total Amount (auto)</Label>
-                            <Input id="edit-total" type="number" step="0.01" value={itemsTotal.toFixed(2)} readOnly />
-                            {form.errors.total && <div className="mt-1 text-sm text-red-600">{form.errors.total}</div>}
+                            <Label htmlFor="edit-status">Status</Label>
+                            <Select value={form.data.status} onValueChange={(value) => form.setData('status', value)}>
+                                <SelectTrigger id="edit-status" className={form.errors.status ? 'border-red-500' : ''}>
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {statusOptions.map(({ value, label }) => {
+                                        const Icon = OrderStatusIcons[value] || Clock;
+                                        return (
+                                            <SelectItem key={value} value={value}>
+                                                <div className="flex items-center gap-2">
+                                                    <Icon className="h-4 w-4" />
+                                                    <span>{label}</span>
+                                                </div>
+                                            </SelectItem>
+                                        );
+                                    })}
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div>
@@ -157,7 +157,7 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
                             {form.errors.customer_id && <div className="mt-1 text-sm text-red-600">{form.errors.customer_id}</div>}
                         </div>
 
-                        <div className="md:col-span-2">
+                        <div>
                             <Label htmlFor="edit-shipping_id">Shipping</Label>
                             <SearchableSelect
                                 options={shippingOptions}
@@ -194,7 +194,7 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
                                         onChange={(e) => setNewItem((s) => ({ ...s, quantity: e.target.value }))}
                                     />
                                 </div>
-                                <div className="col-span-2">
+                                <div className="col-span-3">
                                     <Label>Unit Price *</Label>
                                     <Input
                                         type="number"
@@ -204,9 +204,9 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
                                         onChange={(e) => setNewItem((s) => ({ ...s, unit_price: e.target.value }))}
                                     />
                                 </div>
-                                <div className="col-span-2 flex items-end">
-                                    <Button type="button" onClick={addItem}>
-                                        Add
+                                <div className="col-span-1 flex items-end">
+                                    <Button type="button" onClick={addItem} variant={'outline'}>
+                                        <CirclePlus color={'green'} />
                                     </Button>
                                 </div>
                             </div>
@@ -239,7 +239,22 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
                         </div>
                     </div>
 
-                    <div className="flex justify-end space-x-2">
+                    <div className="flex justify-between space-x-2">
+                        <div className={'flex items-center gap-0'}>
+                            <Label htmlFor="create-total" className={'font-bolder mb-0 flex-1'}>
+                                Total Amount (auto) : AED {itemsTotal.toFixed(2)}
+                            </Label>
+                            <Input
+                                id="create-total"
+                                className={'flex-1'}
+                                type="number"
+                                step="0.01"
+                                value={itemsTotal.toFixed(2)}
+                                hidden
+                                readOnly
+                                disabled
+                            />
+                        </div>
                         <Button type="submit" disabled={form.processing}>
                             {form.processing ? 'Updating...' : 'Update'}
                         </Button>

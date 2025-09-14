@@ -1,4 +1,4 @@
-import { DataPagination } from '@/types';
+import { DataPagination, type Filters, Flash, SharedEnums } from '@/types';
 
 export interface ShippingLite {
     id: number;
@@ -12,6 +12,7 @@ export interface Shipping {
     carrier?: string;
     status: string;
     total: number;
+    notes?: string;
     orders_count: number;
     created_at?: string;
     updated_at?: string;
@@ -19,8 +20,9 @@ export interface Shipping {
 
 export interface PageShippingProps {
     shippings: DataPagination<Shipping>;
-    search: string;
-    flash?: { success?: string };
+    filters: Filters;
+    flash?: Flash;
+    enums: SharedEnums;
     [key: string]: unknown;
 }
 

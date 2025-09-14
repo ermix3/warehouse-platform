@@ -1,11 +1,10 @@
 import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import { destroy } from '@/routes/shippings';
+import { destroy, index } from '@/routes/shippings';
 import { BreadcrumbItem, PageShippingProps, Shipping } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { createColumns } from './columns';
 import CreateShipping from './CreateShipping';
 import EditShipping from './EditShipping';
@@ -17,7 +16,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Shippings',
-        href: '/shippings',
+        href: index.url(),
     },
     {
         title: 'Listing all shippings',
@@ -26,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function ShippingsPage() {
-    const { shippings, search, flash } = usePage<PageShippingProps>().props;
+    const { shippings, filters, flash } = usePage<PageShippingProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -53,12 +52,11 @@ export default function ShippingsPage() {
         setIsDeleting(true);
         router.delete(destroy(deleteShipping.id).url, {
             onSuccess: () => {
-                toast.success(`Shipping #${deleteShipping.id} deleted successfully`);
                 setShowDeleteDialog(false);
                 setDeleteShipping(null);
             },
-            onError: () => {
-                toast.error('Failed to delete shipping');
+            onError: (error) => {
+                console.error('Failed to delete shipping: ', error);
             },
             onFinish: () => {
                 setIsDeleting(false);
@@ -76,15 +74,13 @@ export default function ShippingsPage() {
     const columns = createColumns(openEditDialog, openDeleteDialog);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
             <Head title="Shippings" />
 
             <div className="container mt-5 px-5">
-                {flash?.success && <div className="mb-4 rounded-md bg-green-50 p-4 text-green-800">{flash.success}</div>}
-
                 <AddNewItem
                     title="Shippings"
-                    description="Manage your shipping records"
+                    description="Manage your shipping records and track order deliveries"
                     buttonLabel="Create Shipping"
                     onButtonClick={openCreateDialog}
                 />
@@ -92,7 +88,7 @@ export default function ShippingsPage() {
                 <DataTable
                     columns={columns}
                     data={shippings.data}
-                    searchValue={search}
+                    filters={filters}
                     searchPlaceholder="Search shippings by tracking number, carrier, or status..."
                 />
 
@@ -111,7 +107,11 @@ export default function ShippingsPage() {
                 onOpenChange={closeDeleteDialog}
                 title="Delete Shipping"
                 itemName={deleteShipping?.tracking_number || `#${deleteShipping?.id}`}
-                description="This action cannot be undone."
+                description={
+                    deleteShipping?.orders_count
+                        ? `This shipping has ${deleteShipping.orders_count} associated orders. Deleting it may affect these orders.`
+                        : 'This action cannot be undone.'
+                }
                 isDeleting={isDeleting}
                 onDelete={handleDelete}
             />

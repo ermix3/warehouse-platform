@@ -49,7 +49,7 @@ export default function EditProduct({ open, onOpenChange, product, categories, s
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (product) {
-            form.put(update(product.id).url, {
+            form.put(update.url(product.id), {
                 onSuccess: () => {
                     onOpenChange(false);
                 },

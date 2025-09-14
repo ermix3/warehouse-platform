@@ -5,7 +5,6 @@ import { destroy } from '@/routes/categories';
 import { BreadcrumbItem, Category, PageCategoryProps } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { createColumns } from './columns';
 import CreateCategory from './CreateCategory';
 import EditCategory from './EditCategory';
@@ -26,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function CategoriesPage() {
-    const { categories, search, flash } = usePage<PageCategoryProps>().props;
+    const { categories, filters, flash } = usePage<PageCategoryProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -53,16 +52,11 @@ export default function CategoriesPage() {
         setIsDeleting(true);
         router.delete(destroy(deleteCategory.id), {
             onSuccess: () => {
-                toast.success(`Category "${deleteCategory.name}" deleted successfully`, {
-                    description: 'The category has been permanently removed from your system.',
-                });
                 setShowDeleteDialog(false);
                 setDeleteCategory(null);
             },
-            onError: () => {
-                toast.error('Failed to delete category', {
-                    description: 'An error occurred while deleting the category. Please try again.',
-                });
+            onError: (error) => {
+                console.error('Failed to delete category: ', error);
             },
             onFinish: () => {
                 setIsDeleting(false);
@@ -80,18 +74,16 @@ export default function CategoriesPage() {
     const columns = createColumns(openEditDialog, openDeleteDialog);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
             <Head title="Categories" />
 
             <div className="container mt-5 px-5">
-                {flash?.success && <div className="mb-4 rounded-md bg-green-50 p-4 text-green-800">{flash.success}</div>}
-
                 <AddNewItem title="Categories" description="Manage your categories" buttonLabel="Create Category" onButtonClick={openCreateDialog} />
 
                 <DataTable
                     columns={columns}
                     data={categories.data}
-                    searchValue={search}
+                    filters={filters}
                     searchPlaceholder="Search categories by name or description..."
                 />
 

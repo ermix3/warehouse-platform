@@ -5,7 +5,6 @@ import { destroy, index } from '@/routes/users';
 import { BreadcrumbItem, PageUserProps, User } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { createColumns } from './columns';
 import CreateUser from './CreateUser';
 import EditUser from './EditUser';
@@ -26,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function UsersPage() {
-    const { users, search, flash } = usePage<PageUserProps>().props;
+    const { users, filters, flash } = usePage<PageUserProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -53,16 +52,11 @@ export default function UsersPage() {
         setIsDeleting(true);
         router.delete(destroy(deleteUser.id), {
             onSuccess: () => {
-                toast.success(`User "${deleteUser.name}" deleted successfully`, {
-                    description: 'The user has been permanently removed from your system.',
-                });
                 setShowDeleteDialog(false);
                 setDeleteUser(null);
             },
-            onError: () => {
-                toast.error('Failed to delete user', {
-                    description: 'An error occurred while deleting the user. Please try again.',
-                });
+            onError: (error) => {
+                console.error('Failed to delete user: ', error);
             },
             onFinish: () => {
                 setIsDeleting(false);
@@ -80,15 +74,13 @@ export default function UsersPage() {
     const columns = createColumns(openEditDialog, openDeleteDialog);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
             <Head title="Users" />
 
             <div className="container mt-5 px-5">
-                {flash?.success && <div className="mb-4 rounded-md bg-green-50 p-4 text-green-800">{flash.success}</div>}
-
                 <AddNewItem title="Users" description="Manage your users" buttonLabel="Create User" onButtonClick={openCreateDialog} />
 
-                <DataTable columns={columns} data={users.data} searchValue={search} searchPlaceholder="Search users by name or email..." />
+                <DataTable columns={columns} data={users.data} filters={filters} searchPlaceholder="Search users by name or email..." />
 
                 <Pagination links={users.links} from={users.from} to={users.to} total={users.total} />
             </div>

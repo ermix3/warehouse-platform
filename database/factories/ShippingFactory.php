@@ -16,6 +16,7 @@ class ShippingFactory extends Factory
             'carrier' => $this->faker->optional()->company(),
             'status' => $this->faker->randomElement(ShippingStatus::values()),
             'total' => $this->faker->randomFloat(2, 10, 500),
+            'notes' => $this->faker->optional()->paragraph(),
         ];
     }
 }

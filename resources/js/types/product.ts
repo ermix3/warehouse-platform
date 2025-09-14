@@ -1,4 +1,4 @@
-import { Category, CategoryLite, DataPagination, Supplier, SupplierLite } from '@/types';
+import { Category, CategoryLite, DataPagination, type Filters, Flash, Supplier, SupplierLite } from '@/types';
 
 export interface ProductLite {
     id: number;
@@ -26,8 +26,8 @@ export interface PageProductProps {
     products: DataPagination<Product>;
     categories: Category[];
     suppliers: Supplier[];
-    search: string;
-    flash?: { success?: string };
+    filters: Filters;
+    flash?: Flash;
     [key: string]: unknown;
 }
 

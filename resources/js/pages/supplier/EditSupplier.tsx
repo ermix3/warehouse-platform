@@ -33,12 +33,13 @@ export default function EditSupplier({ open, onOpenChange, supplier }: Readonly<
                 notes: supplier.notes ?? '',
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [supplier]);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (supplier) {
-            form.put(update(supplier.id).url, {
+            form.put(update.url(supplier.id), {
                 onSuccess: () => {
                     onOpenChange(false);
                 },

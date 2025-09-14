@@ -33,12 +33,13 @@ export default function EditCustomer({ open, onOpenChange, customer }: Readonly<
                 notes: customer.notes ?? '',
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [customer]);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (customer) {
-            form.put(update(customer.id).url, {
+            form.put(update.url(customer.id), {
                 onSuccess: () => {
                     onOpenChange(false);
                 },

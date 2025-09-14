@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { DollarSign, PackageCheck, ShoppingBasket, Users } from 'lucide-react';
+import { Coins, PackageCheck, ShoppingBasket, Users } from 'lucide-react';
 
 interface DashboardProps {
     analytics: {
@@ -80,7 +80,7 @@ export default function Dashboard({ analytics }: Readonly<DashboardProps>) {
                     <AnalyticsCard
                         title="Total Revenue"
                         value={formatCurrency(analytics.totals.revenue)}
-                        icon={DollarSign}
+                        icon={Coins}
                         description="Revenue generated"
                     />
                     {/*<AnalyticsCard*/}

@@ -4,28 +4,41 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { index } from '@/routes/shippings';
-import { CreateShippingProps } from '@/types';
-import { useForm } from '@inertiajs/react';
+import { ShippingStatusIcons } from '@/lib/shipping-status-helper';
+import { store } from '@/routes/shippings';
+import { CreateShippingProps, PageShippingProps } from '@/types';
+import { ShippingStatus } from '@/types/enums';
+import { useForm, usePage } from '@inertiajs/react';
+import { Clock } from 'lucide-react';
+import { useState } from 'react';
 
 export default function CreateShipping({ open, onOpenChange }: Readonly<CreateShippingProps>) {
+    const { enums } = usePage<PageShippingProps>().props;
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const form = useForm({
         tracking_number: '',
         carrier: '',
-        status: 'pending',
-        cost: '',
+        status: ShippingStatus.PENDING,
         notes: '',
     });
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        form.post(index().url, {
+        setIsSubmitting(true);
+
+        form.post(store().url, {
             onSuccess: () => {
                 onOpenChange(false);
                 form.reset();
+                setIsSubmitting(false);
             },
             onError: (error) => {
                 form.setError(error);
+                setIsSubmitting(false);
+            },
+            onFinish: () => {
+                setIsSubmitting(false);
             },
         });
     };
@@ -37,6 +50,9 @@ export default function CreateShipping({ open, onOpenChange }: Readonly<CreateSh
         }
         onOpenChange(isOpen);
     };
+
+    // Get shipping status options from the shared enums
+    const shippingStatusOptions = Object.values(enums.shippingStatus);
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
@@ -53,6 +69,8 @@ export default function CreateShipping({ open, onOpenChange }: Readonly<CreateSh
                                 type="text"
                                 value={form.data.tracking_number}
                                 onChange={(e) => form.setData('tracking_number', e.target.value)}
+                                placeholder="Enter tracking number"
+                                className={form.errors.tracking_number ? 'border-red-500' : ''}
                             />
                             {form.errors.tracking_number && <div className="mt-1 text-sm text-red-600">{form.errors.tracking_number}</div>}
                         </div>
@@ -64,48 +82,54 @@ export default function CreateShipping({ open, onOpenChange }: Readonly<CreateSh
                                 type="text"
                                 value={form.data.carrier}
                                 onChange={(e) => form.setData('carrier', e.target.value)}
+                                placeholder="FedEx, UPS, USPS, etc."
+                                className={form.errors.carrier ? 'border-red-500' : ''}
                             />
                             {form.errors.carrier && <div className="mt-1 text-sm text-red-600">{form.errors.carrier}</div>}
-                        </div>
-
-                        <div>
-                            <Label htmlFor="create-status">Status *</Label>
-                            <Select value={form.data.status} onValueChange={(value) => form.setData('status', value)}>
-                                <SelectTrigger id="create-status">
-                                    <SelectValue placeholder="Select status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="pending">Pending</SelectItem>
-                                    <SelectItem value="in_transit">In Transit</SelectItem>
-                                    <SelectItem value="delivered">Delivered</SelectItem>
-                                    <SelectItem value="returned">Returned</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            {form.errors.status && <div className="mt-1 text-sm text-red-600">{form.errors.status}</div>}
-                        </div>
-
-                        <div>
-                            <Label htmlFor="create-cost">Cost *</Label>
-                            <Input
-                                id="create-cost"
-                                type="number"
-                                step="0.01"
-                                value={form.data.cost}
-                                onChange={(e) => form.setData('cost', e.target.value)}
-                            />
-                            {form.errors.cost && <div className="mt-1 text-sm text-red-600">{form.errors.cost}</div>}
                         </div>
                     </div>
 
                     <div>
+                        <Label htmlFor="create-status">Status</Label>
+                        <Select value={form.data.status} onValueChange={(value) => form.setData('status', value as ShippingStatus)}>
+                            <SelectTrigger id="create-status" className={form.errors.status ? 'border-red-500' : ''}>
+                                <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {shippingStatusOptions.map(({ value, label }) => {
+                                    const Icon = ShippingStatusIcons[value] || Clock;
+                                    return (
+                                        <SelectItem key={value} value={value}>
+                                            <div className="flex items-center gap-2">
+                                                <Icon className="h-4 w-4" />
+                                                <span>{label}</span>
+                                            </div>
+                                        </SelectItem>
+                                    );
+                                })}
+                            </SelectContent>
+                        </Select>
+                        {form.errors.status && <div className="mt-1 text-sm text-red-600">{form.errors.status}</div>}
+                    </div>
+
+                    <div>
                         <Label htmlFor="create-notes">Notes</Label>
-                        <Textarea id="create-notes" value={form.data.notes} onChange={(e) => form.setData('notes', e.target.value)} rows={3} />
+                        <Textarea
+                            id="create-notes"
+                            value={form.data.notes}
+                            onChange={(e) => form.setData('notes', e.target.value)}
+                            rows={3}
+                            placeholder="Additional information about this shipping"
+                        />
                         {form.errors.notes && <div className="mt-1 text-sm text-red-600">{form.errors.notes}</div>}
                     </div>
 
                     <div className="flex justify-end space-x-2">
-                        <Button type="submit" disabled={form.processing}>
-                            {form.processing ? 'Saving...' : 'Save'}
+                        <Button type="button" variant="outline" onClick={() => handleDialogChange(false)} disabled={isSubmitting}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? 'Saving...' : 'Save Shipping'}
                         </Button>
                     </div>
                 </form>

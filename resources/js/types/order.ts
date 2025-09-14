@@ -1,4 +1,4 @@
-import { Customer, CustomerLite, type DataPagination, OrderItemLite, ProductLite, Shipping, ShippingLite } from '@/types';
+import { Customer, CustomerLite, DataPagination, Filters, Flash, OrderItemLite, ProductLite, SharedEnums, Shipping, ShippingLite } from '@/types';
 
 export interface Order {
     id: number;
@@ -19,8 +19,9 @@ export interface PageOrderProps {
     customers: CustomerLite[];
     shippings: ShippingLite[];
     products: ProductLite[];
-    search: string;
-    flash?: { success?: string };
+    filters: Filters;
+    flash?: Flash;
+    enums: SharedEnums;
     [key: string]: unknown;
 }
 

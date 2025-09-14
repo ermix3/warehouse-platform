@@ -1,39 +1,30 @@
 'use client';
 
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { Filters } from '@/types';
 import { router } from '@inertiajs/react';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown, Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { ColumnVisibility } from './column-visibility';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
-    searchValue?: string;
+    filters?: Filters;
     searchPlaceholder?: string;
 }
 
-export function DataTable<TData, TValue>({ columns, data, searchValue = '', searchPlaceholder = '' }: Readonly<DataTableProps<TData, TValue>>) {
+export function DataTable<TData, TValue>({ columns, data, filters, searchPlaceholder = '' }: Readonly<DataTableProps<TData, TValue>>) {
     const [isSearching, setIsSearching] = useState(false);
     const [isSorting, setIsSorting] = useState(false);
-    const [sortBy, setSortBy] = useState('');
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+    const [search] = useState(filters?.search || '');
+    const [sortBy, setSortBy] = useState(filters?.sort_by || '');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(filters?.sort_order || 'asc');
     const [columnVisibility, setColumnVisibility] = useState({});
-
-    // Initialize and sync sorting state with URL parameters
-    useEffect(() => {
-        const url = new URL(window.location.href);
-        const urlSortBy = url.searchParams.get('sort_by') || '';
-        const urlSortOrder = url.searchParams.get('sort_order') || 'asc';
-
-        setSortBy(urlSortBy);
-        setSortOrder(urlSortOrder as 'asc' | 'desc');
-    }, []);
 
     const table = useReactTable({
         data,
@@ -119,7 +110,7 @@ export function DataTable<TData, TValue>({ columns, data, searchValue = '', sear
                     <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         placeholder={searchPlaceholder || 'Search ...'}
-                        defaultValue={searchValue}
+                        defaultValue={search}
                         onChange={(event) => debouncedSearch(event.target.value)}
                         className="pl-9"
                         disabled={isSearching}
@@ -130,11 +121,6 @@ export function DataTable<TData, TValue>({ columns, data, searchValue = '', sear
                         </div>
                     )}
                 </div>
-                {searchValue && (
-                    <div className="text-sm text-muted-foreground">
-                        Searching for: <span className="font-medium">"{searchValue}"</span>
-                    </div>
-                )}
                 <ColumnVisibility table={table} />
             </div>
 
@@ -199,7 +185,7 @@ export function DataTable<TData, TValue>({ columns, data, searchValue = '', sear
                                         <Search className="h-8 w-8" />
                                         <div>
                                             <p className="font-medium">No results found</p>
-                                            {searchValue && <p className="text-sm">Try adjusting your search terms or clear the search filter.</p>}
+                                            {search && <p className="text-sm">Try adjusting your search terms or clear the search filter.</p>}
                                         </div>
                                     </div>
                                 </TableCell>

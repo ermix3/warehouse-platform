@@ -5,7 +5,6 @@ import { destroy, index } from '@/routes/customers';
 import { BreadcrumbItem, Customer, PageCustomerProps } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { createColumns } from './columns';
 import CreateCustomer from './CreateCustomer';
 import EditCustomer from './EditCustomer';
@@ -26,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function CustomersPage() {
-    const { customers, search, flash } = usePage<PageCustomerProps>().props;
+    const { customers, filters, flash } = usePage<PageCustomerProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -53,16 +52,11 @@ export default function CustomersPage() {
         setIsDeleting(true);
         router.delete(destroy(deleteCustomer.id).url, {
             onSuccess: () => {
-                toast.success(`Customer "${deleteCustomer.name}" deleted successfully`, {
-                    description: 'The customer has been permanently removed from your system.',
-                });
                 setShowDeleteDialog(false);
                 setDeleteCustomer(null);
             },
-            onError: () => {
-                toast.error('Failed to delete customer', {
-                    description: 'An error occurred while deleting the customer. Please try again.',
-                });
+            onError: (error) => {
+                console.error('Failed to delete customer: ', error);
             },
             onFinish: () => {
                 setIsDeleting(false);
@@ -80,7 +74,7 @@ export default function CustomersPage() {
     const columns = createColumns(openEditDialog, openDeleteDialog);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
             <Head title="Customers" />
 
             <div className="container mt-5 px-5">
@@ -90,7 +84,7 @@ export default function CustomersPage() {
                 <DataTable
                     columns={columns}
                     data={customers.data}
-                    searchValue={search}
+                    filters={filters}
                     searchPlaceholder="Search customers by name, email, phone, address, or notes..."
                 />
 

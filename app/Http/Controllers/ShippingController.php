@@ -166,5 +166,3 @@ class ShippingController extends Controller
         }
     }
 }
-
-

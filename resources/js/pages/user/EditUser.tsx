@@ -31,6 +31,7 @@ export default function EditUser({ open, onOpenChange, user }: Readonly<EditUser
             form.clearErrors();
             prevUserId.current = null;
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, user]);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

@@ -1,8 +1,10 @@
+import { SharedEnums } from '@/types/enums';
 import { InertiaLinkProps } from '@inertiajs/react';
 import { LucideIcon } from 'lucide-react';
 
 export * from './category';
 export * from './customer';
+export * from './enums';
 export * from './order';
 export * from './order-item';
 export * from './product';
@@ -67,4 +69,17 @@ export interface DataPagination<T> {
     prev_page_url: string | null;
     to: number;
     total: number;
+    enums: SharedEnums;
+    [key: string]: unknown;
+}
+
+export interface Filters {
+    search?: string;
+    sort_by?: string;
+    sort_order?: 'asc' | 'desc';
+}
+
+export interface Flash {
+    success?: string;
+    error?: string;
 }
