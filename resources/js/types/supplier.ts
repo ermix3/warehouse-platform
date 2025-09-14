@@ -1,4 +1,9 @@
-import type { PaginationLink } from '@/types';
+import type { DataPagination } from '@/types';
+
+export interface SupplierLite {
+    id: number;
+    name: string;
+}
 
 export interface Supplier {
     id: number;
@@ -12,18 +17,20 @@ export interface Supplier {
     updated_at?: string;
 }
 
-export interface SupplierPagination {
-    data: Supplier[];
-    current_page: number;
-    first_page_url: string;
-    from: number;
-    last_page: number;
-    last_page_url: string;
-    links: PaginationLink[];
-    next_page_url: string | null;
-    path: string;
-    per_page: number;
-    prev_page_url: string | null;
-    to: number;
-    total: number;
+export interface PageSupplierProps {
+    suppliers: DataPagination<Supplier>;
+    search: string;
+    flash?: { success?: string };
+    [key: string]: unknown;
+}
+
+export interface CreateSupplierProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
+
+export interface EditSupplierProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    supplier: Supplier | null;
 }

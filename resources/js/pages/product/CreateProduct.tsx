@@ -5,20 +5,8 @@ import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Textarea } from '@/components/ui/textarea';
 import { index } from '@/routes/products';
-import { Category } from '@/types/category';
+import { CreateProductProps } from '@/types';
 import { useForm } from '@inertiajs/react';
-
-interface Supplier {
-    id: number;
-    name: string;
-}
-
-interface CreateProductProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    categories: Category[];
-    suppliers: Supplier[];
-}
 
 export default function CreateProduct({ open, onOpenChange, categories, suppliers }: Readonly<CreateProductProps>) {
     const form = useForm({

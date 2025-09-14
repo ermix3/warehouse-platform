@@ -1,4 +1,9 @@
-import { PaginationLink } from '@/types';
+import { DataPagination } from '@/types/index';
+
+export interface CategoryLite {
+    id: number;
+    name: string;
+}
 
 export interface Category {
     id: number;
@@ -9,18 +14,20 @@ export interface Category {
     updated_at?: string;
 }
 
-export interface CategoryPagination {
-    data: Category[];
-    current_page: number;
-    first_page_url: string;
-    from: number;
-    last_page: number;
-    last_page_url: string;
-    links: PaginationLink[];
-    next_page_url: string | null;
-    path: string;
-    per_page: number;
-    prev_page_url: string | null;
-    to: number;
-    total: number;
+export interface PageCategoryProps {
+    categories: DataPagination<Category>;
+    search: string;
+    flash?: { success?: string };
+    [key: string]: unknown;
+}
+
+export interface CreateCategoryProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
+
+export interface EditCategoryProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    category: Category | null;
 }

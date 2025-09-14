@@ -3,12 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { CreateCategoryProps } from '@/types';
 import { useForm } from '@inertiajs/react';
-
-interface CreateCategoryProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-}
 
 export default function CreateCategory({ open, onOpenChange }: Readonly<CreateCategoryProps>) {
     const form = useForm({

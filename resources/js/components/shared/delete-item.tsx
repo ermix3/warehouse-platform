@@ -11,7 +11,7 @@ interface DeleteItemProps {
     onDelete: () => void;
 }
 
-export default function DeleteItem({
+export function DeleteItem({
     open,
     onOpenChange,
     title,
@@ -19,7 +19,7 @@ export default function DeleteItem({
     description = 'This action cannot be undone.',
     isDeleting = false,
     onDelete,
-}: DeleteItemProps) {
+}: Readonly<DeleteItemProps>) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>

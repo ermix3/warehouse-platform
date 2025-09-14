@@ -1,11 +1,8 @@
-import AddNewItem from '@/components/shared/add-new-item';
-import { DataTable } from '@/components/shared/data-table';
-import DeleteItem from '@/components/shared/delete-item';
-import { Pagination } from '@/components/shared/pagination';
+import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
 import { destroy, index } from '@/routes/suppliers';
-import type { BreadcrumbItem } from '@/types';
-import type { Supplier, SupplierPagination } from '@/types/supplier';
+import { BreadcrumbItem, PageSupplierProps, Supplier } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -15,20 +12,21 @@ import EditSupplier from './EditSupplier';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
+        title: 'Dashboard',
+        href: dashboard.url(),
+    },
+    {
         title: 'Suppliers',
         href: index().url,
     },
+    {
+        title: 'Listing all suppliers',
+        href: '',
+    },
 ];
 
-interface PageProps {
-    suppliers: SupplierPagination;
-    search: string;
-    flash?: { success?: string };
-    [key: string]: unknown;
-}
-
 export default function Index() {
-    const { suppliers, search, flash } = usePage<PageProps>().props;
+    const { suppliers, search, flash } = usePage<PageSupplierProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);

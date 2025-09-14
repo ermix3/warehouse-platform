@@ -1,6 +1,4 @@
-import { Customer } from '@/types/customer';
-import { PaginationLink } from '@/types/index';
-import type { Shipping } from '@/types/shipping';
+import { Customer, CustomerLite, type DataPagination, OrderItemLite, ProductLite, Shipping, ShippingLite } from '@/types';
 
 export interface Order {
     id: number;
@@ -11,22 +9,34 @@ export interface Order {
     shipping_id: number;
     customer?: Customer;
     shipping?: Shipping;
+    items?: OrderItemLite[];
     created_at?: string;
     updated_at?: string;
 }
 
-export interface OrderPagination {
-    data: Order[];
-    current_page: number;
-    first_page_url: string;
-    from: number;
-    last_page: number;
-    last_page_url: string;
-    links: PaginationLink[];
-    next_page_url: string | null;
-    path: string;
-    per_page: number;
-    prev_page_url: string | null;
-    to: number;
-    total: number;
+export interface PageOrderProps {
+    orders: DataPagination<Order>;
+    customers: CustomerLite[];
+    shippings: ShippingLite[];
+    products: ProductLite[];
+    search: string;
+    flash?: { success?: string };
+    [key: string]: unknown;
+}
+
+export interface CreateOrderProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    customers: CustomerLite[];
+    shippings: ShippingLite[];
+    products: ProductLite[];
+}
+
+export interface EditOrderProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    order: Order | null;
+    customers: CustomerLite[];
+    shippings: ShippingLite[];
+    products: ProductLite[];
 }

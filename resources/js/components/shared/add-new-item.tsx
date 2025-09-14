@@ -9,7 +9,7 @@ interface AddNewItemProps {
     children?: React.ReactNode;
 }
 
-export default function AddNewItem({ title, description, buttonLabel, onButtonClick, children }: AddNewItemProps) {
+export function AddNewItem({ title, description, buttonLabel, onButtonClick, children }: Readonly<AddNewItemProps>) {
     return (
         <div className="mb-6 flex items-center justify-between">
             <div>

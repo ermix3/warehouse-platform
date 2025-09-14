@@ -1,4 +1,9 @@
-import { PaginationLink } from '@/types/index';
+import { type DataPagination } from '@/types';
+
+export interface CustomerLite {
+    id: number;
+    name: string;
+}
 
 export interface Customer {
     id: number;
@@ -13,18 +18,20 @@ export interface Customer {
     updated_at?: string;
 }
 
-export interface CustomerPagination {
-    data: Customer[];
-    current_page: number;
-    first_page_url: string;
-    from: number;
-    last_page: number;
-    last_page_url: string;
-    links: PaginationLink[];
-    next_page_url: string | null;
-    path: string;
-    per_page: number;
-    prev_page_url: string | null;
-    to: number;
-    total: number;
+export interface PageCustomerProps {
+    customers: DataPagination<Customer>;
+    search: string;
+    flash?: { success?: string };
+    [key: string]: unknown;
+}
+
+export interface CreateCustomerProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
+
+export interface EditCustomerProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    customer: Customer | null;
 }

@@ -1,34 +1,32 @@
-import AddNewItem from '@/components/shared/add-new-item';
-import { DataTable } from '@/components/shared/data-table';
-import DeleteItem from '@/components/shared/delete-item';
-import { Pagination } from '@/components/shared/pagination';
+import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
-import { createColumns } from '@/pages/customer/columns';
+import { dashboard } from '@/routes';
 import { destroy, index } from '@/routes/customers';
-import type { BreadcrumbItem } from '@/types';
-import type { Customer, CustomerPagination } from '@/types/customer';
+import { BreadcrumbItem, Customer, PageCustomerProps } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { createColumns } from './columns';
 import CreateCustomer from './CreateCustomer';
 import EditCustomer from './EditCustomer';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
+        title: 'Dashboard',
+        href: dashboard.url(),
+    },
+    {
         title: 'Customers',
         href: index().url,
     },
+    {
+        title: 'Listing all customers',
+        href: '',
+    },
 ];
 
-interface PageProps {
-    customers: CustomerPagination;
-    search: string;
-    flash?: { success?: string };
-    [key: string]: unknown;
-}
-
 export default function CustomersPage() {
-    const { customers, search, flash } = usePage<PageProps>().props;
+    const { customers, search, flash } = usePage<PageCustomerProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);

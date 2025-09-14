@@ -1,6 +1,13 @@
+import type { Order, Product, ProductLite } from '@/types';
 import { PaginationLink } from '@/types';
-import type { Order } from '@/types/order';
-import type { Product } from '@/types/product';
+
+export interface OrderItemLite {
+    id?: number;
+    product_id: number;
+    quantity: number;
+    unit_price: number;
+    product?: ProductLite;
+}
 
 export interface OrderItem {
     id: number;

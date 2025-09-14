@@ -5,15 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { update } from '@/routes/shippings';
-import { Shipping } from '@/types/shipping';
+import { EditShippingProps } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
-
-interface EditShippingProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    shipping: Shipping | null;
-}
 
 export default function EditShipping({ open, onOpenChange, shipping }: Readonly<EditShippingProps>) {
     const form = useForm({

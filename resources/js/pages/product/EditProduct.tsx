@@ -5,23 +5,9 @@ import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Textarea } from '@/components/ui/textarea';
 import { update } from '@/routes/products';
-import { Category } from '@/types/category';
-import { Product } from '@/types/product';
+import { EditProductProps } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
-
-interface Supplier {
-    id: number;
-    name: string;
-}
-
-interface EditProductProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    product: Product | null;
-    categories: Category[];
-    suppliers: Supplier[];
-}
 
 export default function EditProduct({ open, onOpenChange, product, categories, suppliers }: Readonly<EditProductProps>) {
     const form = useForm({

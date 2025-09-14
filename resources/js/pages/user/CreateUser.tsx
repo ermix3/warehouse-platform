@@ -3,12 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { store } from '@/routes/users';
+import { CreateUserProps } from '@/types';
 import { useForm } from '@inertiajs/react';
-
-interface CreateUserProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-}
 
 export default function CreateUser({ open, onOpenChange }: Readonly<CreateUserProps>) {
     const form = useForm({

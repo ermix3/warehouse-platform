@@ -3,15 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Category } from '@/types/category';
+import { EditCategoryProps } from '@/types/category';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
-
-interface EditCategoryProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    category: Category | null;
-}
 
 export default function EditCategory({ open, onOpenChange, category }: Readonly<EditCategoryProps>) {
     const form = useForm({

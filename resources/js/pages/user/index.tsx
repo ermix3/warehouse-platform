@@ -1,11 +1,8 @@
-import AddNewItem from '@/components/shared/add-new-item';
-import { DataTable } from '@/components/shared/data-table';
-import DeleteItem from '@/components/shared/delete-item';
-import { Pagination } from '@/components/shared/pagination';
+import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared/';
 import AppLayout from '@/layouts/app-layout';
-import { destroy } from '@/routes/users';
-import type { BreadcrumbItem } from '@/types';
-import { User, UserPagination } from '@/types/user';
+import { dashboard } from '@/routes';
+import { destroy, index } from '@/routes/users';
+import { BreadcrumbItem, PageUserProps, User } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -13,22 +10,23 @@ import { createColumns } from './columns';
 import CreateUser from './CreateUser';
 import EditUser from './EditUser';
 
-interface PageProps {
-    users: UserPagination;
-    search: string;
-    flash?: { success?: string };
-    [key: string]: unknown;
-}
-
 const breadcrumbs: BreadcrumbItem[] = [
     {
+        title: 'Dashboard',
+        href: dashboard.url(),
+    },
+    {
         title: 'Users',
-        href: '/users',
+        href: index.url(),
+    },
+    {
+        title: 'Listing all users',
+        href: '',
     },
 ];
 
 export default function UsersPage() {
-    const { users, search, flash } = usePage<PageProps>().props;
+    const { users, search, flash } = usePage<PageUserProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);

@@ -1,36 +1,32 @@
-import AddNewItem from '@/components/shared/add-new-item';
-import { DataTable } from '@/components/shared/data-table';
-import DeleteItem from '@/components/shared/delete-item';
-import { Pagination } from '@/components/shared/pagination';
+import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
-import { createColumns } from '@/pages/order/columns';
+import { dashboard } from '@/routes';
 import { destroy, index } from '@/routes/orders';
-import type { BreadcrumbItem } from '@/types';
-import type { Order, OrderPagination } from '@/types/order';
+import { BreadcrumbItem, Order, PageOrderProps } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { createColumns } from './columns';
 import CreateOrder from './CreateOrder';
 import EditOrder from './EditOrder';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
+        title: 'Dashboard',
+        href: dashboard().url,
+    },
+    {
         title: 'Orders',
         href: index().url,
     },
+    {
+        title: 'Listing all orders',
+        href: '',
+    },
 ];
 
-interface PageProps {
-    orders: OrderPagination;
-    customers: { id: number; name: string }[];
-    shippings: { id: number; tracking_number?: string; carrier?: string }[];
-    search: string;
-    flash?: { success?: string };
-    [key: string]: unknown;
-}
-
 export default function OrdersPage() {
-    const { orders, customers, shippings, search, flash } = usePage<PageProps>().props;
+    const { orders, customers, shippings, products, search, flash } = usePage<PageOrderProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -102,9 +98,16 @@ export default function OrdersPage() {
                 <Pagination links={orders.links} from={orders.from} to={orders.to} total={orders.total} />
             </div>
 
-            <CreateOrder open={showCreateDialog} onOpenChange={setShowCreateDialog} customers={customers} shippings={shippings} />
+            <CreateOrder open={showCreateDialog} onOpenChange={setShowCreateDialog} customers={customers} shippings={shippings} products={products} />
 
-            <EditOrder open={showEditDialog} onOpenChange={setShowEditDialog} order={editOrder} customers={customers} shippings={shippings} />
+            <EditOrder
+                open={showEditDialog}
+                onOpenChange={setShowEditDialog}
+                order={editOrder}
+                customers={customers}
+                shippings={shippings}
+                products={products}
+            />
 
             <DeleteItem
                 open={showDeleteDialog}

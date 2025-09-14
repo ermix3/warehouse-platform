@@ -4,15 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { update } from '@/routes/suppliers';
-import type { Supplier } from '@/types/supplier';
+import { EditSupplierProps } from '@/types/supplier';
 import { useForm } from '@inertiajs/react';
 import React, { useEffect } from 'react';
-
-interface EditSupplierProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    supplier: Supplier | null;
-}
 
 export default function EditSupplier({ open, onOpenChange, supplier }: Readonly<EditSupplierProps>) {
     const form = useForm<{

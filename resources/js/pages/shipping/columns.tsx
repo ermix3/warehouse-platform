@@ -1,40 +1,9 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import ActionsCell from '@/components/shared/actions-cell';
 import { formatCurrency } from '@/lib/utils';
-import { Shipping } from '@/types/shipping';
+import { Shipping } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-
-interface ActionsProps {
-    shipping: Shipping;
-    onEdit: (shipping: Shipping) => void;
-    onDelete: (shipping: Shipping) => void;
-}
-
-function ActionsCell({ shipping, onEdit, onDelete }: Readonly<ActionsProps>) {
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEdit(shipping)}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDelete(shipping)} className="text-red-600">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
-}
 
 const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -51,7 +20,7 @@ const getStatusBadgeColor = (status: string) => {
     }
 };
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status }: Readonly<{ status: string }>) {
     return (
         <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeColor(status)}`}>
             {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -93,6 +62,6 @@ export const createColumns = (onEdit: (shipping: Shipping) => void, onDelete: (s
         id: 'actions',
         header: 'Actions',
         enableHiding: false,
-        cell: ({ row }) => <ActionsCell shipping={row.original} onEdit={onEdit} onDelete={onDelete} />,
+        cell: ({ row }) => <ActionsCell item={row.original} onEdit={onEdit} onDelete={onDelete} />,
     },
 ];

@@ -4,12 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { store } from '@/routes/suppliers';
+import { CreateSupplierProps } from '@/types';
 import { useForm } from '@inertiajs/react';
-
-interface CreateSupplierProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-}
 
 export default function CreateSupplier({ open, onOpenChange }: Readonly<CreateSupplierProps>) {
     const form = useForm<{

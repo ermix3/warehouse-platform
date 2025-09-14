@@ -1,4 +1,10 @@
-import { PaginationLink } from '@/types';
+import { DataPagination } from '@/types';
+
+export interface ShippingLite {
+    id: number;
+    tracking_number?: string;
+    carrier?: string;
+}
 
 export interface Shipping {
     id: number;
@@ -11,18 +17,20 @@ export interface Shipping {
     updated_at?: string;
 }
 
-export interface ShippingPagination {
-    data: Shipping[];
-    current_page: number;
-    first_page_url: string;
-    from: number;
-    last_page: number;
-    last_page_url: string;
-    links: PaginationLink[];
-    next_page_url: string | null;
-    path: string;
-    per_page: number;
-    prev_page_url: string | null;
-    to: number;
-    total: number;
+export interface PageShippingProps {
+    shippings: DataPagination<Shipping>;
+    search: string;
+    flash?: { success?: string };
+    [key: string]: unknown;
+}
+
+export interface CreateShippingProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
+
+export interface EditShippingProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    shipping: Shipping | null;
 }

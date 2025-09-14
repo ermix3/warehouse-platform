@@ -5,12 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { index } from '@/routes/shippings';
+import { CreateShippingProps } from '@/types';
 import { useForm } from '@inertiajs/react';
-
-interface CreateShippingProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-}
 
 export default function CreateShipping({ open, onOpenChange }: Readonly<CreateShippingProps>) {
     const form = useForm({

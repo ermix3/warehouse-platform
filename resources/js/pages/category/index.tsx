@@ -1,11 +1,8 @@
-import AddNewItem from '@/components/shared/add-new-item';
-import { DataTable } from '@/components/shared/data-table';
-import DeleteItem from '@/components/shared/delete-item';
-import { Pagination } from '@/components/shared/pagination';
+import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
 import { destroy } from '@/routes/categories';
-import type { BreadcrumbItem } from '@/types';
-import { Category, CategoryPagination } from '@/types/category';
+import { BreadcrumbItem, Category, PageCategoryProps } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -13,22 +10,23 @@ import { createColumns } from './columns';
 import CreateCategory from './CreateCategory';
 import EditCategory from './EditCategory';
 
-interface PageProps {
-    categories: CategoryPagination;
-    search: string;
-    flash?: { success?: string };
-    [key: string]: unknown;
-}
-
 const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dashboard',
+        href: dashboard.url(),
+    },
     {
         title: 'Categories',
         href: '/categories',
     },
+    {
+        title: 'Listing all categories',
+        href: '',
+    },
 ];
 
 export default function CategoriesPage() {
-    const { categories, search, flash } = usePage<PageProps>().props;
+    const { categories, search, flash } = usePage<PageCategoryProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);

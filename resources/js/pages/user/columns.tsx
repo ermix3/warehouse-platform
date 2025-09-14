@@ -1,37 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import ActionsCell from '@/components/shared/actions-cell';
 import { User } from '@/types/user';
 import { ColumnDef } from '@tanstack/react-table';
-import { CheckCircle, MoreHorizontal, Pencil, Trash2, XCircle } from 'lucide-react';
-
-interface ActionsProps {
-    user: User;
-    onEdit: (user: User) => void;
-    onDelete: (user: User) => void;
-}
-
-function ActionsCell({ user, onEdit, onDelete }: Readonly<ActionsProps>) {
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEdit(user)}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDelete(user)} className="text-red-600">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
-}
+import { CheckCircle, XCircle } from 'lucide-react';
 
 export const createColumns = (onEdit: (user: User) => void, onDelete: (user: User) => void): ColumnDef<User>[] => [
     {
@@ -66,6 +36,6 @@ export const createColumns = (onEdit: (user: User) => void, onDelete: (user: Use
         id: 'actions',
         header: 'Actions',
         enableHiding: false, // Always show Actions column
-        cell: ({ row }) => <ActionsCell user={row.original} onEdit={onEdit} onDelete={onDelete} />,
+        cell: ({ row }) => <ActionsCell item={row.original} onEdit={onEdit} onDelete={onDelete} />,
     },
 ];

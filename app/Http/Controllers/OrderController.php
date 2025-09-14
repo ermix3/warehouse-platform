@@ -45,11 +45,12 @@ class OrderController extends Controller
         $orders = $query->paginate(15)->appends($request->query());
         $customers = Customer::all();
         $shippings = Shipping::all();
-        // dd($orders);
+        $products = \App\Models\Product::select('id', 'name')->get();
         return Inertia::render('order/index', [
             'orders' => $orders,
             'customers' => $customers,
-            'shippings' => $shippings ?? []
+            'shippings' => $shippings ?? [],
+            'products' => $products,
         ]);
     }
 
@@ -63,7 +64,7 @@ class OrderController extends Controller
             $order = Order::create($request->validated());
             // Save order items
             foreach ($request->order_items as $item) {
-                $order->orderItems()->create($item);
+                $order->items()->create($item);
             }
             DB::commit();
             return redirect()->route('orders.index')->with('success', 'Order created successfully.');
@@ -83,9 +84,9 @@ class OrderController extends Controller
         try {
             $order->update($request->validated());
             // Update order items
-            $order->orderItems()->delete();
+            $order->items()->delete();
             foreach ($request->order_items as $item) {
-                $order->orderItems()->create($item);
+                $order->items()->create($item);
             }
             DB::commit();
             return redirect()->route('orders.index')->with('success', 'Order updated successfully.');

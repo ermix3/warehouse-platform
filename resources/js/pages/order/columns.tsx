@@ -1,38 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import ActionsCell from '@/components/shared/actions-cell';
 import { formatCurrency } from '@/lib/utils';
 import { Order } from '@/types/order';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-
-interface ActionsProps {
-    order: Order;
-    onEdit: (order: Order) => void;
-    onDelete: (order: Order) => void;
-}
-
-function ActionsCell({ order, onEdit, onDelete }: Readonly<ActionsProps>) {
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEdit(order)}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDelete(order)} className="text-red-600">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
-}
 
 const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -99,6 +68,6 @@ export const createColumns = (onEdit: (order: Order) => void, onDelete: (order: 
         id: 'actions',
         header: 'Actions',
         enableHiding: false,
-        cell: ({ row }) => <ActionsCell order={row.original} onEdit={onEdit} onDelete={onDelete} />,
+        cell: ({ row }) => <ActionsCell item={row.original} onEdit={onEdit} onDelete={onDelete} />,
     },
 ];

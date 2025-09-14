@@ -1,13 +1,8 @@
-import AddNewItem from '@/components/shared/add-new-item';
-import { DataTable } from '@/components/shared/data-table';
-import DeleteItem from '@/components/shared/delete-item';
-import { Pagination } from '@/components/shared/pagination';
+import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
 import { destroy } from '@/routes/products';
-import type { BreadcrumbItem } from '@/types';
-import { Category } from '@/types/category';
-import { Product, ProductPagination } from '@/types/product';
-import { Supplier } from '@/types/supplier';
+import { BreadcrumbItem, PageProductProps, Product } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -15,24 +10,23 @@ import { createColumns } from './columns';
 import CreateProduct from './CreateProduct';
 import EditProduct from './EditProduct';
 
-interface PageProps {
-    products: ProductPagination;
-    categories: Category[];
-    suppliers: Supplier[];
-    search: string;
-    flash?: { success?: string };
-    [key: string]: unknown;
-}
-
 const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dashboard',
+        href: dashboard.url(),
+    },
     {
         title: 'Products',
         href: '/products',
     },
+    {
+        title: 'Listing all products',
+        href: '',
+    },
 ];
 
 export default function ProductsPage() {
-    const { products, categories, suppliers, search, flash } = usePage<PageProps>().props;
+    const { products, categories, suppliers, search, flash } = usePage<PageProductProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);

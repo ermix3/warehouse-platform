@@ -1,6 +1,15 @@
 import { InertiaLinkProps } from '@inertiajs/react';
 import { LucideIcon } from 'lucide-react';
 
+export * from './category';
+export * from './customer';
+export * from './order';
+export * from './order-item';
+export * from './product';
+export * from './shipping';
+export * from './supplier';
+export * from './user';
+
 export interface Auth {
     user: User;
 }
@@ -30,20 +39,32 @@ export interface SharedData {
     [key: string]: unknown;
 }
 
-export interface User {
-    id: number;
-    name: string;
-    email: string;
-    avatar?: string;
-    email_verified_at: string | null;
-    created_at: string;
-    updated_at: string;
-    [key: string]: unknown; // This allows for additional properties...
-}
-
 export interface PaginationLink {
     url: string | null;
     label: string;
     page: number | null;
     active: boolean;
+}
+
+export interface Links {
+    url: string | null;
+    label: string;
+    page: number | null;
+    active: boolean;
+}
+
+export interface DataPagination<T> {
+    data: T[];
+    current_page: number;
+    first_page_url: string;
+    from: number;
+    last_page: number;
+    last_page_url: string;
+    links: Links[];
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number;
+    total: number;
 }

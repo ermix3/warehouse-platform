@@ -3,15 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { update } from '@/routes/users';
-import { User } from '@/types/user';
+import { EditUserProps } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
-
-interface EditUserProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    user: User | null;
-}
 
 export default function EditUser({ open, onOpenChange, user }: Readonly<EditUserProps>) {
     const form = useForm({

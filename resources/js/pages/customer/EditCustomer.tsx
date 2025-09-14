@@ -4,15 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { update } from '@/routes/customers';
-import type { Customer } from '@/types/customer';
+import { EditCustomerProps } from '@/types';
 import { useForm } from '@inertiajs/react';
 import React, { useEffect } from 'react';
-
-interface EditCustomerProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    customer: Customer | null;
-}
 
 export default function EditCustomer({ open, onOpenChange, customer }: Readonly<EditCustomerProps>) {
     const form = useForm<{

@@ -1,4 +1,9 @@
-import { PaginationLink } from '@/types';
+import { Category, CategoryLite, DataPagination, Supplier, SupplierLite } from '@/types';
+
+export interface ProductLite {
+    id: number;
+    name: string;
+}
 
 export interface Product {
     id: number;
@@ -13,28 +18,30 @@ export interface Product {
     supplier_id?: number | null;
     created_at?: string;
     updated_at?: string;
-    category?: {
-        id: number;
-        name: string;
-    };
-    supplier?: {
-        id: number;
-        name: string;
-    };
+    category?: CategoryLite;
+    supplier?: SupplierLite;
 }
 
-export interface ProductPagination {
-    data: Product[];
-    current_page: number;
-    first_page_url: string;
-    from: number;
-    last_page: number;
-    last_page_url: string;
-    links: PaginationLink[];
-    next_page_url: string | null;
-    path: string;
-    per_page: number;
-    prev_page_url: string | null;
-    to: number;
-    total: number;
+export interface PageProductProps {
+    products: DataPagination<Product>;
+    categories: Category[];
+    suppliers: Supplier[];
+    search: string;
+    flash?: { success?: string };
+    [key: string]: unknown;
+}
+
+export interface CreateProductProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    categories: Category[];
+    suppliers: Supplier[];
+}
+
+export interface EditProductProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    product: Product | null;
+    categories: Category[];
+    suppliers: Supplier[];
 }

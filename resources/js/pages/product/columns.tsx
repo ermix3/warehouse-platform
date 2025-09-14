@@ -1,39 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import ActionsCell from '@/components/shared/actions-cell';
 import { Product } from '@/types/product';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-
-interface ActionsProps {
-    product: Product;
-    onEdit: (product: Product) => void;
-    onDelete: (product: Product) => void;
-}
-
-function ActionsCell({ product, onEdit, onDelete }: Readonly<ActionsProps>) {
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEdit(product)}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDelete(product)} className="text-red-600">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
-}
 
 export const createColumns = (onEdit: (product: Product) => void, onDelete: (product: Product) => void): ColumnDef<Product>[] => [
     {
@@ -88,6 +57,6 @@ export const createColumns = (onEdit: (product: Product) => void, onDelete: (pro
         id: 'actions',
         header: 'Actions',
         enableHiding: false,
-        cell: ({ row }) => <ActionsCell product={row.original} onEdit={onEdit} onDelete={onDelete} />,
+        cell: ({ row }) => <ActionsCell item={row.original} onEdit={onEdit} onDelete={onDelete} />,
     },
 ];

@@ -1,11 +1,8 @@
-import AddNewItem from '@/components/shared/add-new-item';
-import { DataTable } from '@/components/shared/data-table';
-import DeleteItem from '@/components/shared/delete-item';
-import { Pagination } from '@/components/shared/pagination';
+import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
 import { destroy } from '@/routes/shippings';
-import type { BreadcrumbItem } from '@/types';
-import { Shipping, ShippingPagination } from '@/types/shipping';
+import { BreadcrumbItem, PageShippingProps, Shipping } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -13,22 +10,23 @@ import { createColumns } from './columns';
 import CreateShipping from './CreateShipping';
 import EditShipping from './EditShipping';
 
-interface PageProps {
-    shippings: ShippingPagination;
-    search: string;
-    flash?: { success?: string };
-    [key: string]: unknown;
-}
-
 const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dashboard',
+        href: dashboard.url(),
+    },
     {
         title: 'Shippings',
         href: '/shippings',
     },
+    {
+        title: 'Listing all shippings',
+        href: '',
+    },
 ];
 
 export default function ShippingsPage() {
-    const { shippings, search, flash } = usePage<PageProps>().props;
+    const { shippings, search, flash } = usePage<PageShippingProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);

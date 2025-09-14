@@ -4,12 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { store } from '@/routes/customers';
+import { CreateCustomerProps } from '@/types';
 import { useForm } from '@inertiajs/react';
-
-interface CreateCustomerProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-}
 
 export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCustomerProps>) {
     const form = useForm<{
