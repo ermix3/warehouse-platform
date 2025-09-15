@@ -25,7 +25,7 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function items(): Order|HasMany
+    public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
@@ -33,5 +33,37 @@ class Order extends Model
     public function shipping(): BelongsTo
     {
         return $this->belongsTo(Shipping::class);
+    }
+
+    /**
+     * Recalculate the order total from its items and related products.
+     */
+    public function recalculateTotal(): void
+    {
+        $this->loadMissing(['items.product']);
+        $total = $this->items->sum(function (OrderItem $item) {
+            $product = $item->product;
+            if (!$product) {
+                return 0;
+            }
+            $totQty = (int) $item->ctn * (int) $product->box_qtt;
+            return $totQty * (float) $product->unit_price;
+        });
+        $this->total = $total;
+        $this->save();
+    }
+
+    /**
+     * Refresh the total on the associated Shipping record.
+     * If $shippingId is provided, refresh that shipping; otherwise, use this order's shipping.
+     */
+    public function refreshShippingTotal(?int $shippingId = null): void
+    {
+        $shipping = $shippingId ? Shipping::find($shippingId) : $this->shipping;
+        if ($shipping) {
+            $shippingTotal = $shipping->orders()->sum('total');
+            $shipping->total = $shippingTotal;
+            $shipping->save();
+        }
     }
 }

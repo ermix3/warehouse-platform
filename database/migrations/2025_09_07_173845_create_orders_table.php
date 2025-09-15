@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->decimal('total', 12, 2)->default(0);
 
             $table->foreignIdFor(Customer::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Shipping::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Shipping::class)->nullable()->constrained()->cascadeOnDelete();
 
             $table->timestamps();
         });

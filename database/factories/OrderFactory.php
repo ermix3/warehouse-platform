@@ -27,18 +27,28 @@ class OrderFactory extends Factory
     public function configure(): OrderFactory
     {
         return $this->afterCreating(function (Order $order) {
+            /** @var array<OrderItem> $items */
             $items = OrderItem::factory()
                 ->count(rand(1, 10))
                 ->create(['order_id' => $order->id]);
 
-            // Recalculate totals
-            $total = $items->sum(fn($item) => $item->quantity * $item->unit_price);
+            // Recalculate totals using product box quantity and unit price
+            $items->load('product');
+            $total = $items->sum(function ($item) {
+                $product = $item->product;
+                if (!$product) {
+                    return 0;
+                }
+                $totQty = (int) $item->ctn * (int) $product->box_qtt;
+                return $totQty * (float) $product->unit_price;
+            });
 
             $order->update(['total' => $total]);
 
-            // Update shipping total too
+            // Update shipping total as the sum of all its orders' totals
             if ($order->shipping) {
-                $order->shipping->update(['total' => $total]);
+                $shippingTotal = $order->shipping->orders()->sum('total');
+                $order->shipping->update(['total' => $shippingTotal]);
             }
         });
     }

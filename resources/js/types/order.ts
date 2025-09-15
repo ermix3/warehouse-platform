@@ -1,4 +1,4 @@
-import { Customer, CustomerLite, DataPagination, Filters, Flash, OrderItemLite, ProductLite, SharedEnums, Shipping, ShippingLite } from '@/types';
+import { Customer, CustomerLite, DataPagination, Filters, Flash, OrderItemLite, Product, SharedEnums, Shipping, ShippingLite } from '@/types';
 
 export interface Order {
     id: number;
@@ -18,7 +18,7 @@ export interface PageOrderProps {
     orders: DataPagination<Order>;
     customers: CustomerLite[];
     shippings: ShippingLite[];
-    products: ProductLite[];
+    products: Product[];
     filters: Filters;
     flash?: Flash;
     enums: SharedEnums;
@@ -30,7 +30,7 @@ export interface CreateOrderProps {
     onOpenChange: (open: boolean) => void;
     customers: CustomerLite[];
     shippings: ShippingLite[];
-    products: ProductLite[];
+    products: Product[];
 }
 
 export interface EditOrderProps {
@@ -39,5 +39,5 @@ export interface EditOrderProps {
     order: Order | null;
     customers: CustomerLite[];
     shippings: ShippingLite[];
-    products: ProductLite[];
+    products: Product[];
 }

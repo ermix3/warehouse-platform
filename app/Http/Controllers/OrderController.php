@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderRequest;
-use App\Models\Order;
 use App\Models\Customer;
+use App\Models\Order;
+use App\Models\Product;
 use App\Models\Shipping;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -45,7 +47,7 @@ class OrderController extends Controller
         $orders = $query->paginate(15)->appends($request->query());
         $customers = Customer::all();
         $shippings = Shipping::all();
-        $products = \App\Models\Product::select('id', 'name')->get();
+        $products = Product::all();
         return Inertia::render('order/index', [
             'orders' => $orders,
             'customers' => $customers,
@@ -61,14 +63,26 @@ class OrderController extends Controller
     {
         DB::beginTransaction();
         try {
-            $order = Order::create($request->validated());
+            $validated = $request->validated();
+            $order = Order::create($validated);
+
             // Save order items
-            foreach ($request->order_items as $item) {
-                $order->items()->create($item);
+            $order_items = $request->order_items;
+            foreach ($order_items as $oi) {
+                $order->items()->create($oi);
             }
+
+            // Recalculate order total based on items and products
+            $order->recalculateTotal();
+
+            // Update shipping total if applicable
+            if (!empty($order->shipping_id)) {
+                $order->refreshShippingTotal();
+            }
+
             DB::commit();
             return redirect()->route('orders.index')->with('success', 'Order created successfully.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -82,15 +96,30 @@ class OrderController extends Controller
     {
         DB::beginTransaction();
         try {
+            $oldShippingId = $order->shipping_id; // capture before update
+
             $order->update($request->validated());
-            // Update order items
+
+            // Replace order items
             $order->items()->delete();
             foreach ($request->order_items as $item) {
                 $order->items()->create($item);
             }
+
+            // Recalculate order total based on items and products
+            $order->recalculateTotal();
+
+            // Refresh shipping totals (handle shipping change)
+            if ($oldShippingId && $oldShippingId !== $order->shipping_id) {
+                $order->refreshShippingTotal($oldShippingId);
+            }
+            if (!empty($order->shipping_id)) {
+                $order->refreshShippingTotal();
+            }
+
             DB::commit();
             return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -101,8 +130,20 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        $order->orderItems()->delete();
+        $shippingId = $order->shipping_id;
+        // Delete related items using the correct relation name
+        $order->items()->delete();
         $order->delete();
+
+        // After deletion, refresh the shipping total if applicable
+        if (!empty($shippingId)) {
+            $shipping = Shipping::find($shippingId);
+            if ($shipping) {
+                $shipping->total = $shipping->orders()->sum('total');
+                $shipping->save();
+            }
+        }
+
         return redirect()->route('orders.index')->with('success', 'Order deleted successfully.');
     }
 }

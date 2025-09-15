@@ -19,14 +19,13 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
         total: '',
         customer_id: '',
         shipping_id: '',
-        order_items: [] as { product_id: string; quantity: string; unit_price: string }[],
+        order_items: [] as { product_id: string; ctn: string }[],
     });
     const prevOrderId = useRef<number | null>(null);
 
-    const [newItem, setNewItem] = useState<{ product_id: string; quantity: string; unit_price: string }>({
+    const [newItem, setNewItem] = useState<{ product_id: string; ctn: string }>({
         product_id: '',
-        quantity: '1',
-        unit_price: '0',
+        ctn: '1',
     });
 
     useEffect(() => {
@@ -39,8 +38,7 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
                 shipping_id: order.shipping_id?.toString() ?? '',
                 order_items: (order.items || []).map((it) => ({
                     product_id: it.product_id.toString(),
-                    quantity: it.quantity.toString(),
-                    unit_price: it.unit_price.toString(),
+                    ctn: it.ctn.toString(),
                 })),
             });
             prevOrderId.current = order.id;
@@ -49,14 +47,17 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
             form.reset();
             form.clearErrors();
             prevOrderId.current = null;
-            setNewItem({ product_id: '', quantity: '1', unit_price: '0' });
+            setNewItem({ product_id: '', ctn: '1' });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, order]);
 
     const itemsTotal = useMemo(() => {
-        return form.data.order_items.reduce((sum, it) => sum + parseFloat(it.unit_price || '0') * parseInt(it.quantity || '0'), 0);
-    }, [form.data.order_items]);
+        return form.data.order_items.reduce((sum, it) => {
+            const product = products.find((p) => p.id.toString() === it.product_id);
+            return sum + (product?.unit_price || 0) * parseInt(it.ctn || '0');
+        }, 0);
+    }, [form.data.order_items, products]);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -93,7 +94,7 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
     const addItem = () => {
         if (!newItem.product_id) return;
         form.setData('order_items', [...form.data.order_items, newItem]);
-        setNewItem({ product_id: '', quantity: '1', unit_price: '0' });
+        setNewItem({ product_id: '', ctn: '1' });
     };
 
     const removeItem = (idx: number) => {
@@ -185,23 +186,13 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
                                         emptyText="No products found."
                                     />
                                 </div>
-                                <div className="col-span-2">
-                                    <Label>Quantity *</Label>
+                                <div className="col-span-3">
+                                    <Label>Cartons *</Label>
                                     <Input
                                         type="number"
                                         min={1}
-                                        value={newItem.quantity}
-                                        onChange={(e) => setNewItem((s) => ({ ...s, quantity: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="col-span-3">
-                                    <Label>Unit Price *</Label>
-                                    <Input
-                                        type="number"
-                                        min={0}
-                                        step="0.01"
-                                        value={newItem.unit_price}
-                                        onChange={(e) => setNewItem((s) => ({ ...s, unit_price: e.target.value }))}
+                                        value={newItem.ctn}
+                                        onChange={(e) => setNewItem((s) => ({ ...s, ctn: e.target.value }))}
                                     />
                                 </div>
                                 <div className="col-span-1 flex items-end">
@@ -211,8 +202,7 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
                                 </div>
                             </div>
                             {fieldErrors['order_items.*.product_id'] && <div className="text-sm text-red-600">Please check product selection.</div>}
-                            {fieldErrors['order_items.*.quantity'] && <div className="text-sm text-red-600">Please check quantity.</div>}
-                            {fieldErrors['order_items.*.unit_price'] && <div className="text-sm text-red-600">Please check unit price.</div>}
+                            {fieldErrors['order_items.*.ctn'] && <div className="text-sm text-red-600">Please check carton quantity.</div>}
                         </div>
                         {fieldErrors.order_items && <div className="text-sm text-red-600">{fieldErrors.order_items}</div>}
                         <div className="rounded-md border">
@@ -225,8 +215,7 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
                                             <div className="col-span-6">
                                                 {productOptions.find((o) => o.value === it.product_id)?.label || 'Product #' + it.product_id}
                                             </div>
-                                            <div className="col-span-2">Qty: {it.quantity}</div>
-                                            <div className="col-span-2">Price: ${parseFloat(it.unit_price || '0').toFixed(2)}</div>
+                                            <div className="col-span-2">Cartons: {it.ctn}</div>
                                             <div className="col-span-2 text-right">
                                                 <Button type="button" variant="destructive" size="sm" onClick={() => removeItem(idx)}>
                                                     Remove

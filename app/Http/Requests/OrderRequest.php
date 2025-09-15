@@ -31,8 +31,7 @@ class OrderRequest extends FormRequest
             'shipping_id' => 'nullable|exists:shippings,id',
             'order_items' => 'required|array|min:1',
             'order_items.*.product_id' => 'required|exists:products,id',
-            'order_items.*.quantity' => 'required|integer|min:1',
-            'order_items.*.unit_price' => 'required|numeric|min:0',
+            'order_items.*.ctn' => 'required|integer|min:1',
         ];
     }
 
@@ -60,12 +59,9 @@ class OrderRequest extends FormRequest
             'order_items.min' => 'At least one order item is required.',
             'order_items.*.product_id.required' => 'Please select a product for each order item.',
             'order_items.*.product_id.exists' => 'The selected product does not exist.',
-            'order_items.*.quantity.required' => 'Please specify the quantity for each order item.',
-            'order_items.*.quantity.integer' => 'The quantity must be a whole number.',
-            'order_items.*.quantity.min' => 'The quantity must be at least 1.',
-            'order_items.*.unit_price.required' => 'Please specify the unit price for each order item.',
-            'order_items.*.unit_price.numeric' => 'The unit price must be a valid number.',
-            'order_items.*.unit_price.min' => 'The unit price must be at least 0.',
+            'order_items.*.ctn.required' => 'Please specify the carton quantity for each order item.',
+            'order_items.*.ctn.integer' => 'The carton quantity must be a whole number.',
+            'order_items.*.ctn.min' => 'The carton quantity must be at least 1.',
         ];
     }
 
@@ -84,8 +80,7 @@ class OrderRequest extends FormRequest
             'shipping_id' => 'shipping',
             'order_items' => 'order items',
             'order_items.*.product_id' => 'product',
-            'order_items.*.quantity' => 'quantity',
-            'order_items.*.unit_price' => 'unit price',
+            'order_items.*.ctn' => 'carton quantity',
         ];
     }
 

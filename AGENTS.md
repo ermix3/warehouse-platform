@@ -66,7 +66,6 @@ created_at / updated_at
 
 `Order_Item` (pivot)
 id
-quantity
 ctn
 order_id
 product_id

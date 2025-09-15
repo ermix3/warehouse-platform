@@ -8,7 +8,7 @@ import { OrderStatusIcons } from '@/lib/order-status-helper';
 import { store } from '@/routes/orders';
 import { CreateOrderProps, PageOrderProps } from '@/types';
 import { useForm, usePage } from '@inertiajs/react';
-import { CirclePlus, Clock } from 'lucide-react';
+import { Asterisk, CirclePlus, Clock, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 export default function CreateOrder({ open, onOpenChange, customers, shippings, products }: Readonly<CreateOrderProps>) {
@@ -19,18 +19,20 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
         total: '',
         customer_id: '',
         shipping_id: '',
-        order_items: [] as { product_id: string; quantity: string; unit_price: string }[],
+        order_items: [] as { product_id: string; ctn: string }[],
     });
 
-    const [newItem, setNewItem] = useState<{ product_id: string; quantity: string; unit_price: string }>({
+    const [newItem, setNewItem] = useState<{ product_id: string; ctn: string }>({
         product_id: '',
-        quantity: '1',
-        unit_price: '0',
+        ctn: '1',
     });
 
     const itemsTotal = useMemo(() => {
-        return form.data.order_items.reduce((sum, it) => sum + parseFloat(it.unit_price || '0') * parseInt(it.quantity || '0'), 0);
-    }, [form.data.order_items]);
+        return form.data.order_items.reduce((sum, it) => {
+            const product = products.find((p) => p.id.toString() === it.product_id);
+            return sum + (product?.unit_price || 0) * parseInt(it.ctn || '0');
+        }, 0);
+    }, [form.data.order_items, products]);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -51,7 +53,7 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
         if (!isOpen) {
             form.reset();
             form.clearErrors();
-            setNewItem({ product_id: '', quantity: '1', unit_price: '0' });
+            setNewItem({ product_id: '', ctn: '1' });
         }
         onOpenChange(isOpen);
     };
@@ -79,7 +81,7 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
     const addItem = () => {
         if (!newItem.product_id) return; // simple guard
         form.setData('order_items', [...form.data.order_items, newItem]);
-        setNewItem({ product_id: '', quantity: '1', unit_price: '0' });
+        setNewItem({ product_id: '', ctn: '1' });
     };
 
     const removeItem = (idx: number) => {
@@ -97,7 +99,7 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <Label htmlFor="create-order_number">Order Number *</Label>
+                            <Label htmlFor="create-order_number">Order Number <Asterisk color={'red'} size={12} className={'inline-flex align-super'} /></Label>
                             <Input
                                 id="create-order_number"
                                 type="text"
@@ -131,7 +133,7 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
                         </div>
 
                         <div>
-                            <Label htmlFor="create-customer_id">Customer *</Label>
+                            <Label htmlFor="create-customer_id">Customer <Asterisk color={'red'} size={12} className={'inline-flex align-super'} /></Label>
                             <SearchableSelect
                                 options={customerOptions}
                                 value={form.data.customer_id}
@@ -161,8 +163,8 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
                         <div className="space-y-2">
                             <div className="font-medium">Items</div>
                             <div className="grid grid-cols-12 gap-2">
-                                <div className="col-span-6">
-                                    <Label>Product *</Label>
+                                <div className="col-span-9">
+                                    <Label>Product <Asterisk color={'red'} size={12} className={'inline-flex align-super'} /></Label>
                                     <SearchableSelect
                                         options={productOptions}
                                         value={newItem.product_id}
@@ -172,22 +174,12 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
                                     />
                                 </div>
                                 <div className="col-span-2">
-                                    <Label>Quantity *</Label>
+                                    <Label>CTN <Asterisk color={'red'} size={12} className={'inline-flex align-super'} /></Label>
                                     <Input
                                         type="number"
                                         min={1}
-                                        value={newItem.quantity}
-                                        onChange={(e) => setNewItem((s) => ({ ...s, quantity: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="col-span-3">
-                                    <Label>Unit Price *</Label>
-                                    <Input
-                                        type="number"
-                                        min={0}
-                                        step="0.01"
-                                        value={newItem.unit_price}
-                                        onChange={(e) => setNewItem((s) => ({ ...s, unit_price: e.target.value }))}
+                                        value={newItem.ctn}
+                                        onChange={(e) => setNewItem((s) => ({ ...s, ctn: e.target.value }))}
                                     />
                                 </div>
                                 <div className="col-span-1 flex items-end">
@@ -197,8 +189,7 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
                                 </div>
                             </div>
                             {fieldErrors['order_items.*.product_id'] && <div className="text-sm text-red-600">Please check product selection.</div>}
-                            {fieldErrors['order_items.*.quantity'] && <div className="text-sm text-red-600">Please check quantity.</div>}
-                            {fieldErrors['order_items.*.unit_price'] && <div className="text-sm text-red-600">Please check unit price.</div>}
+                            {fieldErrors['order_items.*.ctn'] && <div className="text-sm text-red-600">Please check carton quantity.</div>}
                         </div>
                         {fieldErrors.order_items && <div className="text-sm text-red-600">{fieldErrors.order_items}</div>}
                         <div className="rounded-md border">
@@ -211,11 +202,10 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
                                             <div className="col-span-6">
                                                 {productOptions.find((o) => o.value === it.product_id)?.label || 'Product #' + it.product_id}
                                             </div>
-                                            <div className="col-span-2">Qty: {it.quantity}</div>
-                                            <div className="col-span-2">Price: ${parseFloat(it.unit_price || '0').toFixed(2)}</div>
+                                            <div className="col-span-4">CTN: {it.ctn}</div>
                                             <div className="col-span-2 text-right">
                                                 <Button type="button" variant="destructive" size="sm" onClick={() => removeItem(idx)}>
-                                                    Remove
+                                                    <Trash2 color={'white'} />
                                                 </Button>
                                             </div>
                                         </div>
