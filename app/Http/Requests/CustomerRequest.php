@@ -23,6 +23,7 @@ class CustomerRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'code' => 'required|string|max:255|unique:customers,code,' . $this->customer?->id,
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:customers,email,' . $this->customer?->id,
             'phone' => 'nullable|string|max:20',
@@ -39,6 +40,8 @@ class CustomerRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'code.required' => 'The customer code is required.',
+            'code.unique' => 'This customer code already exists.',
             'name.required' => 'The customer name is required.',
             'name.max' => 'The customer name must not exceed 255 characters.',
             'email.email' => 'Please provide a valid email address.',
@@ -57,6 +60,7 @@ class CustomerRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'code' => 'customer code',
             'name' => 'customer name',
             'email' => 'email address',
             'phone' => 'phone number',
@@ -71,6 +75,7 @@ class CustomerRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
+            'code' => trim($this->code ?? ''),
             'name' => trim($this->name ?? ''),
             'email' => trim($this->email ?? '') ?: null,
             'phone' => trim($this->phone ?? '') ?: null,

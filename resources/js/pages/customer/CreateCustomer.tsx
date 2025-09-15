@@ -9,12 +9,14 @@ import { useForm } from '@inertiajs/react';
 
 export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCustomerProps>) {
     const form = useForm<{
+        code: string;
         name: string;
         email: string;
         phone: string;
         address: string;
         notes: string;
     }>({
+        code: '',
         name: '',
         email: '',
         phone: '',
@@ -47,6 +49,12 @@ export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCu
                     <DialogTitle>Create Customer</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <Label htmlFor="create-code">Customer Code *</Label>
+                        <Input id="create-code" type="text" value={form.data.code} onChange={(e) => form.setData('code', e.target.value)} required />
+                        {form.errors.code && <div className="mt-1 text-sm text-red-600">{form.errors.code}</div>}
+                    </div>
+
                     <div>
                         <Label htmlFor="create-name">Name *</Label>
                         <Input id="create-name" type="text" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} required />

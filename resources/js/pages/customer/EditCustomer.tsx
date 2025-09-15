@@ -10,12 +10,14 @@ import React, { useEffect } from 'react';
 
 export default function EditCustomer({ open, onOpenChange, customer }: Readonly<EditCustomerProps>) {
     const form = useForm<{
+        code: string;
         name: string;
         email: string;
         phone: string;
         address: string;
         notes: string;
     }>({
+        code: '',
         name: '',
         email: '',
         phone: '',
@@ -26,6 +28,7 @@ export default function EditCustomer({ open, onOpenChange, customer }: Readonly<
     useEffect(() => {
         if (customer) {
             form.setData({
+                code: customer.code,
                 name: customer.name,
                 email: customer.email ?? '',
                 phone: customer.phone ?? '',
@@ -54,6 +57,12 @@ export default function EditCustomer({ open, onOpenChange, customer }: Readonly<
                     <DialogTitle>Edit Customer</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <Label htmlFor="edit-code">Customer Code *</Label>
+                        <Input id="edit-code" type="text" value={form.data.code} onChange={(e) => form.setData('code', e.target.value)} required />
+                        {form.errors.code && <div className="mt-1 text-sm text-red-600">{form.errors.code}</div>}
+                    </div>
+
                     <div>
                         <Label htmlFor="edit-name">Name *</Label>
                         <Input id="edit-name" type="text" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} required />
