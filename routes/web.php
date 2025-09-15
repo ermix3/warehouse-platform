@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
@@ -17,7 +16,6 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::apiResource('categories', CategoryController::class)->except('show');
     Route::apiResource('suppliers', SupplierController::class)->except('show');
     Route::apiResource('customers', CustomerController::class)->except('show');
     Route::apiResource('products', ProductController::class)->except('show');

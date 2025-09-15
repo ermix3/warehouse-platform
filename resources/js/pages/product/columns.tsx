@@ -28,6 +28,23 @@ export const createColumns = (onEdit: (product: Product) => void, onDelete: (pro
         header: 'HS Code',
     },
     {
+        accessorKey: 'unit_price',
+        header: 'Unit Price',
+        cell: ({ row }) => `$${row.getValue('unit_price')}`,
+    },
+    {
+        accessorKey: 'box_qtt',
+        header: 'Box Qty',
+    },
+    {
+        accessorKey: 'dimensions',
+        header: 'Dimensions',
+        cell: ({ row }) => {
+            const product = row.original;
+            return `${product.length}×${product.width}×${product.height} cm`;
+        },
+    },
+    {
         accessorKey: 'net_weight',
         header: 'Net Weight',
         cell: ({ row }) => `${row.getValue('net_weight')} kg`,
@@ -36,14 +53,6 @@ export const createColumns = (onEdit: (product: Product) => void, onDelete: (pro
         accessorKey: 'box_weight',
         header: 'Box Weight',
         cell: ({ row }) => `${row.getValue('box_weight')} kg`,
-    },
-    {
-        accessorKey: 'category',
-        header: 'Category',
-        cell: ({ row }) => {
-            const product = row.original;
-            return product.category?.name ?? 'N/A';
-        },
     },
     {
         accessorKey: 'supplier',

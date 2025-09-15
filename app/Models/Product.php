@@ -13,16 +13,20 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'barcode', 'name', 'description',
-        'origin', 'hs_code',
-        'unit_price', 'net_weight', 'box_weight',
-        'category_id', 'supplier_id',
+        'barcode',
+        'name',
+        'description',
+        'origin',
+        'hs_code',
+        'unit_price',
+        'box_qtt',
+        'height',
+        'length',
+        'width',
+        'net_weight',
+        'box_weight',
+        'supplier_id',
     ];
-
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
 
     public function supplier()
     {

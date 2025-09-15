@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
-use App\Models\Category;
 use App\Models\Product;
 use App\Models\Supplier;
 use Exception;
@@ -22,7 +21,7 @@ class ProductController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Product::with(['category', 'supplier']);
+        $query = Product::with(['supplier']);
 
         // Handle search across multiple fields including relationships
         if ($search = $request->get('search')) {
@@ -32,9 +31,6 @@ class ProductController extends Controller
                     ->orWhere('description', 'like', "%{$search}%")
                     ->orWhere('origin', 'like', "%{$search}%")
                     ->orWhere('hs_code', 'like', "%{$search}%")
-                    ->orWhereHas('category', function ($categoryQuery) use ($search) {
-                        $categoryQuery->where('name', 'like', "%{$search}%");
-                    })
                     ->orWhereHas('supplier', function ($supplierQuery) use ($search) {
                         $supplierQuery->where('name', 'like', "%{$search}%");
                     });
@@ -53,10 +49,6 @@ class ProductController extends Controller
 
         if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {
             $query->orderBy($sortBy, $sortOrder);
-        } else if ($sortBy === 'category' && in_array($sortOrder, $allowedSortOrders)) {
-            $query->leftJoin('categories', 'products.category_id', '=', 'categories.id')
-                ->orderBy('categories.name', $sortOrder)
-                ->select('products.*');
         } else if ($sortBy === 'supplier' && in_array($sortOrder, $allowedSortOrders)) {
             $query->leftJoin('suppliers', 'products.supplier_id', '=', 'suppliers.id')
                 ->orderBy('suppliers.name', $sortOrder)
@@ -70,7 +62,6 @@ class ProductController extends Controller
 
         return Inertia::render('product/index', [
             'products' => $products,
-            'categories' => Category::orderBy('name')->get(),
             'suppliers' => Supplier::orderBy('name')->get(),
             'filters' => [
                 'search' => $request->get('search', ''),
@@ -96,7 +87,6 @@ class ProductController extends Controller
                 'product_id' => $product->id,
                 'product_name' => $product->name,
                 'product_barcode' => $product->barcode,
-                'category_id' => $product->category_id,
                 'supplier_id' => $product->supplier_id,
                 'created_by' => auth()->id(),
             ]);

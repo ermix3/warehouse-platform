@@ -1,4 +1,4 @@
-import { Category, CategoryLite, DataPagination, type Filters, Flash, Supplier, SupplierLite } from '@/types';
+import { DataPagination, type Filters, Flash, Supplier, SupplierLite } from '@/types';
 
 export interface ProductLite {
     id: number;
@@ -12,19 +12,21 @@ export interface Product {
     description?: string;
     origin: string;
     hs_code: string;
+    unit_price: number;
+    box_qtt: number;
+    height: number;
+    length: number;
+    width: number;
     net_weight: number;
     box_weight: number;
-    category_id: number;
     supplier_id?: number | null;
     created_at?: string;
     updated_at?: string;
-    category?: CategoryLite;
     supplier?: SupplierLite;
 }
 
 export interface PageProductProps {
     products: DataPagination<Product>;
-    categories: Category[];
     suppliers: Supplier[];
     filters: Filters;
     flash?: Flash;
@@ -34,7 +36,6 @@ export interface PageProductProps {
 export interface CreateProductProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    categories: Category[];
     suppliers: Supplier[];
 }
 
@@ -42,6 +43,5 @@ export interface EditProductProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     product: Product | null;
-    categories: Category[];
     suppliers: Supplier[];
 }

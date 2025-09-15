@@ -8,16 +8,20 @@ import { index } from '@/routes/products';
 import { CreateProductProps } from '@/types';
 import { useForm } from '@inertiajs/react';
 
-export default function CreateProduct({ open, onOpenChange, categories, suppliers }: Readonly<CreateProductProps>) {
+export default function CreateProduct({ open, onOpenChange, suppliers }: Readonly<CreateProductProps>) {
     const form = useForm({
         barcode: '',
         name: '',
         description: '',
         origin: '',
         hs_code: '',
+        unit_price: '',
+        box_qtt: '',
+        height: '',
+        length: '',
+        width: '',
         net_weight: '',
         box_weight: '',
-        category_id: '',
         supplier_id: '',
     });
 
@@ -41,12 +45,6 @@ export default function CreateProduct({ open, onOpenChange, categories, supplier
         }
         onOpenChange(isOpen);
     };
-
-    // Prepare options for SearchableSelect
-    const categoryOptions = categories.map((category) => ({
-        value: category.id.toString(),
-        label: category.name,
-    }));
 
     const supplierOptions = [
         { value: '', label: 'No supplier' },
@@ -99,6 +97,65 @@ export default function CreateProduct({ open, onOpenChange, categories, supplier
                         </div>
 
                         <div>
+                            <Label htmlFor="create-unit_price">Unit Price *</Label>
+                            <Input
+                                id="create-unit_price"
+                                type="number"
+                                step="0.01"
+                                value={form.data.unit_price}
+                                onChange={(e) => form.setData('unit_price', e.target.value)}
+                            />
+                            {form.errors.unit_price && <div className="mt-1 text-sm text-red-600">{form.errors.unit_price}</div>}
+                        </div>
+
+                        <div>
+                            <Label htmlFor="create-box_qtt">Box Quantity *</Label>
+                            <Input
+                                id="create-box_qtt"
+                                type="number"
+                                value={form.data.box_qtt}
+                                onChange={(e) => form.setData('box_qtt', e.target.value)}
+                            />
+                            {form.errors.box_qtt && <div className="mt-1 text-sm text-red-600">{form.errors.box_qtt}</div>}
+                        </div>
+
+                        <div>
+                            <Label htmlFor="create-height">Height (cm) *</Label>
+                            <Input
+                                id="create-height"
+                                type="number"
+                                step="0.01"
+                                value={form.data.height}
+                                onChange={(e) => form.setData('height', e.target.value)}
+                            />
+                            {form.errors.height && <div className="mt-1 text-sm text-red-600">{form.errors.height}</div>}
+                        </div>
+
+                        <div>
+                            <Label htmlFor="create-length">Length (cm) *</Label>
+                            <Input
+                                id="create-length"
+                                type="number"
+                                step="0.01"
+                                value={form.data.length}
+                                onChange={(e) => form.setData('length', e.target.value)}
+                            />
+                            {form.errors.length && <div className="mt-1 text-sm text-red-600">{form.errors.length}</div>}
+                        </div>
+
+                        <div>
+                            <Label htmlFor="create-width">Width (cm) *</Label>
+                            <Input
+                                id="create-width"
+                                type="number"
+                                step="0.01"
+                                value={form.data.width}
+                                onChange={(e) => form.setData('width', e.target.value)}
+                            />
+                            {form.errors.width && <div className="mt-1 text-sm text-red-600">{form.errors.width}</div>}
+                        </div>
+
+                        <div>
                             <Label htmlFor="create-net_weight">Net Weight (kg) *</Label>
                             <Input
                                 id="create-net_weight"
@@ -120,19 +177,6 @@ export default function CreateProduct({ open, onOpenChange, categories, supplier
                                 onChange={(e) => form.setData('box_weight', e.target.value)}
                             />
                             {form.errors.box_weight && <div className="mt-1 text-sm text-red-600">{form.errors.box_weight}</div>}
-                        </div>
-
-                        <div>
-                            <Label htmlFor="create-category_id">Category *</Label>
-                            <SearchableSelect
-                                options={categoryOptions}
-                                value={form.data.category_id}
-                                onValueChange={(value) => form.setData('category_id', value)}
-                                placeholder="Select a category"
-                                emptyText="No categories found."
-                                className={form.errors.category_id ? 'border-red-500' : ''}
-                            />
-                            {form.errors.category_id && <div className="mt-1 text-sm text-red-600">{form.errors.category_id}</div>}
                         </div>
 
                         <div>

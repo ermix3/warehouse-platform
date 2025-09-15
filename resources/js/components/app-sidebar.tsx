@@ -2,7 +2,6 @@ import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import categories from '@/routes/categories';
 import customers from '@/routes/customers';
 import orders from '@/routes/orders';
 import products from '@/routes/products';
@@ -11,7 +10,7 @@ import suppliers from '@/routes/suppliers';
 import users from '@/routes/users';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookmarkCheck, Handshake, LayoutGrid, Ship, ShoppingBag, ShoppingCart, UserRoundCog, UsersRound } from 'lucide-react';
+import { Handshake, LayoutGrid, Ship, ShoppingBag, ShoppingCart, UserRoundCog, UsersRound } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -29,11 +28,6 @@ const mainNavItems: NavItem[] = [
         title: 'Orders',
         href: orders.index(),
         icon: ShoppingCart,
-    },
-    {
-        title: 'Categories',
-        href: categories.index(),
-        icon: BookmarkCheck,
     },
     {
         title: 'Suppliers',

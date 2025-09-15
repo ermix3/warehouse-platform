@@ -2,7 +2,6 @@ import { SharedEnums } from '@/types/enums';
 import { InertiaLinkProps } from '@inertiajs/react';
 import { LucideIcon } from 'lucide-react';
 
-export * from './category';
 export * from './customer';
 export * from './enums';
 export * from './order';
