@@ -9,6 +9,11 @@ export const createColumns = (onEdit: (supplier: Supplier) => void, onDelete: (s
         enableHiding: false,
     },
     {
+        accessorKey: 'code',
+        header: 'Code',
+        enableHiding: false,
+    },
+    {
         accessorKey: 'name',
         header: 'Name',
         enableHiding: false,
