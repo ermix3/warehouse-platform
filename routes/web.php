@@ -21,7 +21,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::apiResource('products', ProductController::class)->except('show');
     Route::apiResource('users', UserController::class)->except('show');
     Route::apiResource('shippings', ShippingController::class)->except('show');
-    Route::apiResource('orders', OrderController::class)->except('show');
+    Route::apiResource('orders', OrderController::class);
+    Route::post('orders/{order}/attach-product', [OrderController::class, 'attachProduct'])->name('orders.attachProduct');
 });
 
 require __DIR__ . '/settings.php';

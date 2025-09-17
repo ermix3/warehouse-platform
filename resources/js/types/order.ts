@@ -1,4 +1,4 @@
-import { Customer, CustomerLite, DataPagination, Filters, Flash, OrderItemLite, Product, SharedEnums, Shipping, ShippingLite } from '@/types';
+import { Customer, CustomerLite, DataPagination, Filters, Flash, OrderItem, OrderItemLite, Product, ProductLite, SharedEnums, Shipping, ShippingLite } from '@/types';
 
 export interface Order {
     id: number;
@@ -40,4 +40,15 @@ export interface EditOrderProps {
     customers: CustomerLite[];
     shippings: ShippingLite[];
     products: Product[];
+}
+
+export interface ShowOrderProps {
+customer: Customer;
+filters: Filters;
+flash?: Flash;
+enums: SharedEnums;
+order: Order;
+orderItems: DataPagination<OrderItem>;
+products: ProductLite[];
+[key: string]: unknown;
 }

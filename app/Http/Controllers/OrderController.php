@@ -146,4 +146,53 @@ class OrderController extends Controller
 
         return redirect()->route('orders.index')->with('success', 'Order deleted successfully.');
     }
+
+    /**
+     * Display the specified order with customer and paginated/searchable order items.
+     */
+    public function show(Request $request, $id): Response
+    {
+        $order = Order::with(['customer', 'items.product'])->findOrFail($id);
+        $customer = $order->customer;
+        $products = Product::all();
+        $enums = [
+            'orderStatus' => \App\Enums\OrderStatus::cases(),
+            'shippingStatus' => \App\Enums\ShippingStatus::cases(),
+        ];
+
+        // Paginate and search order items
+        $itemsQuery = $order->items()->with('product');
+        if ($search = $request->get('search')) {
+            $itemsQuery->whereHas('product', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+        $orderItems = $itemsQuery->paginate(10)->appends($request->query());
+
+        return Inertia::render('order/show', [
+            'order' => $order,
+            'customer' => $customer,
+            'orderItems' => $orderItems,
+            'products' => $products,
+            'enums' => $enums,
+        ]);
+    }
+
+    /**
+     * Attach a product to the order (add an order item).
+     */
+    public function attachProduct(Request $request, $id)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'ctn' => 'required|integer|min:1',
+        ]);
+        $order = Order::findOrFail($id);
+        $order->items()->create([
+            'product_id' => $request->input('product_id'),
+            'ctn' => $request->input('ctn'),
+        ]);
+        $order->recalculateTotal();
+        return redirect()->route('orders.show', $order->id)->with('success', 'Product attached to order.');
+    }
 }
