@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CustomerRequest;
 use App\Http\Requests\OrderRequest;
 use App\Models\Customer;
 use App\Models\Order;
@@ -152,7 +153,7 @@ class OrderController extends Controller
      */
     public function show(Request $request, $id): Response
     {
-        $order = Order::with(['customer', 'items.product'])->findOrFail($id);
+        $order = Order::with(['customer', 'items.product', 'shipping'])->findOrFail($id);
         $customer = $order->customer;
         $products = Product::all();
 
@@ -188,44 +189,43 @@ class OrderController extends Controller
             'ctn' => $request->input('ctn'),
         ]);
         $order->recalculateTotal();
-//        $order->refreshShippingTotal();
+        $order->refreshShippingTotal();
         return redirect()->route('orders.show', $order->id)->with('success', 'Product attached to order.');
     }
 
     /**
      * Create and attach a blank order (no items) for an existing customer to a shipping.
      */
-    public function attachOrderToShipping(Request $request, Shipping $shipping, Customer $customer)
+    public function attachOrderToShipping(Shipping $shipping, Customer $customer)
     {
-        $order = new Order();
-        $order->order_number = 'ORD-' . now()->format('Ymd') . '-' . str_pad((string) (Order::max('id') + 1), 4, '0', STR_PAD_LEFT);
-        $order->status = 'pending';
-        $order->total = 0;
-        $order->customer_id = $customer->id;
-        $order->shipping_id = $shipping->id;
-        $order->save();
-
-        // refresh shipping total (should remain unchanged if 0)
-        $order->refreshShippingTotal();
-
-        return redirect()->route('shippings.show', $shipping->id)->with('success', 'Blank order attached to shipping for customer.');
+        $this->createOrderAndRefreshShippingTotal($customer, $shipping);
+        return redirect()
+            ->route('shippings.show', $shipping->id)
+            ->with('success', 'Blank order attached to shipping for customer.');
     }
 
     /**
      * Create a new customer and attach a blank order to a shipping.
      */
-    public function createCustomerAndAttachOrder(Request $request, Shipping $shipping)
+    public function createCustomerAndAttachOrder(CustomerRequest $request, Shipping $shipping)
     {
-        $validated = $request->validate([
-            'code' => 'required|string|max:50|unique:customers,code',
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:50',
-        ]);
-
+        $validated = $request->validated();
         $customer = Customer::create($validated);
+        $this->createOrderAndRefreshShippingTotal($customer, $shipping);
+        return redirect()
+            ->route('shippings.show', $shipping->id)
+            ->with('success', 'Customer created and order attached to shipping.');
+    }
 
+    /**
+     * @param Customer $customer
+     * @param Shipping $shipping
+     * @return void
+     */
+    public function createOrderAndRefreshShippingTotal(Customer $customer, Shipping $shipping): void
+    {
         $order = new Order();
-        $order->order_number = 'ORD-' . now()->format('Ymd') . '-' . str_pad((string) (Order::max('id') + 1), 4, '0', STR_PAD_LEFT);
+        $order->order_number = 'ORD-' . now()->format('Ymd') . '-' . str_pad((string)(Order::max('id') + 1), 4, '0', STR_PAD_LEFT);
         $order->status = 'pending';
         $order->total = 0;
         $order->customer_id = $customer->id;
@@ -233,7 +233,5 @@ class OrderController extends Controller
         $order->save();
 
         $order->refreshShippingTotal();
-
-        return redirect()->route('shippings.show', $shipping->id)->with('success', 'Customer created and order attached to shipping.');
     }
 }

@@ -7,10 +7,13 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { OrderStatusBadge } from '@/lib/order-status-helper';
+import { ShippingStatusBadge } from '@/lib/shipping-status-helper';
 import { dashboard } from '@/routes';
 import { attachProduct, index, show } from '@/routes/orders';
+import { show as showShipping } from '@/routes/shippings';
 import { BreadcrumbItem, ShowOrderProps } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { Info, TextSearch } from 'lucide-react';
 
 export default function ShowOrderPage({ order, customer, orderItems, products, flash }: Readonly<ShowOrderProps>) {
     const { data, setData, post, processing, errors, reset, isDirty } = useForm({
@@ -39,7 +42,7 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
 
     const productOptions = products.map((p) => ({
         value: p.id.toString(),
-        label: `${p.name}`,
+        label: `${p.name} - ${p.barcode}`,
     }));
 
     const selectedProduct = products.find((p) => p.id.toString() === data.product_id);
@@ -57,9 +60,9 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
             <Head title={`Order #${order.order_number}`} />
             <div className="container mt-5 space-y-6 px-5">
                 {/* Order & Customer Info */}
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                     <Card>
-                        <CardHeader className="justify-between">
+                        <CardHeader className="border-b-1 border-b-gray-100">
                             <CardTitle>
                                 Order Info <OrderStatusBadge status={order.status} />
                             </CardTitle>
@@ -77,7 +80,7 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader>
+                        <CardHeader className="border-b-1 border-b-gray-100">
                             <CardTitle>Customer Info</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2">
@@ -93,6 +96,46 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                             <div>
                                 <b>Address:</b> {customer.address || '-'}
                             </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Shipment Info (if exists) */}
+                    <Card>
+                        <CardHeader className="border-b-1 border-b-gray-100">
+                            <CardTitle>
+                                Shipment Info {order.shipping?.status ? <ShippingStatusBadge status={order.shipping.status} /> : ''}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                            {order.shipping && (
+                                <>
+                                    <div>
+                                        <b>Tracking #:</b> {order.shipping?.tracking_number ?? '-'}
+                                    </div>
+                                    <div>
+                                        <b>Carrier:</b> {order.shipping?.carrier ?? '-'}
+                                    </div>
+                                    <div>
+                                        <b>Created At:</b> {order.shipping?.created_at ? new Date(order.shipping.created_at).toLocaleString() : '-'}
+                                    </div>
+                                    <div className="pt-2">
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            onClick={() => router.visit(showShipping.url(order.shipping!.id))}
+                                            className={'hover:cursor-pointer'}
+                                        >
+                                            Details <TextSearch />
+                                        </Button>
+                                    </div>
+                                </>
+                            )}
+                            {!order.shipping && (
+                                <div className="flex h-full w-full flex-col items-center justify-center">
+                                    <Info className="h-10 w-10 text-muted-foreground" />
+                                    <span>No shipment yet</span>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
@@ -145,9 +188,11 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                                 <Button type="submit" disabled={processing || !isDirty}>
                                     {processing ? 'Creating...' : 'Attach'}
                                 </Button>
-                                <Button type="button" variant="outline" onClick={() => reset()} disabled={processing}>
-                                    Cancel
-                                </Button>
+                                {isDirty && (
+                                    <Button type="button" variant="outline" onClick={() => reset()} disabled={processing}>
+                                        Cancel
+                                    </Button>
+                                )}
                             </div>
                         </form>
                     </details>
@@ -182,7 +227,7 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                                         orderItems.data.map(({ id, ctn, product }) => (
                                             <TableRow key={id}>
                                                 <TableCell>{id}</TableCell>
-                                                <TableCell>{product?.name || 'Product #' + product?.id}</TableCell>
+                                                <TableCell>{product?.name + ' - ' + product?.barcode}</TableCell>
                                                 <TableCell>{product?.box_qtt || '-'}</TableCell>
                                                 <TableCell>{ctn}</TableCell>
                                                 <TableCell>AED {Number(product?.unit_price)?.toFixed(2) ?? '-'}</TableCell>
