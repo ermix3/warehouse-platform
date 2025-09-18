@@ -155,10 +155,6 @@ class OrderController extends Controller
         $order = Order::with(['customer', 'items.product'])->findOrFail($id);
         $customer = $order->customer;
         $products = Product::all();
-        $enums = [
-            'orderStatus' => \App\Enums\OrderStatus::cases(),
-            'shippingStatus' => \App\Enums\ShippingStatus::cases(),
-        ];
 
         // Paginate and search order items
         $itemsQuery = $order->items()->with('product');
@@ -167,14 +163,13 @@ class OrderController extends Controller
                 $q->where('name', 'like', "%{$search}%");
             });
         }
-        $orderItems = $itemsQuery->paginate(10)->appends($request->query());
+        $orderItems = $itemsQuery->orderByDesc('id')->paginate(10)->appends($request->query());
 
         return Inertia::render('order/show', [
             'order' => $order,
             'customer' => $customer,
             'orderItems' => $orderItems,
             'products' => $products,
-            'enums' => $enums,
         ]);
     }
 
@@ -193,6 +188,52 @@ class OrderController extends Controller
             'ctn' => $request->input('ctn'),
         ]);
         $order->recalculateTotal();
+//        $order->refreshShippingTotal();
         return redirect()->route('orders.show', $order->id)->with('success', 'Product attached to order.');
+    }
+
+    /**
+     * Create and attach a blank order (no items) for an existing customer to a shipping.
+     */
+    public function attachOrderToShipping(Request $request, Shipping $shipping, Customer $customer)
+    {
+        $order = new Order();
+        $order->order_number = 'ORD-' . now()->format('Ymd') . '-' . str_pad((string) (Order::max('id') + 1), 4, '0', STR_PAD_LEFT);
+        $order->status = 'pending';
+        $order->total = 0;
+        $order->customer_id = $customer->id;
+        $order->shipping_id = $shipping->id;
+        $order->save();
+
+        // refresh shipping total (should remain unchanged if 0)
+        $order->refreshShippingTotal();
+
+        return redirect()->route('shippings.show', $shipping->id)->with('success', 'Blank order attached to shipping for customer.');
+    }
+
+    /**
+     * Create a new customer and attach a blank order to a shipping.
+     */
+    public function createCustomerAndAttachOrder(Request $request, Shipping $shipping)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string|max:50|unique:customers,code',
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:50',
+        ]);
+
+        $customer = Customer::create($validated);
+
+        $order = new Order();
+        $order->order_number = 'ORD-' . now()->format('Ymd') . '-' . str_pad((string) (Order::max('id') + 1), 4, '0', STR_PAD_LEFT);
+        $order->status = 'pending';
+        $order->total = 0;
+        $order->customer_id = $customer->id;
+        $order->shipping_id = $shipping->id;
+        $order->save();
+
+        $order->refreshShippingTotal();
+
+        return redirect()->route('shippings.show', $shipping->id)->with('success', 'Customer created and order attached to shipping.');
     }
 }

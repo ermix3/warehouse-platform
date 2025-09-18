@@ -1,10 +1,11 @@
 import ActionsCell from '@/components/shared/actions-cell';
+import { Button } from '@/components/ui/button';
 import { OrderStatusBadge } from '@/lib/order-status-helper';
 import { formatCurrency } from '@/lib/utils';
+import { show } from '@/routes/orders';
 import { Order } from '@/types/order';
-import { ColumnDef } from '@tanstack/react-table';
-import { Button } from '@/components/ui/button';
 import { router } from '@inertiajs/react';
+import { ColumnDef } from '@tanstack/react-table';
 import { TextSearch } from 'lucide-react';
 
 export const createColumns = (onEdit: (order: Order) => void, onDelete: (order: Order) => void): ColumnDef<Order>[] => {
@@ -49,7 +50,7 @@ export const createColumns = (onEdit: (order: Order) => void, onDelete: (order: 
             cell: ({ row }) => {
                 const order = row.original;
                 return (
-                    <Button variant="outline" size="sm" onClick={() => router.visit(`/orders/${order.id}`)} className='hover:cursor-pointer'>
+                    <Button variant="outline" size="sm" onClick={() => router.visit(show(order.id))} className="hover:cursor-pointer">
                         <TextSearch />
                     </Button>
                 );

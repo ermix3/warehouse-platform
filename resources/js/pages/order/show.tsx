@@ -10,13 +10,10 @@ import { OrderStatusBadge } from '@/lib/order-status-helper';
 import { dashboard } from '@/routes';
 import { attachProduct, index, show } from '@/routes/orders';
 import { BreadcrumbItem, ShowOrderProps } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, useForm } from '@inertiajs/react';
 
-export default function ShowOrderPage({ order, customer, orderItems, products, flash }: ShowOrderProps) {
-    const [showAttach, setShowAttach] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const { data, setData, reset } = useForm({
+export default function ShowOrderPage({ order, customer, orderItems, products, flash }: Readonly<ShowOrderProps>) {
+    const { data, setData, post, processing, errors, reset, isDirty } = useForm({
         product_id: '',
         ctn: 1,
     });
@@ -43,30 +40,15 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
     const productOptions = products.map((p) => ({
         value: p.id.toString(),
         label: `${p.name}`,
-        // stock: p.box_qtt * p.quantity_per_box,
     }));
 
     const selectedProduct = products.find((p) => p.id.toString() === data.product_id);
 
-    const handleAttach = () => {
-        if (!data.product_id || !data.ctn) {
-            return;
-        }
-
-        setIsSubmitting(true);
-
-        router.post(attachProduct(order.id), data, {
+    const handleAttach = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(attachProduct(order.id).url, {
             preserveScroll: true,
-            onSuccess: () => {
-                reset();
-                setShowAttach(false);
-            },
-            onError: (errors) => {
-                console.error(errors);
-            },
-            onFinish: () => {
-                setIsSubmitting(false);
-            },
+            onSuccess: () => reset(),
         });
     };
 
@@ -115,87 +97,61 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                     </Card>
                 </div>
 
-                {/* Attach Product Button */}
-                {!showAttach && (
-                    <div className="mb-2 flex justify-end">
-                        <Button variant={showAttach ? 'default' : 'outline'} onClick={() => setShowAttach((v) => !v)} className="gap-2">
-                            Attach Product
-                        </Button>
-                    </div>
-                )}
-
                 {/* Attach Product Card */}
-                {showAttach && (
-                    <Card className="mb-6 overflow-hidden border-primary/5 p-1">
-                        <CardHeader className="relative rounded-xl bg-muted/80 p-2">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg">Add Product to Order</CardTitle>
-                                <div>
-                                    <Button
-                                        variant="outline"
-                                        className="mr-2"
-                                        onClick={() => {
-                                            setShowAttach(false);
-                                            reset();
-                                        }}
-                                        disabled={isSubmitting}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button onClick={handleAttach} disabled={!data.product_id || !data.ctn || isSubmitting}>
-                                        {isSubmitting ? 'Adding...' : 'Add to Order'}
-                                    </Button>
-                                </div>
+                <div className="mb-4">
+                    <details className="rounded border p-3">
+                        <summary className="cursor-pointer font-medium">Add Product to Order</summary>
+                        <form onSubmit={handleAttach} className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-4">
+                            <div>
+                                <Label htmlFor="product">Product *</Label>
+                                <SearchableSelect
+                                    options={productOptions}
+                                    value={data.product_id}
+                                    onValueChange={(value) => setData('product_id', value)}
+                                    placeholder="Search and select product..."
+                                />
+                                {errors.product_id && <div className="mt-1 text-sm text-red-500">{errors.product_id}</div>}
                             </div>
-                        </CardHeader>
-                        <CardContent className="p-5 pt-1">
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                            <div>
+                                <Label htmlFor="ctn">Cartons (CTN) *</Label>
+                                <Input
+                                    id="ctn"
+                                    type="number"
+                                    min={1}
+                                    value={data.ctn}
+                                    onChange={(e) => setData('ctn', parseInt(e.target.value) || 1)}
+                                    className="pr-16"
+                                />
+                                {errors.ctn && <div className="mt-1 text-sm text-red-500">{errors.ctn}</div>}
+                            </div>
+                            {selectedProduct && (
                                 <div className="space-y-2">
-                                    <Label htmlFor="product">Product *</Label>
-                                    <SearchableSelect
-                                        id="product"
-                                        options={productOptions}
-                                        value={data.product_id}
-                                        onValueChange={(value) => setData('product_id', value)}
-                                        placeholder="Search and select product..."
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="ctn">Cartons (CTN) *</Label>
-                                    <div className="relative">
-                                        <Input
-                                            id="ctn"
-                                            type="number"
-                                            min={1}
-                                            value={data.ctn}
-                                            onChange={(e) => setData('ctn', parseInt(e.target.value) || 1)}
-                                            className="pr-16"
-                                        />
-                                    </div>
-                                </div>
-
-                                {selectedProduct && (
-                                    <div className="space-y-2">
-                                        <Label>Details</Label>
-                                        <div className="rounded-md border p-3 text-sm">
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <span className="text-muted-foreground">Box Qty:</span>
-                                                <span>{selectedProduct.box_qtt || '-'}</span>
-                                                <span className="text-muted-foreground">Unit Price:</span>
-                                                <span>AED {Number(selectedProduct.unit_price)?.toFixed(2)}</span>
-                                                <span className="text-muted-foreground">Total:</span>
-                                                <span className="font-medium">
-                                                    AED {(selectedProduct.unit_price * selectedProduct.box_qtt * (data.ctn || 0)).toFixed(2)}
-                                                </span>
-                                            </div>
+                                    <Label>Details</Label>
+                                    <div className="rounded-md border p-3 text-sm">
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <span className="text-muted-foreground">Box Qty:</span>
+                                            <span>{selectedProduct.box_qtt || '-'}</span>
+                                            <span className="text-muted-foreground">Unit Price:</span>
+                                            <span>AED {Number(selectedProduct.unit_price)?.toFixed(2)}</span>
+                                            <span className="text-muted-foreground">Total:</span>
+                                            <span className="font-medium">
+                                                AED {(selectedProduct.unit_price * selectedProduct.box_qtt * (data.ctn || 0)).toFixed(2)}
+                                            </span>
                                         </div>
                                     </div>
-                                )}
+                                </div>
+                            )}
+                            <div className="flex items-end space-x-2">
+                                <Button type="submit" disabled={processing || !isDirty}>
+                                    {processing ? 'Creating...' : 'Attach'}
+                                </Button>
+                                <Button type="button" variant="outline" onClick={() => reset()} disabled={processing}>
+                                    Cancel
+                                </Button>
                             </div>
-                        </CardContent>
-                    </Card>
-                )}
+                        </form>
+                    </details>
+                </div>
 
                 {/* Order Items Table */}
                 <Card>

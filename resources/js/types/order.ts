@@ -1,9 +1,29 @@
-import { Customer, CustomerLite, DataPagination, Filters, Flash, OrderItem, OrderItemLite, Product, ProductLite, SharedEnums, Shipping, ShippingLite } from '@/types';
+import {
+    Customer,
+    CustomerLite,
+    DataPagination,
+    Filters,
+    Flash,
+    OrderItem,
+    OrderItemLite,
+    OrderStatus,
+    Product,
+    SharedEnums,
+    Shipping,
+    ShippingLite,
+} from '@/types';
+
+export interface OrderLite {
+    id: number;
+    order_number: OrderStatus;
+    status: string;
+    total: number;
+}
 
 export interface Order {
     id: number;
     order_number: string;
-    status: 'draft' | 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+    status: OrderStatus;
     total: number;
     customer_id: number;
     shipping_id: number;
@@ -43,12 +63,12 @@ export interface EditOrderProps {
 }
 
 export interface ShowOrderProps {
-customer: Customer;
-filters: Filters;
-flash?: Flash;
-enums: SharedEnums;
-order: Order;
-orderItems: DataPagination<OrderItem>;
-products: ProductLite[];
-[key: string]: unknown;
+    customer: Customer;
+    filters: Filters;
+    flash?: Flash;
+    enums: SharedEnums;
+    order: Order;
+    orderItems: DataPagination<OrderItem>;
+    products: Product[];
+    [key: string]: unknown;
 }

@@ -12,13 +12,13 @@ export function ActionsCell<T>({ item, onEdit, onDelete }: Readonly<ActionsCellP
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className='h-8 w-8 p-0 hover:cursor-pointer'>
+                <Button variant="ghost" className="h-8 w-8 p-0 hover:cursor-pointer">
                     <span className="sr-only">Open menu</span>
                     <MoreHorizontal className="h-4 w-4" />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEdit(item)} className='hover:cursor-pointer'>
+                <DropdownMenuItem onClick={() => onEdit(item)} className="hover:cursor-pointer">
                     <Pencil className="mr-2 h-4 w-4" />
                     Edit
                 </DropdownMenuItem>
