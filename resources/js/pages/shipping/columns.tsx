@@ -1,10 +1,14 @@
 'use client';
 
 import ActionsCell from '@/components/shared/actions-cell';
+import { Button } from '@/components/ui/button';
 import { ShippingStatusBadge } from '@/lib/shipping-status-helper';
 import { formatCurrency } from '@/lib/utils';
+import { show } from '@/routes/shippings';
 import { Shipping } from '@/types';
+import { router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
+import { TextSearch } from 'lucide-react';
 
 export const createColumns = (onEdit: (shipping: Shipping) => void, onDelete: (shipping: Shipping) => void): ColumnDef<Shipping>[] => {
     return [
@@ -45,6 +49,19 @@ export const createColumns = (onEdit: (shipping: Shipping) => void, onDelete: (s
             cell: ({ row }) => {
                 const createdAt = row.original?.created_at;
                 return <div className="text-sm text-muted-foreground">{createdAt ? new Date(createdAt).toLocaleDateString() : '-'}</div>;
+            },
+        },
+        {
+            id: 'details',
+            header: 'Details',
+            enableHiding: false,
+            cell: ({ row }) => {
+                const order = row.original;
+                return (
+                    <Button variant="outline" size="sm" onClick={() => router.visit(show(order.id))} className="hover:cursor-pointer">
+                        <TextSearch />
+                    </Button>
+                );
             },
         },
         {

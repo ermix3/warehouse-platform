@@ -20,7 +20,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::apiResource('customers', CustomerController::class)->except('show');
     Route::apiResource('products', ProductController::class)->except('show');
     Route::apiResource('users', UserController::class)->except('show');
-    Route::apiResource('shippings', ShippingController::class)->except('show');
+    Route::apiResource('shippings', ShippingController::class);
+    Route::get('shippings/{shipping}', [ShippingController::class, 'show'])->name('shippings.show');
+    Route::post('shippings/{shipping}/customers', [OrderController::class, 'createCustomerAndAttachOrder'])->name('shippings.customers.attachCreate');
+    Route::post('shippings/{shipping}/customers/{customer}/attach-order', [OrderController::class, 'attachOrderToShipping'])->name('shippings.customers.attachOrder');
     Route::apiResource('orders', OrderController::class);
     Route::post('orders/{order}/attach-product', [OrderController::class, 'attachProduct'])->name('orders.attachProduct');
 });

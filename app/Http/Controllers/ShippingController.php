@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ShippingRequest;
+use App\Models\Customer;
 use App\Models\Shipping;
 use Exception;
 use Illuminate\Http\RedirectResponse;
@@ -122,6 +123,53 @@ class ShippingController extends Controller
                 ->withInput()
                 ->withErrors(['error' => 'Failed to update shipping. Please try again.']);
         }
+    }
+
+        /**
+     * Show a shipping with its orders and customers.
+     */
+    public function show(Request $request, Shipping $shipping): Response
+    {
+        // Orders for this shipping with pagination
+        $ordersQuery = $shipping->orders()->with('customer')->orderBy('id', 'desc');
+        if ($search = $request->get('orders_search')) {
+            $ordersQuery->where(function ($q) use ($search) {
+                $q->where('order_number', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhere('total', 'like', "%{$search}%");
+            });
+        }
+        $orders = $ordersQuery->paginate(10, ['*'], 'orders_page')->appends($request->query());
+
+        // Customers that have orders in this shipping (distinct) with pagination
+        $customersQuery = $shipping->orders()
+            ->select('customer_id')
+            ->with('customer')
+            ->whereNotNull('customer_id')
+            ->groupBy('customer_id');
+
+        // To paginate distinct customers, fetch IDs then query customers
+        $customerIds = $customersQuery->pluck('customer_id')->toArray();
+        $customersPaginator = Customer::whereIn('id', $customerIds)
+            ->orderBy('id', 'desc');
+        if ($search = $request->get('customers_search')) {
+            $customersPaginator->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+        $customers = $customersPaginator->paginate(10, ['*'], 'customers_page')->appends($request->query());
+
+        return Inertia::render('shipping/show', [
+            'shipping' => $shipping->fresh()->loadCount('orders'),
+            'orders' => $orders,
+            'customers' => $customers,
+            'filters' => [
+                'orders_search' => $request->get('orders_search', ''),
+                'customers_search' => $request->get('customers_search', ''),
+            ],
+        ]);
     }
 
     /**

@@ -1,4 +1,4 @@
-import { DataPagination, type Filters, Flash, SharedEnums } from '@/types';
+import { type Customer, DataPagination, type Filters, Flash, Order, SharedEnums } from '@/types';
 
 export interface ShippingLite {
     id: number;
@@ -35,4 +35,19 @@ export interface EditShippingProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     shipping: Shipping | null;
+}
+
+interface ShowShippingFilters {
+    orders_search?: string;
+    customers_search?: string;
+}
+
+export interface ShowShippingProps {
+    shipping: Shipping;
+    orders: DataPagination<Order>;
+    customers: DataPagination<Pick<Customer, 'id' | 'code' | 'name' | 'phone'>>;
+    filters: ShowShippingFilters;
+    flash?: Flash;
+    enums: SharedEnums;
+    [key: string]: unknown;
 }
