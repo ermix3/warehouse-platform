@@ -5,13 +5,6 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
-export const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'AED',
-    }).format(amount);
-};
-
 const randomColorUtility = (length: number) => {
     return Math.floor(Math.random() * length);
 };
@@ -24,4 +17,17 @@ export const hexy = () => {
         hexColor += hex[randomColorUtility(length)];
     }
     return hexColor;
+};
+
+/**
+ * Formats a number as a currency string in AED with custom decimal places.
+ *
+ * @param amount - The numeric amount to format.
+ * @param min - Minimum number of decimal places (default: 2).
+ * @param max - Maximum number of decimal places (default: 2).
+ * @returns Formatted string, e.g. "AED 1,234.56"
+ */
+export const getFormatedAmount = (amount: number, min: number = 2, max: number = 2) => {
+    if (!amount) return 'AED 0.00';
+    return `AED ${amount.toLocaleString('en-US', { minimumFractionDigits: min, maximumFractionDigits: max })}`;
 };

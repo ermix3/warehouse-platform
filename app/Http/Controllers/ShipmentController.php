@@ -125,7 +125,7 @@ class ShipmentController extends Controller
         }
     }
 
-        /**
+    /**
      * Show a shipment with its orders and customers.
      */
     public function show(Request $request, Shipment $shipment): Response
@@ -161,13 +161,17 @@ class ShipmentController extends Controller
         }
         $customers = $customersPaginator->paginate(10, ['*'], 'customers_page')->appends($request->query());
 
+        $allCustomers = Customer::get(['id', 'code', 'name']);
+
         return Inertia::render('shipment/show', [
             'shipment' => $shipment->fresh()->loadCount('orders'),
             'orders' => $orders,
             'customers' => $customers,
+            'allCustomers' => $allCustomers,
             'filters' => [
                 'orders_search' => $request->get('orders_search', ''),
                 'customers_search' => $request->get('customers_search', ''),
+                'all_customers_search' => $request->get('all_customers_search', ''),
             ],
         ]);
     }

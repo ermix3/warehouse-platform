@@ -3,7 +3,7 @@
 import ActionsCell from '@/components/shared/actions-cell';
 import { Button } from '@/components/ui/button';
 import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
-import { formatCurrency } from '@/lib/utils';
+import { getFormatedAmount } from '@/lib/utils';
 import { show } from '@/routes/shipments';
 import { Shipment } from '@/types';
 import { router } from '@inertiajs/react';
@@ -36,7 +36,7 @@ export const createColumns = (onEdit: (shipment: Shipment) => void, onDelete: (s
         {
             accessorKey: 'total',
             header: 'Total',
-            cell: ({ row }) => <div className="font-medium">{formatCurrency(row.original.total)}</div>,
+            cell: ({ row }) => <div className="font-medium">{getFormatedAmount(row.original.total)}</div>,
         },
         {
             accessorKey: 'orders_count',

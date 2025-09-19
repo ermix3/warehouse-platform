@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { OrderStatusBadge } from '@/lib/order-status-helper';
 import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
+import { getFormatedAmount } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { attachProduct, index, show } from '@/routes/orders';
 import { show as showShipment } from '@/routes/shipments';
@@ -59,8 +60,8 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
         <AppLayout flash={flash} breadcrumbs={breadcrumbs}>
             <Head title={`Order #${order.order_number}`} />
             <div className="container mt-5 space-y-6 px-5">
-                {/* Order & Customer Info */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    {/* Order Info */}
                     <Card>
                         <CardHeader className="border-b-1 border-b-gray-100">
                             <CardTitle>
@@ -79,6 +80,8 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                             </div>
                         </CardContent>
                     </Card>
+
+                    {/* Customer Info */}
                     <Card>
                         <CardHeader className="border-b-1 border-b-gray-100">
                             <CardTitle>Customer Info</CardTitle>
@@ -99,7 +102,7 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                         </CardContent>
                     </Card>
 
-                    {/* Shipment Info (if exists) */}
+                    {/* Shipment Info */}
                     <Card>
                         <CardHeader className="border-b-1 border-b-gray-100">
                             <CardTitle>
@@ -143,7 +146,7 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                 {/* Attach Product Card */}
                 <div className="mb-4">
                     <details className="rounded border p-3">
-                        <summary className="cursor-pointer font-medium">Add Product to Order</summary>
+                        <summary className="cursor-pointer font-medium">Attach Product</summary>
                         <form onSubmit={handleAttach} className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-4">
                             <div>
                                 <Label htmlFor="product">Product *</Label>
@@ -178,7 +181,7 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                                             <span>AED {Number(selectedProduct.unit_price)?.toFixed(2)}</span>
                                             <span className="text-muted-foreground">Total:</span>
                                             <span className="font-medium">
-                                                AED {(selectedProduct.unit_price * selectedProduct.box_qtt * (data.ctn || 0)).toFixed(2)}
+                                                {getFormatedAmount(selectedProduct.unit_price * selectedProduct.box_qtt * (data.ctn || 0))}
                                             </span>
                                         </div>
                                     </div>
@@ -234,21 +237,9 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                                                     <TableCell>{product?.box_qtt || '-'}</TableCell>
                                                     <TableCell>{ctn}</TableCell>
                                                     <TableCell>{ctn * (product?.box_qtt || 0)}</TableCell>
+                                                    <TableCell>{getFormatedAmount(product?.unit_price ?? 0)}</TableCell>
                                                     <TableCell>
-                                                        AED{' '}
-                                                        {Number(product?.unit_price)?.toLocaleString('en-US', {
-                                                            minimumFractionDigits: 2,
-                                                            maximumFractionDigits: 2,
-                                                        }) ?? '-'}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        AED{' '}
-                                                        {product
-                                                            ? (Number(product.unit_price) * product.box_qtt * ctn).toLocaleString('en-US', {
-                                                                  minimumFractionDigits: 2,
-                                                                  maximumFractionDigits: 2,
-                                                              })
-                                                            : '-'}
+                                                        {getFormatedAmount(Number(product?.unit_price) * (product?.box_qtt ?? 0) * (ctn || 0))}
                                                     </TableCell>
                                                 </TableRow>
                                             ))

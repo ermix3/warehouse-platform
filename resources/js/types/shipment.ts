@@ -46,6 +46,7 @@ export interface ShowShipmentProps {
     shipment: Shipment;
     orders: DataPagination<Order>;
     customers: DataPagination<Pick<Customer, 'id' | 'code' | 'name' | 'phone'>>;
+    allCustomers: Array<Pick<Customer, 'id' | 'code' | 'name'>>;
     filters: ShowShipmentFilters;
     flash?: Flash;
     enums: SharedEnums;

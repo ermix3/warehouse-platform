@@ -1,7 +1,7 @@
 import ActionsCell from '@/components/shared/actions-cell';
 import { Button } from '@/components/ui/button';
 import { OrderStatusBadge } from '@/lib/order-status-helper';
-import { formatCurrency } from '@/lib/utils';
+import { getFormatedAmount } from '@/lib/utils';
 import { show } from '@/routes/orders';
 import { Order } from '@/types/order';
 import { router } from '@inertiajs/react';
@@ -28,7 +28,7 @@ export const createColumns = (onEdit: (order: Order) => void, onDelete: (order: 
         {
             accessorKey: 'total',
             header: 'Total',
-            cell: ({ row }) => formatCurrency(row.original.total),
+            cell: ({ row }) => getFormatedAmount(row.original.total),
         },
         {
             accessorKey: 'customer.name',

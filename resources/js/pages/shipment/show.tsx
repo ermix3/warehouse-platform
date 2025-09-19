@@ -2,10 +2,13 @@ import { attachOrderToShipment } from '@/actions/App/Http/Controllers/OrderContr
 import { Pagination } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import AppLayout from '@/layouts/app-layout';
 import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
+import { getFormatedAmount } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { show as showOrders } from '@/routes/orders';
 import { index, show } from '@/routes/shipments';
@@ -16,10 +19,12 @@ import { TextSearch } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ShipmentShowPage() {
-    const { shipment, orders, customers, filters, flash } = usePage<ShowShipmentProps>().props;
+    const { shipment, orders, customers, filters, flash, allCustomers } = usePage<ShowShipmentProps>().props;
 
     const [ordersSearch, setOrdersSearch] = useState(filters.orders_search ?? '');
     const [customersSearch, setCustomersSearch] = useState(filters.customers_search ?? '');
+    const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
+    const [noCustomerFound, setNoCustomerFound] = useState(false);
 
     const form = useForm({
         code: '',
@@ -54,6 +59,17 @@ export default function ShipmentShowPage() {
         e.preventDefault();
         router.get(show.url(shipment.id), { ...filters, customers_search: customersSearch }, { preserveScroll: true });
     };
+
+    const onAttachSelected = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedCustomerId) return;
+        attachOrder(Number(selectedCustomerId));
+    };
+
+    const customerOptions = allCustomers.map((c) => ({
+        value: c.id.toString(),
+        label: `${c.code} - ${c.name}`,
+    }));
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -101,7 +117,7 @@ export default function ShipmentShowPage() {
                             </div>
                             <div>
                                 <Label className="text-md font-bold">Total</Label>
-                                <div className="mt-2 text-sm font-medium">AED {shipment.total?.toFixed?.(2) ?? shipment.total}</div>
+                                <div className="mt-2 text-sm font-medium"> {getFormatedAmount(shipment.total)}</div>
                             </div>
                         </div>
                     </CardContent>
@@ -119,44 +135,88 @@ export default function ShipmentShowPage() {
                     <CardContent>
                         <div className="mb-4">
                             <details className="rounded border p-3">
-                                <summary className="cursor-pointer font-medium">Create New Customer</summary>
-                                <form onSubmit={onCreateAttach} className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-4">
-                                    <div>
-                                        <Label htmlFor="code">Code</Label>
-                                        <Input
-                                            id="code"
-                                            value={form.data.code}
-                                            onChange={(e) => form.setData('code', e.target.value)}
-                                            className={form.errors.code ? 'border-red-500' : ''}
+                                <summary className="cursor-pointer font-medium">Attach Customer</summary>
+                                <div className="mt-3 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            id="no-customer-found"
+                                            checked={noCustomerFound}
+                                            onCheckedChange={(v) => setNoCustomerFound(Boolean(v))}
                                         />
-                                        {form.errors.code && <p className="mt-1 text-xs text-red-500">{form.errors.code}</p>}
+                                        <Label htmlFor="no-customer-found">No customer found</Label>
                                     </div>
-                                    <div>
-                                        <Label htmlFor="name">Name</Label>
-                                        <Input
-                                            id="name"
-                                            value={form.data.name}
-                                            onChange={(e) => form.setData('name', e.target.value)}
-                                            className={form.errors.name ? 'border-red-500' : ''}
-                                        />
-                                        {form.errors.name && <p className="mt-1 text-xs text-red-500">{form.errors.name}</p>}
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="phone">Phone</Label>
-                                        <Input
-                                            id="phone"
-                                            value={form.data.phone}
-                                            onChange={(e) => form.setData('phone', e.target.value)}
-                                            className={form.errors.phone ? 'border-red-500' : ''}
-                                        />
-                                        {form.errors.phone && <p className="mt-1 text-xs text-red-500">{form.errors.phone}</p>}
-                                    </div>
-                                    <div className="flex items-end">
-                                        <Button type="submit" disabled={form.processing}>
-                                            {form.processing ? 'Creating...' : 'Create & Attach'}
-                                        </Button>
-                                    </div>
-                                </form>
+
+                                    {!noCustomerFound ? (
+                                        <form onSubmit={onAttachSelected} className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                                            <div className="md:col-span-2">
+                                                <Label htmlFor="customer-select">Select Customer</Label>
+                                                <SearchableSelect
+                                                    options={customerOptions}
+                                                    value={selectedCustomerId}
+                                                    onValueChange={(value) => setSelectedCustomerId(value)}
+                                                    placeholder="Search and select product..."
+                                                />
+                                            </div>
+
+                                            <div className="flex items-end space-x-2">
+                                                <Button type="submit" disabled={!selectedCustomerId}>
+                                                    Attach Order
+                                                </Button>
+                                                {selectedCustomerId && (
+                                                    <Button type="button" variant="outline" onClick={() => setSelectedCustomerId('')}>
+                                                        Cancel
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </form>
+                                    ) : (
+                                        <form onSubmit={onCreateAttach} className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                                            <div>
+                                                <Label htmlFor="code_inline">Code</Label>
+                                                <Input
+                                                    id="code_inline"
+                                                    value={form.data.code}
+                                                    onChange={(e) => form.setData('code', e.target.value)}
+                                                    placeholder="i.e. C123"
+                                                    className={form.errors.code ? 'border-red-500' : ''}
+                                                />
+                                                {form.errors.code && <p className="mt-1 text-xs text-red-500">{form.errors.code}</p>}
+                                            </div>
+                                            <div>
+                                                <Label htmlFor="name_inline">Name</Label>
+                                                <Input
+                                                    id="name_inline"
+                                                    value={form.data.name}
+                                                    onChange={(e) => form.setData('name', e.target.value)}
+                                                    placeholder="i.e. John doe"
+                                                    className={form.errors.name ? 'border-red-500' : ''}
+                                                />
+                                                {form.errors.name && <p className="mt-1 text-xs text-red-500">{form.errors.name}</p>}
+                                            </div>
+                                            <div>
+                                                <Label htmlFor="phone_inline">Phone</Label>
+                                                <Input
+                                                    id="phone_inline"
+                                                    value={form.data.phone}
+                                                    onChange={(e) => form.setData('phone', e.target.value)}
+                                                    placeholder="i.e +997154752524"
+                                                    className={form.errors.phone ? 'border-red-500' : ''}
+                                                />
+                                                {form.errors.phone && <p className="mt-1 text-xs text-red-500">{form.errors.phone}</p>}
+                                            </div>
+                                            <div className="flex items-end space-x-2">
+                                                <Button type="submit" disabled={form.processing}>
+                                                    {form.processing ? 'Creating...' : 'Create & Attach'}
+                                                </Button>
+                                                {form.isDirty && (
+                                                    <Button type="button" variant="outline" onClick={() => form.reset()} disabled={form.processing}>
+                                                        Cancel
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </form>
+                                    )}
+                                </div>
                             </details>
                         </div>
 
@@ -227,12 +287,9 @@ export default function ShipmentShowPage() {
                                         <tr key={o.id} className="border-b last:border-0">
                                             <td className="px-3 py-2">{o.order_number}</td>
                                             <td className="px-3 py-2 capitalize">{o.status}</td>
-                                            <td className="px-3 py-2">${o.total?.toFixed?.(2) ?? o.total}</td>
+                                            <td className="px-3 py-2">{getFormatedAmount(o.total)}</td>
                                             <td className="px-3 py-2">{o.customer?.code ?? '-'}</td>
                                             <td className="px-3 py-2">
-                                                {/*<Link href={`/orders/${o.id}`} className="text-primary hover:underline">*/}
-                                                {/*    View*/}
-                                                {/*</Link>*/}
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
