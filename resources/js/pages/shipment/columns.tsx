@@ -2,15 +2,15 @@
 
 import ActionsCell from '@/components/shared/actions-cell';
 import { Button } from '@/components/ui/button';
-import { ShippingStatusBadge } from '@/lib/shipping-status-helper';
+import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
 import { formatCurrency } from '@/lib/utils';
-import { show } from '@/routes/shippings';
-import { Shipping } from '@/types';
+import { show } from '@/routes/shipments';
+import { Shipment } from '@/types';
 import { router } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { TextSearch } from 'lucide-react';
 
-export const createColumns = (onEdit: (shipping: Shipping) => void, onDelete: (shipping: Shipping) => void): ColumnDef<Shipping>[] => {
+export const createColumns = (onEdit: (shipment: Shipment) => void, onDelete: (shipment: Shipment) => void): ColumnDef<Shipment>[] => {
     return [
         {
             accessorKey: 'id',
@@ -31,7 +31,7 @@ export const createColumns = (onEdit: (shipping: Shipping) => void, onDelete: (s
         {
             accessorKey: 'status',
             header: 'Status',
-            cell: ({ row }) => <ShippingStatusBadge status={row.original.status} />,
+            cell: ({ row }) => <ShipmentStatusBadge status={row.original.status} />,
         },
         {
             accessorKey: 'total',

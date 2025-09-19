@@ -9,8 +9,8 @@ import {
     OrderStatus,
     Product,
     SharedEnums,
-    Shipping,
-    ShippingLite,
+    Shipment,
+    ShipmentLite,
 } from '@/types';
 
 export interface OrderLite {
@@ -26,9 +26,9 @@ export interface Order {
     status: OrderStatus;
     total: number;
     customer_id: number;
-    shipping_id: number;
+    shipment_id: number;
     customer?: Customer;
-    shipping?: Shipping;
+    shipment?: Shipment;
     items?: OrderItemLite[];
     created_at?: string;
     updated_at?: string;
@@ -37,7 +37,7 @@ export interface Order {
 export interface PageOrderProps {
     orders: DataPagination<Order>;
     customers: CustomerLite[];
-    shippings: ShippingLite[];
+    shipments: ShipmentLite[];
     products: Product[];
     filters: Filters;
     flash?: Flash;
@@ -49,7 +49,7 @@ export interface CreateOrderProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     customers: CustomerLite[];
-    shippings: ShippingLite[];
+    shipments: ShipmentLite[];
     products: Product[];
 }
 
@@ -58,7 +58,7 @@ export interface EditOrderProps {
     onOpenChange: (open: boolean) => void;
     order: Order | null;
     customers: CustomerLite[];
-    shippings: ShippingLite[];
+    shipments: ShipmentLite[];
     products: Product[];
 }
 

@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\ShippingStatus;
+use App\Enums\ShipmentStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,11 +11,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('shippings', function (Blueprint $table) {
+        Schema::create('shipments', function (Blueprint $table) {
             $table->id();
             $table->string('tracking_number')->nullable();
             $table->string('carrier')->nullable();
-            $table->enum('status', ShippingStatus::values())->default(ShippingStatus::PENDING->value);
+            $table->enum('status', ShipmentStatus::values())->default(ShipmentStatus::PENDING->value);
             $table->decimal('total', 12, 2)->default(0);
             $table->text('notes')->nullable();
 
@@ -28,6 +28,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('shippings');
+        Schema::dropIfExists('shipments');
     }
 };

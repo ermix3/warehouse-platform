@@ -6,7 +6,7 @@ use App\Enums\OrderStatus;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Shipping;
+use App\Models\Shipment;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OrderFactory extends Factory
@@ -20,7 +20,7 @@ class OrderFactory extends Factory
             'status' => $this->faker->randomElement(OrderStatus::values()),
             'total' => 0,
             'customer_id' => Customer::inRandomOrder()->first()?->id ?? 1,
-            'shipping_id' => Shipping::factory(),
+            'shipment_id' => Shipment::factory(),
         ];
     }
 
@@ -45,10 +45,10 @@ class OrderFactory extends Factory
 
             $order->update(['total' => $total]);
 
-            // Update shipping total as the sum of all its orders' totals
-            if ($order->shipping) {
-                $shippingTotal = $order->shipping->orders()->sum('total');
-                $order->shipping->update(['total' => $shippingTotal]);
+            // Update shipment total as the sum of all its orders' totals
+            if ($order->shipment) {
+                $shipmentTotal = $order->shipment->orders()->sum('total');
+                $order->shipment->update(['total' => $shipmentTotal]);
             }
         });
     }

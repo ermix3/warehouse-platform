@@ -1,22 +1,22 @@
-import { attachOrderToShipping } from '@/actions/App/Http/Controllers/OrderController';
+import { attachOrderToShipment } from '@/actions/App/Http/Controllers/OrderController';
 import { Pagination } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
-import { ShippingStatusBadge } from '@/lib/shipping-status-helper';
+import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
 import { dashboard } from '@/routes';
 import { show as showOrders } from '@/routes/orders';
-import { index, show } from '@/routes/shippings';
-import { attachCreate } from '@/routes/shippings/customers';
-import type { BreadcrumbItem, Customer, Order, ShowShippingProps } from '@/types';
+import { index, show } from '@/routes/shipments';
+import { attachCreate } from '@/routes/shipments/customers';
+import type { BreadcrumbItem, Customer, Order, ShowShipmentProps } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { TextSearch } from 'lucide-react';
 import { useState } from 'react';
 
-export default function ShippingShowPage() {
-    const { shipping, orders, customers, filters, flash } = usePage<ShowShippingProps>().props;
+export default function ShipmentShowPage() {
+    const { shipment, orders, customers, filters, flash } = usePage<ShowShipmentProps>().props;
 
     const [ordersSearch, setOrdersSearch] = useState(filters.orders_search ?? '');
     const [customersSearch, setCustomersSearch] = useState(filters.customers_search ?? '');
@@ -30,7 +30,7 @@ export default function ShippingShowPage() {
     const onCreateAttach = (e: React.FormEvent) => {
         e.preventDefault();
         form.clearErrors();
-        form.post(attachCreate.url(shipping.id), {
+        form.post(attachCreate.url(shipment.id), {
             onSuccess: () => {
                 form.reset();
             },
@@ -42,17 +42,17 @@ export default function ShippingShowPage() {
     };
 
     const attachOrder = (customerId: number) => {
-        router.post(attachOrderToShipping.url({ shipping: shipping.id, customer: customerId }), {}, { preserveScroll: true });
+        router.post(attachOrderToShipment.url({ shipment: shipment.id, customer: customerId }), {}, { preserveScroll: true });
     };
 
     const searchOrders = (e: React.FormEvent) => {
         e.preventDefault();
-        router.get(show.url(shipping.id), { ...filters, orders_search: ordersSearch }, { preserveScroll: true });
+        router.get(show.url(shipment.id), { ...filters, orders_search: ordersSearch }, { preserveScroll: true });
     };
 
     const searchCustomers = (e: React.FormEvent) => {
         e.preventDefault();
-        router.get(show.url(shipping.id), { ...filters, customers_search: customersSearch }, { preserveScroll: true });
+        router.get(show.url(shipment.id), { ...filters, customers_search: customersSearch }, { preserveScroll: true });
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -65,8 +65,8 @@ export default function ShippingShowPage() {
             href: index.url(),
         },
         {
-            title: `${shipping?.tracking_number ?? shipping.id}`,
-            href: show.url(shipping.id),
+            title: `${shipment?.tracking_number ?? shipment.id}`,
+            href: show.url(shipment.id),
         },
         {
             title: 'Details shipment',
@@ -76,9 +76,9 @@ export default function ShippingShowPage() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
-            <Head title={`Shipping ${shipping.tracking_number}`} />
+            <Head title={`Shipment ${shipment.tracking_number}`} />
             <div className="container mt-5 space-y-6 px-5">
-                {/* Shipping info */}
+                {/* Shipment info */}
                 <Card>
                     <CardHeader className="border-b-1 border-b-gray-100">
                         <CardTitle>Shipment Info</CardTitle>
@@ -87,21 +87,21 @@ export default function ShippingShowPage() {
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                             <div>
                                 <Label className="text-md font-bold">Tracking Number</Label>
-                                <div className="mt-2 text-sm font-medium">{shipping?.tracking_number ?? '-'}</div>
+                                <div className="mt-2 text-sm font-medium">{shipment?.tracking_number ?? '-'}</div>
                             </div>
                             <div>
                                 <Label className="text-md font-bold">Carrier</Label>
-                                <div className="mt-2 text-sm font-medium">{shipping?.carrier ?? '-'}</div>
+                                <div className="mt-2 text-sm font-medium">{shipment?.carrier ?? '-'}</div>
                             </div>
                             <div>
                                 <Label className="text-md font-bold">Status</Label>
                                 <div className="mt-2 text-sm font-medium capitalize">
-                                    {shipping?.status ? <ShippingStatusBadge status={shipping.status} /> : '-'}
+                                    {shipment?.status ? <ShipmentStatusBadge status={shipment.status} /> : '-'}
                                 </div>
                             </div>
                             <div>
                                 <Label className="text-md font-bold">Total</Label>
-                                <div className="mt-2 text-sm font-medium">AED {shipping.total?.toFixed?.(2) ?? shipping.total}</div>
+                                <div className="mt-2 text-sm font-medium">AED {shipment.total?.toFixed?.(2) ?? shipment.total}</div>
                             </div>
                         </div>
                     </CardContent>

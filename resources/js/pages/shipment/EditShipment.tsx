@@ -4,37 +4,58 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ShippingStatusIcons } from '@/lib/shipping-status-helper';
-import { store } from '@/routes/shippings';
-import { CreateShippingProps, PageShippingProps } from '@/types';
-import { ShippingStatus } from '@/types/enums';
+import { ShipmentStatusIcons } from '@/lib/shipment-status-helper';
+import { update } from '@/routes/shipments';
+import { EditShipmentProps, PageShipmentProps } from '@/types';
 import { useForm, usePage } from '@inertiajs/react';
 import { Clock } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-export default function CreateShipping({ open, onOpenChange }: Readonly<CreateShippingProps>) {
-    const { enums } = usePage<PageShippingProps>().props;
+export default function EditShipment({ open, onOpenChange, shipment }: Readonly<EditShipmentProps>) {
+    const { enums } = usePage<PageShipmentProps>().props;
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const form = useForm({
         tracking_number: '',
         carrier: '',
-        status: ShippingStatus.PENDING,
+        status: '',
         notes: '',
     });
 
+    const prevIdRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        if (open && shipment && shipment.id !== prevIdRef.current) {
+            form.setData({
+                tracking_number: shipment.tracking_number ?? '',
+                carrier: shipment.carrier ?? '',
+                status: shipment.status ?? 'pending',
+                notes: shipment.notes ?? '',
+            });
+            prevIdRef.current = shipment.id;
+        }
+
+        if (!open) {
+            form.reset();
+            form.clearErrors();
+            prevIdRef.current = null;
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open, shipment]);
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setIsSubmitting(true);
 
-        form.post(store().url, {
+        if (!shipment) return;
+
+        setIsSubmitting(true);
+        form.put(update(shipment.id).url, {
             onSuccess: () => {
                 onOpenChange(false);
-                form.reset();
                 setIsSubmitting(false);
             },
-            onError: (error) => {
-                form.setError(error);
+            onError: (errors) => {
+                form.setError(errors);
                 setIsSubmitting(false);
             },
             onFinish: () => {
@@ -43,29 +64,23 @@ export default function CreateShipping({ open, onOpenChange }: Readonly<CreateSh
         });
     };
 
-    const handleDialogChange = (isOpen: boolean) => {
-        if (!isOpen) {
-            form.reset();
-            form.clearErrors();
-        }
-        onOpenChange(isOpen);
-    };
+    // Get shipment status options from the shared enums
+    const shipmentStatusOptions = Object.values(enums.shipmentStatus);
 
-    // Get shipping status options from the shared enums
-    const shippingStatusOptions = Object.values(enums.shippingStatus);
+    if (!shipment) return null;
 
     return (
-        <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Create Shipping</DialogTitle>
+                    <DialogTitle>Edit Shipment {shipment.tracking_number ? `#${shipment.tracking_number}` : `ID: ${shipment.id}`}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <Label htmlFor="create-tracking_number">Tracking Number</Label>
+                            <Label htmlFor="edit-tracking_number">Tracking Number</Label>
                             <Input
-                                id="create-tracking_number"
+                                id="edit-tracking_number"
                                 type="text"
                                 value={form.data.tracking_number}
                                 onChange={(e) => form.setData('tracking_number', e.target.value)}
@@ -76,9 +91,9 @@ export default function CreateShipping({ open, onOpenChange }: Readonly<CreateSh
                         </div>
 
                         <div>
-                            <Label htmlFor="create-carrier">Carrier</Label>
+                            <Label htmlFor="edit-carrier">Carrier</Label>
                             <Input
-                                id="create-carrier"
+                                id="edit-carrier"
                                 type="text"
                                 value={form.data.carrier}
                                 onChange={(e) => form.setData('carrier', e.target.value)}
@@ -90,14 +105,14 @@ export default function CreateShipping({ open, onOpenChange }: Readonly<CreateSh
                     </div>
 
                     <div>
-                        <Label htmlFor="create-status">Status</Label>
-                        <Select value={form.data.status} onValueChange={(value) => form.setData('status', value as ShippingStatus)}>
-                            <SelectTrigger id="create-status" className={form.errors.status ? 'border-red-500' : ''}>
+                        <Label htmlFor="edit-status">Status</Label>
+                        <Select value={form.data.status} onValueChange={(value) => form.setData('status', value)}>
+                            <SelectTrigger id="edit-status" className={form.errors.status ? 'border-red-500' : ''}>
                                 <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                             <SelectContent>
-                                {shippingStatusOptions.map(({ value, label }) => {
-                                    const Icon = ShippingStatusIcons[value] || Clock;
+                                {shipmentStatusOptions.map(({ value, label }) => {
+                                    const Icon = ShipmentStatusIcons[value] || Clock;
                                     return (
                                         <SelectItem key={value} value={value}>
                                             <div className="flex items-center gap-2">
@@ -113,23 +128,29 @@ export default function CreateShipping({ open, onOpenChange }: Readonly<CreateSh
                     </div>
 
                     <div>
-                        <Label htmlFor="create-notes">Notes</Label>
+                        <Label htmlFor="edit-notes">Notes</Label>
                         <Textarea
-                            id="create-notes"
+                            id="edit-notes"
                             value={form.data.notes}
                             onChange={(e) => form.setData('notes', e.target.value)}
                             rows={3}
-                            placeholder="Additional information about this shipping"
+                            placeholder="Additional information about this shipment"
                         />
                         {form.errors.notes && <div className="mt-1 text-sm text-red-600">{form.errors.notes}</div>}
                     </div>
 
+                    {shipment.orders_count > 0 && (
+                        <div className="rounded-md bg-blue-50 p-4 text-blue-800">
+                            <p className="text-sm font-medium">This shipment has {shipment.orders_count} associated orders.</p>
+                        </div>
+                    )}
+
                     <div className="flex justify-end space-x-2">
-                        <Button type="button" variant="outline" onClick={() => handleDialogChange(false)} disabled={isSubmitting}>
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
                             Cancel
                         </Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Saving...' : 'Save Shipping'}
+                            {isSubmitting ? 'Saving...' : 'Update Shipment'}
                         </Button>
                     </div>
                 </form>

@@ -4,7 +4,7 @@
 
 Customer
 Supplier
-Shipping
+Shipment
 Product
 Order
 
@@ -30,7 +30,7 @@ address (nullable)
 notes (nullable)
 created_at / updated_at
 
-`Shipping`
+`Shipment`
 id
 tracking_number (nullable)
 carrier (nullable)
@@ -61,7 +61,7 @@ order_number (unique)
 status (enum: draft, pending, confirmed, shipped, delivered, cancelled)
 total (decimal) 
 customer_id (FK)
-shipping_id (FK)
+shipment_id (FK)
 created_at / updated_at
 
 `Order_Item` (pivot)

@@ -1,13 +1,13 @@
 import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import { destroy, index } from '@/routes/shippings';
-import { BreadcrumbItem, PageShippingProps, Shipping } from '@/types';
+import { destroy, index } from '@/routes/shipments';
+import { BreadcrumbItem, PageShipmentProps, Shipment } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { createColumns } from './columns';
-import CreateShipping from './CreateShipping';
-import EditShipping from './EditShipping';
+import CreateShipment from './CreateShipment';
+import EditShipment from './EditShipment';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -15,48 +15,48 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard.url(),
     },
     {
-        title: 'Shippings',
+        title: 'Shipments',
         href: index.url(),
     },
     {
-        title: 'Listing all shippings',
+        title: 'Listing all shipments',
         href: '',
     },
 ];
 
-export default function ShippingsPage() {
-    const { shippings, filters, flash } = usePage<PageShippingProps>().props;
+export default function ShipmentsPage() {
+    const { shipments, filters, flash } = usePage<PageShipmentProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-    const [editShipping, setEditShipping] = useState<Shipping | null>(null);
-    const [deleteShipping, setDeleteShipping] = useState<Shipping | null>(null);
+    const [editShipment, setEditShipment] = useState<Shipment | null>(null);
+    const [deleteShipment, setDeleteShipment] = useState<Shipment | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
     const openCreateDialog = () => setShowCreateDialog(true);
 
-    const openEditDialog = (shipping: Shipping) => {
-        setEditShipping(shipping);
+    const openEditDialog = (shipment: Shipment) => {
+        setEditShipment(shipment);
         setShowEditDialog(true);
     };
 
-    const openDeleteDialog = (shipping: Shipping) => {
-        setDeleteShipping(shipping);
+    const openDeleteDialog = (shipment: Shipment) => {
+        setDeleteShipment(shipment);
         setShowDeleteDialog(true);
     };
 
     const handleDelete = () => {
-        if (!deleteShipping) return;
+        if (!deleteShipment) return;
 
         setIsDeleting(true);
-        router.delete(destroy(deleteShipping.id).url, {
+        router.delete(destroy(deleteShipment.id).url, {
             onSuccess: () => {
                 setShowDeleteDialog(false);
-                setDeleteShipping(null);
+                setDeleteShipment(null);
             },
             onError: (error) => {
-                console.error('Failed to delete shipping: ', error);
+                console.error('Failed to delete shipment: ', error);
             },
             onFinish: () => {
                 setIsDeleting(false);
@@ -67,7 +67,7 @@ export default function ShippingsPage() {
     const closeDeleteDialog = () => {
         if (!isDeleting) {
             setShowDeleteDialog(false);
-            setDeleteShipping(null);
+            setDeleteShipment(null);
         }
     };
 
@@ -75,41 +75,41 @@ export default function ShippingsPage() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
-            <Head title="Shippings" />
+            <Head title="Shipments" />
 
             <div className="container mt-5 px-5">
                 <AddNewItem
-                    title="Shippings"
-                    description="Manage your shipping records and track order deliveries"
-                    buttonLabel="Create Shipping"
+                    title="Shipments"
+                    description="Manage your shipment records and track order deliveries"
+                    buttonLabel="Create Shipment"
                     onButtonClick={openCreateDialog}
                 />
 
                 <DataTable
                     columns={columns}
-                    data={shippings.data}
+                    data={shipments.data}
                     filters={filters}
-                    searchPlaceholder="Search shippings by tracking number, carrier, or status..."
+                    searchPlaceholder="Search shipments by tracking number, carrier, or status..."
                 />
 
-                <Pagination links={shippings.links} from={shippings.from} to={shippings.to} total={shippings.total} />
+                <Pagination links={shipments.links} from={shipments.from} to={shipments.to} total={shipments.total} />
             </div>
 
             {/* Create Dialog */}
-            <CreateShipping open={showCreateDialog} onOpenChange={setShowCreateDialog} />
+            <CreateShipment open={showCreateDialog} onOpenChange={setShowCreateDialog} />
 
             {/* Edit Dialog */}
-            <EditShipping open={showEditDialog} onOpenChange={setShowEditDialog} shipping={editShipping} />
+            <EditShipment open={showEditDialog} onOpenChange={setShowEditDialog} shipment={editShipment} />
 
             {/* Delete Confirmation Dialog */}
             <DeleteItem
                 open={showDeleteDialog}
                 onOpenChange={closeDeleteDialog}
-                title="Delete Shipping"
-                itemName={deleteShipping?.tracking_number || `#${deleteShipping?.id}`}
+                title="Delete Shipment"
+                itemName={deleteShipment?.tracking_number || `#${deleteShipment?.id}`}
                 description={
-                    deleteShipping?.orders_count
-                        ? `This shipping has ${deleteShipping.orders_count} associated orders. Deleting it may affect these orders.`
+                    deleteShipment?.orders_count
+                        ? `This shipment has ${deleteShipment.orders_count} associated orders. Deleting it may affect these orders.`
                         : 'This action cannot be undone.'
                 }
                 isDeleting={isDeleting}

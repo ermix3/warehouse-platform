@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CustomerSeeder::class,
             SupplierSeeder::class,
-            // ShippingSeeder::class,
+            // ShipmentSeeder::class,
             ProductSeeder::class,
             OrderSeeder::class,
             // OrderItemSeeder::class,

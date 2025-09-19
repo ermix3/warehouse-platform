@@ -14,7 +14,7 @@ class Order extends Model
     /** @use HasFactory<OrderFactory> */
     use HasFactory;
 
-    protected $fillable = ['order_number',  'status', 'total', 'customer_id', 'shipping_id'];
+    protected $fillable = ['order_number',  'status', 'total', 'customer_id', 'shipment_id'];
 
     protected $casts = [
         'status' => OrderStatus::class,
@@ -30,9 +30,9 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    public function shipping(): BelongsTo
+    public function shipment(): BelongsTo
     {
-        return $this->belongsTo(Shipping::class);
+        return $this->belongsTo(Shipment::class);
     }
 
     /**
@@ -54,16 +54,16 @@ class Order extends Model
     }
 
     /**
-     * Refresh the total on the associated Shipping record.
-     * If $shippingId is provided, refresh that shipping; otherwise, use this order's shipping.
+     * Refresh the total on the associated Shipment record.
+     * If $shipmentId is provided, refresh that shipment; otherwise, use this order's shipment.
      */
-    public function refreshShippingTotal(?int $shippingId = null): void
+    public function refreshShipmentTotal(?int $shipmentId = null): void
     {
-        $shipping = $shippingId ? Shipping::find($shippingId) : $this->shipping;
-        if ($shipping) {
-            $shippingTotal = $shipping->orders()->sum('total');
-            $shipping->total = $shippingTotal;
-            $shipping->save();
+        $shipment = $shipmentId ? Shipment::find($shipmentId) : $this->shipment;
+        if ($shipment) {
+            $shipmentTotal = $shipment->orders()->sum('total');
+            $shipment->total = $shipmentTotal;
+            $shipment->save();
         }
     }
 }

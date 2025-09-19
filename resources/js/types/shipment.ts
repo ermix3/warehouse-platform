@@ -1,12 +1,12 @@
 import { type Customer, DataPagination, type Filters, Flash, Order, SharedEnums } from '@/types';
 
-export interface ShippingLite {
+export interface ShipmentLite {
     id: number;
     tracking_number?: string;
     carrier?: string;
 }
 
-export interface Shipping {
+export interface Shipment {
     id: number;
     tracking_number?: string;
     carrier?: string;
@@ -18,35 +18,35 @@ export interface Shipping {
     updated_at?: string;
 }
 
-export interface PageShippingProps {
-    shippings: DataPagination<Shipping>;
+export interface PageShipmentProps {
+    shipments: DataPagination<Shipment>;
     filters: Filters;
     flash?: Flash;
     enums: SharedEnums;
     [key: string]: unknown;
 }
 
-export interface CreateShippingProps {
+export interface CreateShipmentProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-export interface EditShippingProps {
+export interface EditShipmentProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    shipping: Shipping | null;
+    shipment: Shipment | null;
 }
 
-interface ShowShippingFilters {
+interface ShowShipmentFilters {
     orders_search?: string;
     customers_search?: string;
 }
 
-export interface ShowShippingProps {
-    shipping: Shipping;
+export interface ShowShipmentProps {
+    shipment: Shipment;
     orders: DataPagination<Order>;
     customers: DataPagination<Pick<Customer, 'id' | 'code' | 'name' | 'phone'>>;
-    filters: ShowShippingFilters;
+    filters: ShowShipmentFilters;
     flash?: Flash;
     enums: SharedEnums;
     [key: string]: unknown;

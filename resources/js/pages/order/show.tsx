@@ -7,10 +7,10 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { OrderStatusBadge } from '@/lib/order-status-helper';
-import { ShippingStatusBadge } from '@/lib/shipping-status-helper';
+import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
 import { dashboard } from '@/routes';
 import { attachProduct, index, show } from '@/routes/orders';
-import { show as showShipping } from '@/routes/shippings';
+import { show as showShipment } from '@/routes/shipments';
 import { BreadcrumbItem, ShowOrderProps } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { Info, TextSearch } from 'lucide-react';
@@ -103,26 +103,26 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                     <Card>
                         <CardHeader className="border-b-1 border-b-gray-100">
                             <CardTitle>
-                                Shipment Info {order.shipping?.status ? <ShippingStatusBadge status={order.shipping.status} /> : ''}
+                                Shipment Info {order.shipment?.status ? <ShipmentStatusBadge status={order.shipment.status} /> : ''}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2">
-                            {order.shipping && (
+                            {order.shipment && (
                                 <>
                                     <div>
-                                        <b>Tracking #:</b> {order.shipping?.tracking_number ?? '-'}
+                                        <b>Tracking #:</b> {order.shipment?.tracking_number ?? '-'}
                                     </div>
                                     <div>
-                                        <b>Carrier:</b> {order.shipping?.carrier ?? '-'}
+                                        <b>Carrier:</b> {order.shipment?.carrier ?? '-'}
                                     </div>
                                     <div>
-                                        <b>Created At:</b> {order.shipping?.created_at ? new Date(order.shipping.created_at).toLocaleString() : '-'}
+                                        <b>Created At:</b> {order.shipment?.created_at ? new Date(order.shipment.created_at).toLocaleString() : '-'}
                                     </div>
                                     <div className="pt-2">
                                         <Button
                                             variant="default"
                                             size="sm"
-                                            onClick={() => router.visit(showShipping.url(order.shipping!.id))}
+                                            onClick={() => router.visit(showShipment.url(order.shipment!.id))}
                                             className={'hover:cursor-pointer'}
                                         >
                                             Details <TextSearch />
@@ -130,7 +130,7 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                                     </div>
                                 </>
                             )}
-                            {!order.shipping && (
+                            {!order.shipment && (
                                 <div className="flex h-full w-full flex-col items-center justify-center">
                                     <Info className="h-10 w-10 text-muted-foreground" />
                                     <span>No shipment yet</span>

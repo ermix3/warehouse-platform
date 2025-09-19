@@ -33,7 +33,7 @@ It complements `AGENTS.md` by focusing on **how we build** rather than **what we
   - Follow [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards.  
   - Controllers → thin, delegate to Services.  
   - Models → no business logic beyond relationships + casts.  
-  - Use **Enums** for status fields (`OrderStatus`, `ShippingStatus`).
+  - Use **Enums** for status fields (`OrderStatus`, `ShipmentStatus`).
 
 - **React (JS/TS)**  
   - Prefer **TypeScript** for type safety.  

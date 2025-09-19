@@ -3,9 +3,9 @@
  */
 
 /**
- * Shipping Status enum that matches the backend ShippingStatus PHP enum
+ * Shipment Status enum that matches the backend ShipmentStatus PHP enum
  */
-export enum ShippingStatus {
+export enum ShipmentStatus {
     PENDING = 'pending',
     INTRANSIT = 'in_transit',
     DELIVERED = 'delivered',
@@ -25,11 +25,11 @@ export enum OrderStatus {
 }
 
 /**
- * Type for the formatted shipping status objects used in the UI
+ * Type for the formatted shipment status objects used in the UI
  */
-export type FormattedShippingStatus = {
-    name: keyof typeof ShippingStatus;
-    value: ShippingStatus;
+export type FormattedShipmentStatus = {
+    name: keyof typeof ShipmentStatus;
+    value: ShipmentStatus;
     label: string;
 };
 
@@ -47,5 +47,5 @@ export type FormattedOrderStatus = {
  */
 export type SharedEnums = {
     orderStatus: Record<keyof typeof OrderStatus, FormattedOrderStatus>;
-    shippingStatus: Record<keyof typeof ShippingStatus, FormattedShippingStatus>;
+    shipmentStatus: Record<keyof typeof ShipmentStatus, FormattedShipmentStatus>;
 };

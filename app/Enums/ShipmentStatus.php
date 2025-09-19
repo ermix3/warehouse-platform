@@ -1,7 +1,7 @@
 <?php
 namespace App\Enums;
 
-enum ShippingStatus: string
+enum ShipmentStatus: string
 {
     case PENDING = 'pending';
     case INTRANSIT = 'in_transit';

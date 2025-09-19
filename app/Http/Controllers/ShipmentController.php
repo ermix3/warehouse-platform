@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ShippingRequest;
+use App\Http\Requests\ShipmentRequest;
 use App\Models\Customer;
-use App\Models\Shipping;
+use App\Models\Shipment;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,14 +14,14 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class ShippingController extends Controller
+class ShipmentController extends Controller
 {
     /**
-     * Display a listing of shippings with search and sorting.
+     * Display a listing of shipments with search and sorting.
      */
     public function index(Request $request): Response
     {
-        $query = Shipping::query()->withCount('orders');
+        $query = Shipment::query()->withCount('orders');
 
         // Search by tracking number, carrier, or status
         if ($search = $request->get('search')) {
@@ -43,10 +43,10 @@ class ShippingController extends Controller
             $query->orderBy('id', 'asc');
         }
 
-        $shippings = $query->paginate(10)->appends($request->query());
+        $shipments = $query->paginate(10)->appends($request->query());
 
-        return Inertia::render('shipping/index', [
-            'shippings' => $shippings,
+        return Inertia::render('shipment/index', [
+            'shipments' => $shipments,
             'filters' => [
                 'search' => $request->get('search', ''),
                 'sort_by' => $sortBy,
@@ -56,27 +56,27 @@ class ShippingController extends Controller
     }
 
     /**
-     * Store a newly created shipping in storage.
+     * Store a newly created shipment in storage.
      */
-    public function store(ShippingRequest $request): RedirectResponse
+    public function store(ShipmentRequest $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
 
-            $shipping = Shipping::create($request->validated());
+            $shipment = Shipment::create($request->validated());
 
             DB::commit();
 
-            Log::info('Shipping created successfully', [
-                'shipping_id' => $shipping->id,
+            Log::info('Shipment created successfully', [
+                'shipment_id' => $shipment->id,
                 'created_by' => auth()->id(),
             ]);
 
-            return Redirect::route('shippings.index')->with('success', 'Shipping created successfully.');
+            return Redirect::route('shipments.index')->with('success', 'Shipment created successfully.');
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error('Failed to create shipping', [
+            Log::error('Failed to create shipment', [
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
                 'user_id' => auth()->id(),
@@ -84,36 +84,36 @@ class ShippingController extends Controller
 
             return Redirect::back()
                 ->withInput()
-                ->withErrors(['error' => 'Failed to create shipping. Please try again.']);
+                ->withErrors(['error' => 'Failed to create shipment. Please try again.']);
         }
     }
 
     /**
-     * Update the specified shipping in storage.
+     * Update the specified shipment in storage.
      */
-    public function update(ShippingRequest $request, Shipping $shipping): RedirectResponse
+    public function update(ShipmentRequest $request, Shipment $shipment): RedirectResponse
     {
         try {
             DB::beginTransaction();
 
-            $oldData = $shipping->toArray();
-            $shipping->update($request->validated());
+            $oldData = $shipment->toArray();
+            $shipment->update($request->validated());
 
             DB::commit();
 
-            Log::info('Shipping updated successfully', [
-                'shipping_id' => $shipping->id,
+            Log::info('Shipment updated successfully', [
+                'shipment_id' => $shipment->id,
                 'old_data' => $oldData,
-                'new_data' => $shipping->fresh()->toArray(),
+                'new_data' => $shipment->fresh()->toArray(),
                 'updated_by' => auth()->id(),
             ]);
 
-            return Redirect::route('shippings.index')->with('success', 'Shipping updated successfully.');
+            return Redirect::route('shipments.index')->with('success', 'Shipment updated successfully.');
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error('Failed to update shipping', [
-                'shipping_id' => $shipping->id,
+            Log::error('Failed to update shipment', [
+                'shipment_id' => $shipment->id,
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
                 'user_id' => auth()->id(),
@@ -121,17 +121,17 @@ class ShippingController extends Controller
 
             return Redirect::back()
                 ->withInput()
-                ->withErrors(['error' => 'Failed to update shipping. Please try again.']);
+                ->withErrors(['error' => 'Failed to update shipment. Please try again.']);
         }
     }
 
         /**
-     * Show a shipping with its orders and customers.
+     * Show a shipment with its orders and customers.
      */
-    public function show(Request $request, Shipping $shipping): Response
+    public function show(Request $request, Shipment $shipment): Response
     {
-        // Orders for this shipping with pagination
-        $ordersQuery = $shipping->orders()->with('customer')->orderBy('id', 'desc');
+        // Orders for this shipment with pagination
+        $ordersQuery = $shipment->orders()->with('customer')->orderBy('id', 'desc');
         if ($search = $request->get('orders_search')) {
             $ordersQuery->where(function ($q) use ($search) {
                 $q->where('order_number', 'like', "%{$search}%")
@@ -141,8 +141,8 @@ class ShippingController extends Controller
         }
         $orders = $ordersQuery->paginate(10, ['*'], 'orders_page')->appends($request->query());
 
-        // Customers that have orders in this shipping (distinct) with pagination
-        $customersQuery = $shipping->orders()
+        // Customers that have orders in this shipment (distinct) with pagination
+        $customersQuery = $shipment->orders()
             ->select('customer_id')
             ->with('customer')
             ->whereNotNull('customer_id')
@@ -161,8 +161,8 @@ class ShippingController extends Controller
         }
         $customers = $customersPaginator->paginate(10, ['*'], 'customers_page')->appends($request->query());
 
-        return Inertia::render('shipping/show', [
-            'shipping' => $shipping->fresh()->loadCount('orders'),
+        return Inertia::render('shipment/show', [
+            'shipment' => $shipment->fresh()->loadCount('orders'),
             'orders' => $orders,
             'customers' => $customers,
             'filters' => [
@@ -173,43 +173,43 @@ class ShippingController extends Controller
     }
 
     /**
-     * Remove the specified shipping from storage.
+     * Remove the specified shipment from storage.
      */
-    public function destroy(Shipping $shipping): RedirectResponse
+    public function destroy(Shipment $shipment): RedirectResponse
     {
         try {
             DB::beginTransaction();
 
-            $shippingData = $shipping->toArray();
+            $shipmentData = $shipment->toArray();
 
             // Prevent delete if referenced by orders
-            if ($shipping->orders()->exists()) {
+            if ($shipment->orders()->exists()) {
                 return Redirect::back()->withErrors([
-                    'error' => 'Cannot delete shipping. This shipping is associated with existing orders.'
+                    'error' => 'Cannot delete shipment. This shipment is associated with existing orders.'
                 ]);
             }
 
-            $shipping->delete();
+            $shipment->delete();
 
             DB::commit();
 
-            Log::info('Shipping deleted successfully', [
-                'shipping_data' => $shippingData,
+            Log::info('Shipment deleted successfully', [
+                'shipment_data' => $shipmentData,
                 'deleted_by' => auth()->id(),
             ]);
 
-            return Redirect::route('shippings.index')->with('success', 'Shipping deleted successfully.');
+            return Redirect::route('shipments.index')->with('success', 'Shipment deleted successfully.');
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error('Failed to delete shipping', [
-                'shipping_id' => $shipping->id,
+            Log::error('Failed to delete shipment', [
+                'shipment_id' => $shipment->id,
                 'error' => $e->getMessage(),
                 'user_id' => auth()->id(),
             ]);
 
             return Redirect::back()->withErrors([
-                'error' => 'Failed to delete shipping. Please try again.'
+                'error' => 'Failed to delete shipment. Please try again.'
             ]);
         }
     }

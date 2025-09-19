@@ -5,7 +5,7 @@ import { dashboard } from '@/routes';
 import customers from '@/routes/customers';
 import orders from '@/routes/orders';
 import products from '@/routes/products';
-import shippings from '@/routes/shippings';
+import shipments from '@/routes/shipments';
 import suppliers from '@/routes/suppliers';
 import users from '@/routes/users';
 import { type NavItem } from '@/types';
@@ -43,8 +43,8 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Shippings',
-        href: shippings.index(),
+        title: 'Shipments',
+        href: shipments.index(),
         icon: Ship,
     },
     {
@@ -71,12 +71,12 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} label="Platform" />
-                <hr className="my-2 border-gray-500 border-1 dark:border-gray-300" />
+                <hr className="my-2 border-1 border-gray-500 dark:border-gray-300" />
             </SidebarContent>
 
             <SidebarFooter>
                 {/* <NavFooter items={footerNavItems} className="mt-auto" /> */}
-                <hr className="my-2 border-gray-500 border-1 dark:border-gray-300" />
+                <hr className="my-2 border-1 border-gray-500 dark:border-gray-300" />
                 <NavMain items={footerNavItems} label="Other" />
                 <NavUser />
             </SidebarFooter>

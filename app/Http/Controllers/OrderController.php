@@ -7,7 +7,7 @@ use App\Http\Requests\OrderRequest;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\Shipping;
+use App\Models\Shipment;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -47,12 +47,12 @@ class OrderController extends Controller
 
         $orders = $query->paginate(15)->appends($request->query());
         $customers = Customer::all();
-        $shippings = Shipping::all();
+        $shipments = Shipment::all();
         $products = Product::all();
         return Inertia::render('order/index', [
             'orders' => $orders,
             'customers' => $customers,
-            'shippings' => $shippings ?? [],
+            'shipments' => $shipments ?? [],
             'products' => $products,
         ]);
     }
@@ -76,9 +76,9 @@ class OrderController extends Controller
             // Recalculate order total based on items and products
             $order->recalculateTotal();
 
-            // Update shipping total if applicable
-            if (!empty($order->shipping_id)) {
-                $order->refreshShippingTotal();
+            // Update shipment total if applicable
+            if (!empty($order->shipment_id)) {
+                $order->refreshShipmentTotal();
             }
 
             DB::commit();
@@ -97,7 +97,7 @@ class OrderController extends Controller
     {
         DB::beginTransaction();
         try {
-            $oldShippingId = $order->shipping_id; // capture before update
+            $oldShipmentId = $order->shipment_id; // capture before update
 
             $order->update($request->validated());
 
@@ -110,12 +110,12 @@ class OrderController extends Controller
             // Recalculate order total based on items and products
             $order->recalculateTotal();
 
-            // Refresh shipping totals (handle shipping change)
-            if ($oldShippingId && $oldShippingId !== $order->shipping_id) {
-                $order->refreshShippingTotal($oldShippingId);
+            // Refresh shipment totals (handle shipment change)
+            if ($oldShipmentId && $oldShipmentId !== $order->shipment_id) {
+                $order->refreshShipmentTotal($oldShipmentId);
             }
-            if (!empty($order->shipping_id)) {
-                $order->refreshShippingTotal();
+            if (!empty($order->shipment_id)) {
+                $order->refreshShipmentTotal();
             }
 
             DB::commit();
@@ -131,17 +131,17 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        $shippingId = $order->shipping_id;
+        $shipmentId = $order->shipment_id;
         // Delete related items using the correct relation name
         $order->items()->delete();
         $order->delete();
 
-        // After deletion, refresh the shipping total if applicable
-        if (!empty($shippingId)) {
-            $shipping = Shipping::find($shippingId);
-            if ($shipping) {
-                $shipping->total = $shipping->orders()->sum('total');
-                $shipping->save();
+        // After deletion, refresh the shipment total if applicable
+        if (!empty($shipmentId)) {
+            $shipment = Shipment::find($shipmentId);
+            if ($shipment) {
+                $shipment->total = $shipment->orders()->sum('total');
+                $shipment->save();
             }
         }
 
@@ -153,7 +153,7 @@ class OrderController extends Controller
      */
     public function show(Request $request, $id): Response
     {
-        $order = Order::with(['customer', 'items.product', 'shipping'])->findOrFail($id);
+        $order = Order::with(['customer', 'items.product', 'shipment'])->findOrFail($id);
         $customer = $order->customer;
         $products = Product::all();
 
@@ -189,49 +189,49 @@ class OrderController extends Controller
             'ctn' => $request->input('ctn'),
         ]);
         $order->recalculateTotal();
-        $order->refreshShippingTotal();
+        $order->refreshShipmentTotal();
         return redirect()->route('orders.show', $order->id)->with('success', 'Product attached to order.');
     }
 
     /**
-     * Create and attach a blank order (no items) for an existing customer to a shipping.
+     * Create and attach a blank order (no items) for an existing customer to a shipment.
      */
-    public function attachOrderToShipping(Shipping $shipping, Customer $customer)
+    public function attachOrderToShipment(Shipment $shipment, Customer $customer)
     {
-        $this->createOrderAndRefreshShippingTotal($customer, $shipping);
+        $this->createOrderAndRefreshShipmentTotal($customer, $shipment);
         return redirect()
-            ->route('shippings.show', $shipping->id)
-            ->with('success', 'Blank order attached to shipping for customer.');
+            ->route('shipments.show', $shipment->id)
+            ->with('success', 'Blank order attached to shipment for customer.');
     }
 
     /**
-     * Create a new customer and attach a blank order to a shipping.
+     * Create a new customer and attach a blank order to a shipment.
      */
-    public function createCustomerAndAttachOrder(CustomerRequest $request, Shipping $shipping)
+    public function createCustomerAndAttachOrder(CustomerRequest $request, Shipment $shipment)
     {
         $validated = $request->validated();
         $customer = Customer::create($validated);
-        $this->createOrderAndRefreshShippingTotal($customer, $shipping);
+        $this->createOrderAndRefreshShipmentTotal($customer, $shipment);
         return redirect()
-            ->route('shippings.show', $shipping->id)
-            ->with('success', 'Customer created and order attached to shipping.');
+            ->route('shipments.show', $shipment->id)
+            ->with('success', 'Customer created and order attached to shipment.');
     }
 
     /**
      * @param Customer $customer
-     * @param Shipping $shipping
+     * @param Shipment $shipment
      * @return void
      */
-    public function createOrderAndRefreshShippingTotal(Customer $customer, Shipping $shipping): void
+    public function createOrderAndRefreshShipmentTotal(Customer $customer, Shipment $shipment): void
     {
         $order = new Order();
         $order->order_number = 'ORD-' . now()->format('Ymd') . '-' . str_pad((string)(Order::max('id') + 1), 4, '0', STR_PAD_LEFT);
         $order->status = 'pending';
         $order->total = 0;
         $order->customer_id = $customer->id;
-        $order->shipping_id = $shipping->id;
+        $order->shipment_id = $shipment->id;
         $order->save();
 
-        $order->refreshShippingTotal();
+        $order->refreshShipmentTotal();
     }
 }

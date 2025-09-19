@@ -11,14 +11,14 @@ import { useForm, usePage } from '@inertiajs/react';
 import { CirclePlus, Clock } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-export default function EditOrder({ open, onOpenChange, order, customers, shippings, products }: Readonly<EditOrderProps>) {
+export default function EditOrder({ open, onOpenChange, order, customers, shipments, products }: Readonly<EditOrderProps>) {
     const { enums } = usePage<PageOrderProps>().props;
     const form = useForm({
         order_number: '',
         status: 'draft',
         total: '',
         customer_id: '',
-        shipping_id: '',
+        shipment_id: '',
         order_items: [] as { product_id: string; ctn: string }[],
     });
     const prevOrderId = useRef<number | null>(null);
@@ -35,7 +35,7 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
                 status: order.status,
                 total: order.total.toString(),
                 customer_id: order.customer_id.toString(),
-                shipping_id: order.shipping_id?.toString() ?? '',
+                shipment_id: order.shipment_id?.toString() ?? '',
                 order_items: (order.items || []).map((it) => ({
                     product_id: it.product_id.toString(),
                     ctn: it.ctn.toString(),
@@ -78,11 +78,11 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
         label: customer.name,
     }));
 
-    const shippingOptions = [
-        { value: '', label: 'No shipping' },
-        ...shippings.map((shipping) => ({
-            value: shipping.id.toString(),
-            label: shipping.tracking_number ? `${shipping.tracking_number} (${shipping.carrier})` : `Shipping #${shipping.id}`,
+    const shipmentOptions = [
+        { value: '', label: 'No shipment' },
+        ...shipments.map((shipment) => ({
+            value: shipment.id.toString(),
+            label: shipment.tracking_number ? `${shipment.tracking_number} (${shipment.carrier})` : `Shipment #${shipment.id}`,
         })),
     ];
 
@@ -159,16 +159,16 @@ export default function EditOrder({ open, onOpenChange, order, customers, shippi
                         </div>
 
                         <div>
-                            <Label htmlFor="edit-shipping_id">Shipping</Label>
+                            <Label htmlFor="edit-shipment_id">Shipment</Label>
                             <SearchableSelect
-                                options={shippingOptions}
-                                value={form.data.shipping_id}
-                                onValueChange={(value) => form.setData('shipping_id', value)}
-                                placeholder="Select shipping (optional)"
-                                emptyText="No shipping found."
-                                className={form.errors.shipping_id ? 'border-red-500' : ''}
+                                options={shipmentOptions}
+                                value={form.data.shipment_id}
+                                onValueChange={(value) => form.setData('shipment_id', value)}
+                                placeholder="Select shipment (optional)"
+                                emptyText="No shipment found."
+                                className={form.errors.shipment_id ? 'border-red-500' : ''}
                             />
-                            {form.errors.shipping_id && <div className="mt-1 text-sm text-red-600">{form.errors.shipping_id}</div>}
+                            {form.errors.shipment_id && <div className="mt-1 text-sm text-red-600">{form.errors.shipment_id}</div>}
                         </div>
                     </div>
 

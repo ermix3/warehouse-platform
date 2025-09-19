@@ -11,14 +11,14 @@ import { useForm, usePage } from '@inertiajs/react';
 import { Asterisk, CirclePlus, Clock, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-export default function CreateOrder({ open, onOpenChange, customers, shippings, products }: Readonly<CreateOrderProps>) {
+export default function CreateOrder({ open, onOpenChange, customers, shipments, products }: Readonly<CreateOrderProps>) {
     const { enums } = usePage<PageOrderProps>().props;
     const form = useForm({
         order_number: '',
         status: 'draft',
         total: '',
         customer_id: '',
-        shipping_id: '',
+        shipment_id: '',
         order_items: [] as { product_id: string; ctn: string }[],
     });
 
@@ -64,11 +64,11 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
         label: customer.name,
     }));
 
-    const shippingOptions = [
-        { value: '', label: 'No shipping' },
-        ...shippings.map((shipping) => ({
-            value: shipping.id.toString(),
-            label: shipping.tracking_number ? `${shipping.tracking_number} (${shipping.carrier})` : `Shipping #${shipping.id}`,
+    const shipmentOptions = [
+        { value: '', label: 'No shipment' },
+        ...shipments.map((shipment) => ({
+            value: shipment.id.toString(),
+            label: shipment.tracking_number ? `${shipment.tracking_number} (${shipment.carrier})` : `Shipment #${shipment.id}`,
         })),
     ];
 
@@ -99,7 +99,9 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <Label htmlFor="create-order_number">Order Number <Asterisk color={'red'} size={12} className={'inline-flex align-super'} /></Label>
+                            <Label htmlFor="create-order_number">
+                                Order Number <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                            </Label>
                             <Input
                                 id="create-order_number"
                                 type="text"
@@ -133,7 +135,9 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
                         </div>
 
                         <div>
-                            <Label htmlFor="create-customer_id">Customer <Asterisk color={'red'} size={12} className={'inline-flex align-super'} /></Label>
+                            <Label htmlFor="create-customer_id">
+                                Customer <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                            </Label>
                             <SearchableSelect
                                 options={customerOptions}
                                 value={form.data.customer_id}
@@ -146,16 +150,16 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
                         </div>
 
                         <div>
-                            <Label htmlFor="create-shipping_id">Shipping</Label>
+                            <Label htmlFor="create-shipment_id">Shipment</Label>
                             <SearchableSelect
-                                options={shippingOptions}
-                                value={form.data.shipping_id}
-                                onValueChange={(value) => form.setData('shipping_id', value)}
-                                placeholder="Select shipping (optional)"
-                                emptyText="No shipping found."
-                                className={form.errors.shipping_id ? 'border-red-500' : ''}
+                                options={shipmentOptions}
+                                value={form.data.shipment_id}
+                                onValueChange={(value) => form.setData('shipment_id', value)}
+                                placeholder="Select shipment (optional)"
+                                emptyText="No shipment found."
+                                className={form.errors.shipment_id ? 'border-red-500' : ''}
                             />
-                            {form.errors.shipping_id && <div className="mt-1 text-sm text-red-600">{form.errors.shipping_id}</div>}
+                            {form.errors.shipment_id && <div className="mt-1 text-sm text-red-600">{form.errors.shipment_id}</div>}
                         </div>
                     </div>
 
@@ -164,7 +168,9 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
                             <div className="font-medium">Items</div>
                             <div className="grid grid-cols-12 gap-2">
                                 <div className="col-span-9">
-                                    <Label>Product <Asterisk color={'red'} size={12} className={'inline-flex align-super'} /></Label>
+                                    <Label>
+                                        Product <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                                    </Label>
                                     <SearchableSelect
                                         options={productOptions}
                                         value={newItem.product_id}
@@ -174,7 +180,9 @@ export default function CreateOrder({ open, onOpenChange, customers, shippings, 
                                     />
                                 </div>
                                 <div className="col-span-2">
-                                    <Label>CTN <Asterisk color={'red'} size={12} className={'inline-flex align-super'} /></Label>
+                                    <Label>
+                                        CTN <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                                    </Label>
                                     <Input
                                         type="number"
                                         min={1}

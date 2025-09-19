@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Enums\OrderStatus;
-use App\Enums\ShippingStatus;
+use App\Enums\ShipmentStatus;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 
@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
         Inertia::share([
             'enums' => [
                 'orderStatus' => $this->formatEnum(OrderStatus::class),
-                'shippingStatus' => $this->formatEnum(ShippingStatus::class),
+                'shipmentStatus' => $this->formatEnum(ShipmentStatus::class),
             ],
         ]);
     }
