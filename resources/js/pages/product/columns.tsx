@@ -30,7 +30,7 @@ export const createColumns = (onEdit: (product: Product) => void, onDelete: (pro
     {
         accessorKey: 'unit_price',
         header: 'Unit Price',
-        cell: ({ row }) => `$${row.getValue('unit_price')}`,
+        cell: ({ row }) => `AED ${row.getValue('unit_price')}`,
     },
     {
         accessorKey: 'box_qtt',
@@ -41,18 +41,18 @@ export const createColumns = (onEdit: (product: Product) => void, onDelete: (pro
         header: 'Dimensions',
         cell: ({ row }) => {
             const product = row.original;
-            return `${product.length}×${product.width}×${product.height} cm`;
+            return `${product.length} × ${product.width} × ${product.height} CM`;
         },
     },
     {
         accessorKey: 'net_weight',
         header: 'Net Weight',
-        cell: ({ row }) => `${row.getValue('net_weight')} kg`,
+        cell: ({ row }) => `${row.getValue('net_weight')} KG`,
     },
     {
         accessorKey: 'box_weight',
         header: 'Box Weight',
-        cell: ({ row }) => `${row.getValue('box_weight')} kg`,
+        cell: ({ row }) => `${row.getValue('box_weight')} KG`,
     },
     {
         accessorKey: 'supplier',

@@ -1,5 +1,9 @@
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { show } from '@/routes/orders';
+import { router } from '@inertiajs/react';
+import { TextSearch } from 'lucide-react';
 
 interface RecentOrdersChartProps {
     data: Array<{
@@ -19,14 +23,7 @@ interface RecentOrdersChartProps {
     }>;
 }
 
-export function RecentOrdersChart({ data }: RecentOrdersChartProps) {
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    };
-
+export function RecentOrdersChart({ data }: Readonly<RecentOrdersChartProps>) {
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -48,6 +45,7 @@ export function RecentOrdersChart({ data }: RecentOrdersChartProps) {
                             <TableHead>Customer</TableHead>
                             <TableHead>Total</TableHead>
                             <TableHead>Date</TableHead>
+                            <TableHead>Details</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -60,8 +58,20 @@ export function RecentOrdersChart({ data }: RecentOrdersChartProps) {
                                         <div className="text-sm text-muted-foreground">{order.customer.email}</div>
                                     </div>
                                 </TableCell>
-                                <TableCell>{formatCurrency(order.total)}</TableCell>
+                                <TableCell>
+                                    AED {Number(order.total).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </TableCell>
                                 <TableCell>{formatDate(order.created_at)}</TableCell>
+                                <TableCell>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => router.visit(show.url(order.id))}
+                                        className={'hover:cursor-pointer'}
+                                    >
+                                        <TextSearch />
+                                    </Button>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

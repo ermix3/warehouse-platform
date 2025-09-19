@@ -42,7 +42,7 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
 
     const productOptions = products.map((p) => ({
         value: p.id.toString(),
-        label: `${p.name} - ${p.barcode}`,
+        label: `${p.barcode} - ${p.name}`,
     }));
 
     const selectedProduct = products.find((p) => p.id.toString() === data.product_id);
@@ -72,7 +72,7 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                                 <b>Order Number:</b> {order.order_number}
                             </div>
                             <div>
-                                <b>Total:</b> AED {Number(order.total)?.toFixed(2)}
+                                <b>Total:</b> AED {Number(order.total).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </div>
                             <div>
                                 <b>Created At:</b> {order.created_at ? new Date(order.created_at).toLocaleString() : '-'}
@@ -210,8 +210,9 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                                     <TableRow>
                                         <TableHead>ID</TableHead>
                                         <TableHead>Product</TableHead>
-                                        <TableHead>Box/Qtt</TableHead>
+                                        <TableHead>Box/QTY</TableHead>
                                         <TableHead>CTN</TableHead>
+                                        <TableHead>Total</TableHead>
                                         <TableHead>Unit Price</TableHead>
                                         <TableHead>Total</TableHead>
                                     </TableRow>
@@ -224,18 +225,33 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        orderItems.data.map(({ id, ctn, product }) => (
-                                            <TableRow key={id}>
-                                                <TableCell>{id}</TableCell>
-                                                <TableCell>{product?.name + ' - ' + product?.barcode}</TableCell>
-                                                <TableCell>{product?.box_qtt || '-'}</TableCell>
-                                                <TableCell>{ctn}</TableCell>
-                                                <TableCell>AED {Number(product?.unit_price)?.toFixed(2) ?? '-'}</TableCell>
-                                                <TableCell>
-                                                    AED {product ? (Number(product.unit_price) * product.box_qtt * ctn).toFixed(2) : '-'}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
+                                        orderItems.data
+                                            .toSorted((a, b) => a.id - b.id)
+                                            .map(({ id, ctn, product }, index) => (
+                                                <TableRow key={id}>
+                                                    <TableCell>{index + 1}</TableCell>
+                                                    <TableCell>{product?.barcode + ' - ' + product?.name}</TableCell>
+                                                    <TableCell>{product?.box_qtt || '-'}</TableCell>
+                                                    <TableCell>{ctn}</TableCell>
+                                                    <TableCell>{ctn * (product?.box_qtt || 0)}</TableCell>
+                                                    <TableCell>
+                                                        AED{' '}
+                                                        {Number(product?.unit_price)?.toLocaleString('en-US', {
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2,
+                                                        }) ?? '-'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        AED{' '}
+                                                        {product
+                                                            ? (Number(product.unit_price) * product.box_qtt * ctn).toLocaleString('en-US', {
+                                                                  minimumFractionDigits: 2,
+                                                                  maximumFractionDigits: 2,
+                                                              })
+                                                            : '-'}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
                                     )}
                                 </TableBody>
                             </Table>

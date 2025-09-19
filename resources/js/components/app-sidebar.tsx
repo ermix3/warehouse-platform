@@ -71,10 +71,12 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} label="Platform" />
+                <hr className="my-2 border-gray-500 border-1 dark:border-gray-300" />
             </SidebarContent>
 
             <SidebarFooter>
                 {/* <NavFooter items={footerNavItems} className="mt-auto" /> */}
+                <hr className="my-2 border-gray-500 border-1 dark:border-gray-300" />
                 <NavMain items={footerNavItems} label="Other" />
                 <NavUser />
             </SidebarFooter>

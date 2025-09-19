@@ -15,7 +15,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('Dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::apiResource('suppliers', SupplierController::class)->except('show');
     Route::apiResource('customers', CustomerController::class)->except('show');
     Route::apiResource('products', ProductController::class)->except('show');
