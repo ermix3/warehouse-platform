@@ -1,4 +1,4 @@
-import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
+import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { destroy, index } from '@/routes/suppliers';
@@ -78,7 +78,12 @@ export default function Index() {
             <Head title="Suppliers" />
 
             <div className="container mt-5 px-5">
-                <AddNewItem title="Suppliers" description="Manage your suppliers" buttonLabel="Create Supplier" onButtonClick={openCreateDialog} />
+                <TitleActionsSection
+                    title="Suppliers"
+                    description="Manage your suppliers"
+                    btnAddLabel="Create Supplier"
+                    onBtnAddClick={openCreateDialog}
+                />
 
                 <DataTable
                     columns={columns}

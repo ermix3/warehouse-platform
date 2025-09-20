@@ -1,4 +1,4 @@
-import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
+import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { destroy, index } from '@/routes/customers';
@@ -79,7 +79,12 @@ export default function CustomersPage() {
 
             <div className="container mt-5 px-5">
                 {flash?.success && <div className="alert alert-success">{flash.success}</div>}
-                <AddNewItem title="Customers" description="Manage your customers" buttonLabel="Create Customer" onButtonClick={openCreateDialog} />
+                <TitleActionsSection
+                    title="Customers"
+                    description="Manage your customers"
+                    btnAddLabel="Create Customer"
+                    onBtnAddClick={openCreateDialog}
+                />
 
                 <DataTable
                     columns={columns}

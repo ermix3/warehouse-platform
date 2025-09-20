@@ -1,4 +1,4 @@
-import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
+import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { destroy } from '@/routes/products';
@@ -25,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function ProductsPage() {
-    const { products, categories, suppliers, filters, flash } = usePage<PageProductProps>().props;
+    const { products, suppliers, filters, flash } = usePage<PageProductProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -78,11 +78,11 @@ export default function ProductsPage() {
             <Head title="Products" />
 
             <div className="container mt-5 px-5">
-                <AddNewItem
+                <TitleActionsSection
                     title="Products"
                     description="Manage your product inventory"
-                    buttonLabel="Create Product"
-                    onButtonClick={openCreateDialog}
+                    btnAddLabel="Create Product"
+                    onBtnAddClick={openCreateDialog}
                 />
 
                 <DataTable
@@ -96,10 +96,10 @@ export default function ProductsPage() {
             </div>
 
             {/* Create Dialog */}
-            <CreateProduct open={showCreateDialog} onOpenChange={setShowCreateDialog} categories={categories} suppliers={suppliers} />
+            <CreateProduct open={showCreateDialog} onOpenChange={setShowCreateDialog} suppliers={suppliers} />
 
             {/* Edit Dialog */}
-            <EditProduct open={showEditDialog} onOpenChange={setShowEditDialog} product={editProduct} categories={categories} suppliers={suppliers} />
+            <EditProduct open={showEditDialog} onOpenChange={setShowEditDialog} product={editProduct} suppliers={suppliers} />
 
             {/* Delete Confirmation Dialog */}
             <DeleteItem

@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::apiResource('customers', CustomerController::class)->except('show');
     Route::apiResource('products', ProductController::class)->except('show');
     Route::apiResource('users', UserController::class)->except('show');
+    Route::get('shipments/export-data', [ShipmentController::class, 'exportData'])->name('shipments.exportData');
     Route::apiResource('shipments', ShipmentController::class);
     Route::get('shipments/{shipment}', [ShipmentController::class, 'show'])->name('shipments.show');
     Route::post('shipments/{shipment}/customers', [OrderController::class, 'createCustomerAndAttachOrder'])->name('shipments.customers.attachCreate');

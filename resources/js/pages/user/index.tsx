@@ -1,4 +1,4 @@
-import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared/';
+import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared/';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { destroy, index } from '@/routes/users';
@@ -78,7 +78,7 @@ export default function UsersPage() {
             <Head title="Users" />
 
             <div className="container mt-5 px-5">
-                <AddNewItem title="Users" description="Manage your users" buttonLabel="Create User" onButtonClick={openCreateDialog} />
+                <TitleActionsSection title="Users" description="Manage your users" btnAddLabel="Create User" onBtnAddClick={openCreateDialog} />
 
                 <DataTable columns={columns} data={users.data} filters={filters} searchPlaceholder="Search users by name or email..." />
 

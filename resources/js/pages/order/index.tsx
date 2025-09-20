@@ -1,4 +1,4 @@
-import { AddNewItem, DataTable, DeleteItem, Pagination } from '@/components/shared';
+import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { destroy, index } from '@/routes/orders';
@@ -78,7 +78,12 @@ export default function OrdersPage() {
             <Head title="Orders" />
 
             <div className="container mt-5 px-5">
-                <AddNewItem title="Orders" description="Manage your orders" buttonLabel="Create Order" onButtonClick={openCreateDialog} />
+                <TitleActionsSection
+                    title="Orders"
+                    description="Manage your orders records"
+                    btnAddLabel="Create Order"
+                    onBtnAddClick={openCreateDialog}
+                />
 
                 <DataTable
                     columns={columns}

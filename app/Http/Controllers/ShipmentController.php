@@ -217,4 +217,102 @@ class ShipmentController extends Controller
             ]);
         }
     }
+
+    /**
+     * Export shipments in CSV or Excel format.
+     */
+    public function exportData(Request $request)
+    {
+        $type = strtolower($request->get('type', 'csv'));
+        Log::info("Exporting shipments for type $type...");
+        if (!in_array($type, ['csv', 'excel'])) {
+            return Redirect::back()->withErrors(['error' => 'Invalid export type. Allowed types: csv, excel']);
+        }
+
+        $query = Shipment::query()->withCount('orders');
+
+        // Apply same filters as index
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('tracking_number', 'like', "%{$search}%")
+                    ->orWhere('carrier', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%");
+            });
+        }
+
+        $sortBy = $request->get('sort_by', 'id');
+        $sortOrder = $request->get('sort_order', 'asc');
+        $allowedSortFields = ['id', 'tracking_number', 'carrier', 'status', 'total', 'orders_count', 'created_at', 'updated_at'];
+        $allowedSortOrders = ['asc', 'desc'];
+        if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->orderBy('id', 'asc');
+        }
+
+        $headings = ['ID', 'Tracking Number', 'Carrier', 'Status', 'Orders Count', 'Total', 'Created At'];
+
+        if ($type === 'csv') {
+            $filename = 'shipments_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+            $callback = function () use ($query, $headings) {
+                $handle = fopen('php://output', 'w');
+                fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+                fputcsv($handle, $headings);
+
+                $query->chunk(500, function ($rows) use ($handle) {
+                    foreach ($rows as $s) {
+                        fputcsv($handle, [
+                            $s->id,
+                            $s->tracking_number,
+                            $s->carrier,
+                            ucfirst(str_replace('_', ' ', $s->status->value)),
+                            $s->orders_count,
+                            'AED ' . $s->total,
+                            optional($s->created_at)->toDateTimeString(),
+                        ]);
+                    }
+                });
+
+                fclose($handle);
+            };
+
+            return response()->streamDownload($callback, $filename, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+            ]);
+        }
+
+        // Excel-compatible .xls via HTML table (opens in Excel)
+        $filename = 'shipments_' . now()->format('Y-m-d_H-i-s') . '.xls';
+        $rowsHtml = '';
+        $rowsHtml .= '<tr>';
+        foreach ($headings as $h) {
+            $rowsHtml .= '<th style="background:#f5f5f5;border:1px solid #ccc;">' . e($h) . '</th>';
+        }
+        $rowsHtml .= '</tr>';
+
+        $query->chunk(500, function ($rows) use (&$rowsHtml) {
+            foreach ($rows as $s) {
+                $rowsHtml .= '<tr>'
+                    . '<td style="border:1px solid #ccc;">' . e($s->id) . '</td>'
+                    . '<td style="border:1px solid #ccc;">' . e($s->tracking_number) . '</td>'
+                    . '<td style="border:1px solid #ccc;">' . e($s->carrier) . '</td>'
+                    . '<td style="border:1px solid #ccc;">' . e(ucfirst(str_replace('_', ' ', $s->status->value))) . '</td>'
+                    . '<td style="border:1px solid #ccc;">' . e($s->orders_count) . '</td>'
+                    . '<td style="border:1px solid #ccc;">' . e('AED ' . $s->total) . '</td>'
+                    . '<td style="border:1px solid #ccc;">' . e(optional($s->created_at)->toDateTimeString()) . '</td>'
+                    . '</tr>';
+            }
+        });
+
+        $html = '<html><head><meta charset="UTF-8"></head><body>'
+            . '<table cellspacing="0" cellpadding="5">' . $rowsHtml . '</table>'
+            . '</body></html>';
+
+        return response($html, 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
 }
