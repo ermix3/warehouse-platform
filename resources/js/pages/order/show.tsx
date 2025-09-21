@@ -1,3 +1,4 @@
+import { ExportData } from '@/components/shared';
 import { Pagination } from '@/components/shared/pagination';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,7 @@ import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
 import { getFormatedAmount } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { attachProduct, index, show } from '@/routes/orders';
-import { show as showShipment } from '@/routes/shipments';
+import { exportData, show as showShipment } from '@/routes/shipments';
 import { BreadcrumbItem, ShowOrderProps } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { Info, TextSearch } from 'lucide-react';
@@ -121,15 +122,22 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                                     <div>
                                         <b>Created At:</b> {order.shipment?.created_at ? new Date(order.shipment.created_at).toLocaleString() : '-'}
                                     </div>
-                                    <div className="pt-2">
+                                    <div className="flex justify-end gap-2 pt-2">
                                         <Button
-                                            variant="default"
-                                            size="sm"
+                                            size="icon"
                                             onClick={() => router.visit(showShipment.url(order.shipment!.id))}
                                             className={'hover:cursor-pointer'}
                                         >
-                                            Details <TextSearch />
+                                            <TextSearch />
                                         </Button>
+                                        <ExportData
+                                            btnVariant={'outline'}
+                                            btnSize={'icon'}
+                                            onExport={(type) => {
+                                                const q = { type };
+                                                window.location.href = exportData.url({ shipment: order.shipment!.id }, { query: q });
+                                            }}
+                                        />
                                     </div>
                                 </>
                             )}
