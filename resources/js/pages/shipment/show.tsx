@@ -92,13 +92,14 @@ export default function ShipmentShowPage() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
-            <Head title={`Shipment ${shipment.tracking_number}`} />
+            <Head title={`Shipment #${shipment.id}`} />
             <div className="container mt-5 space-y-6 px-5">
                 {/* Shipment info */}
                 <Card className="px-2 py-3">
                     <CardHeader className="flex items-center justify-between gap-2 border-b-1 border-b-gray-100 pb-2">
                         <CardTitle>Shipment Info</CardTitle>
                         <ExportData
+                            btnSize={'icon'}
                             onExport={(type) => {
                                 const q = { type };
                                 window.location.href = exportData.url({ shipment: shipment.id }, { query: q });

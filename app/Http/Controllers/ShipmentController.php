@@ -231,7 +231,7 @@ class ShipmentController extends Controller
             $type = 'xlsx';
         }
 
-        Log::info("Exporting detailed shipment {$shipment->id} for type $type...");
+        Log::info("Exporting detailed shipment '{$shipment->id}' for type '$type'.");
 
         $allowed = ['csv', 'xlsx', 'xls', 'ods', 'excel'];
         if (!in_array($type, $allowed)) {

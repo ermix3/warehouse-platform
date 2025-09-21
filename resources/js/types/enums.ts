@@ -7,7 +7,7 @@
  */
 export enum ShipmentStatus {
     PENDING = 'pending',
-    INTRANSIT = 'in_transit',
+    IN_TRANSIT = 'in_transit',
     DELIVERED = 'delivered',
     RETURNED = 'returned',
 }

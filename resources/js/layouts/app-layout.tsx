@@ -11,8 +11,6 @@ interface AppLayoutProps {
 
 export default ({ children, breadcrumbs, flash, ...props }: AppLayoutProps) => {
     useEffect(() => {
-        console.log('new flash ');
-        // Only show each toast once per page load
         if (flash?.success) {
             toast.success(flash?.success, {
                 duration: 8000,

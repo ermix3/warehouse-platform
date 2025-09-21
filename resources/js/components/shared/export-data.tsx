@@ -1,3 +1,4 @@
+import MyTooltip from '@/components/shared/my-tooltip';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { VariantProps } from 'class-variance-authority';
@@ -13,12 +14,26 @@ type ExportProps = {
 export function ExportData({ label = 'Export', btnVariant = 'default', btnSize = 'default', onExport }: Readonly<ExportProps>) {
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant={btnVariant} className="hover:cursor-pointer">
-                    {btnSize === 'icon' ? '' : label}
-                    <FileDown />
-                </Button>
-            </DropdownMenuTrigger>
+            {btnSize === 'icon' ? (
+                <MyTooltip title="Export data">
+                    <DropdownMenuTrigger asChild>
+                        <Button variant={btnVariant} className="hover:cursor-pointer">
+                            <FileDown />
+                        </Button>
+                    </DropdownMenuTrigger>
+                </MyTooltip>
+            ) : (
+                <DropdownMenuTrigger asChild>
+                    <Button variant={btnVariant} className="hover:cursor-pointer">
+                        {label}{' '}
+                        <MyTooltip title="Export data">
+                            <span style={{ display: 'inline-flex' }}>
+                                <FileDown />
+                            </span>
+                        </MyTooltip>
+                    </Button>
+                </DropdownMenuTrigger>
+            )}
             <DropdownMenuContent align="end">
                 <DropdownMenuItem onSelect={() => onExport('csv')} className="hover:cursor-pointer">
                     CSV

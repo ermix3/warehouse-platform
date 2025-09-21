@@ -1,4 +1,5 @@
 import { ExportData } from '@/components/shared';
+import MyTooltip from '@/components/shared/my-tooltip';
 import { Pagination } from '@/components/shared/pagination';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,7 +60,7 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
 
     return (
         <AppLayout flash={flash} breadcrumbs={breadcrumbs}>
-            <Head title={`Order #${order.order_number}`} />
+            <Head title={`Order #${order.id}`} />
             <div className="container mt-5 space-y-6 px-5">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                     {/* Order Info */}
@@ -123,13 +124,16 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                                         <b>Created At:</b> {order.shipment?.created_at ? new Date(order.shipment.created_at).toLocaleString() : '-'}
                                     </div>
                                     <div className="flex justify-end gap-2 pt-2">
-                                        <Button
-                                            size="icon"
-                                            onClick={() => router.visit(showShipment.url(order.shipment!.id))}
-                                            className={'hover:cursor-pointer'}
-                                        >
-                                            <TextSearch />
-                                        </Button>
+                                        <MyTooltip title="Details">
+                                            <Button
+                                                size="icon"
+                                                onClick={() => router.visit(showShipment.url(order.shipment!.id))}
+                                                className={'hover:cursor-pointer'}
+                                            >
+                                                <TextSearch />
+                                            </Button>
+                                        </MyTooltip>
+
                                         <ExportData
                                             btnVariant={'outline'}
                                             btnSize={'icon'}
