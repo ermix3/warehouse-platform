@@ -1,5 +1,5 @@
+import { ExportData } from '@/components/shared';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import React from 'react';
 
 interface TitleActionsSectionProps {
@@ -29,17 +29,7 @@ export function TitleActionsSection({
                 </div>
             )}
             <div className={`flex items-center gap-2`}>
-                {onBtnExportClick && (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline">Exporte</Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onSelect={() => onBtnExportClick('csv')}>CSV</DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => onBtnExportClick('excel')}>Excel</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )}
+                {onBtnExportClick && <ExportData onExport={onBtnExportClick} />}
                 {onBtnAddClick && <Button onClick={onBtnAddClick}>{btnAddLabel}</Button>}
             </div>
         </div>

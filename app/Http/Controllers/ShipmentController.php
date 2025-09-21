@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ShipmentsExport;
 use App\Http\Requests\ShipmentRequest;
 use App\Models\Customer;
 use App\Models\Shipment;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ShipmentController extends Controller
 {
@@ -219,100 +221,37 @@ class ShipmentController extends Controller
     }
 
     /**
-     * Export shipments in CSV or Excel format.
+     * Export a specific shipment with detailed product information using ShipmentsExport.
      */
-    public function exportData(Request $request)
+    public function exportData(Request $request, Shipment $shipment)
     {
-        $type = strtolower($request->get('type', 'csv'));
-        Log::info("Exporting shipments for type $type...");
-        if (!in_array($type, ['csv', 'excel'])) {
-            return Redirect::back()->withErrors(['error' => 'Invalid export type. Allowed types: csv, excel']);
+        $type = strtolower($request->get('type', 'xlsx'));
+
+        if ($type === 'excel') {
+            $type = 'xlsx';
         }
 
-        $query = Shipment::query()->withCount('orders');
+        Log::info("Exporting detailed shipment {$shipment->id} for type $type...");
 
-        // Apply same filters as index
-        if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('tracking_number', 'like', "%{$search}%")
-                    ->orWhere('carrier', 'like', "%{$search}%")
-                    ->orWhere('status', 'like', "%{$search}%");
-            });
+        $allowed = ['csv', 'xlsx', 'xls', 'ods', 'excel'];
+        if (!in_array($type, $allowed)) {
+            return Redirect::back()->withErrors(['error' => 'Invalid export type. Allowed types: csv, xlsx, xls, ods']);
         }
 
-        $sortBy = $request->get('sort_by', 'id');
-        $sortOrder = $request->get('sort_order', 'asc');
-        $allowedSortFields = ['id', 'tracking_number', 'carrier', 'status', 'total', 'orders_count', 'created_at', 'updated_at'];
-        $allowedSortOrders = ['asc', 'desc'];
-        if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {
-            $query->orderBy($sortBy, $sortOrder);
-        } else {
-            $query->orderBy('id', 'asc');
+        $export = new ShipmentsExport($shipment->id);
+
+        $filename = sprintf('shipment_%s_details_%s.%s',
+            $shipment->tracking_number ?? $shipment->id,
+            now()->format('Y-m-d_H-i-s'),
+            $type
+        );
+
+        try {
+            return Excel::download($export, $filename);
+        } catch (\PhpOffice\PhpSpreadsheet\Exception $e) {
+            Log::error('Failed to export shipment (Spreadsheet Exception): ' . $e->getMessage());
+            return Redirect::back()->withErrors(['error' => 'Failed to export shipment.']);
         }
-
-        $headings = ['ID', 'Tracking Number', 'Carrier', 'Status', 'Orders Count', 'Total', 'Created At'];
-
-        if ($type === 'csv') {
-            $filename = 'shipments_' . now()->format('Y-m-d_H-i-s') . '.csv';
-
-            $callback = function () use ($query, $headings) {
-                $handle = fopen('php://output', 'w');
-                fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
-                fputcsv($handle, $headings);
-
-                $query->chunk(500, function ($rows) use ($handle) {
-                    foreach ($rows as $s) {
-                        fputcsv($handle, [
-                            $s->id,
-                            $s->tracking_number,
-                            $s->carrier,
-                            ucfirst(str_replace('_', ' ', $s->status->value)),
-                            $s->orders_count,
-                            'AED ' . $s->total,
-                            optional($s->created_at)->toDateTimeString(),
-                        ]);
-                    }
-                });
-
-                fclose($handle);
-            };
-
-            return response()->streamDownload($callback, $filename, [
-                'Content-Type' => 'text/csv; charset=UTF-8',
-            ]);
-        }
-
-        // Excel-compatible .xls via HTML table (opens in Excel)
-        $filename = 'shipments_' . now()->format('Y-m-d_H-i-s') . '.xls';
-        $rowsHtml = '';
-        $rowsHtml .= '<tr>';
-        foreach ($headings as $h) {
-            $rowsHtml .= '<th style="background:#f5f5f5;border:1px solid #ccc;">' . e($h) . '</th>';
-        }
-        $rowsHtml .= '</tr>';
-
-        $query->chunk(500, function ($rows) use (&$rowsHtml) {
-            foreach ($rows as $s) {
-                $rowsHtml .= '<tr>'
-                    . '<td style="border:1px solid #ccc;">' . e($s->id) . '</td>'
-                    . '<td style="border:1px solid #ccc;">' . e($s->tracking_number) . '</td>'
-                    . '<td style="border:1px solid #ccc;">' . e($s->carrier) . '</td>'
-                    . '<td style="border:1px solid #ccc;">' . e(ucfirst(str_replace('_', ' ', $s->status->value))) . '</td>'
-                    . '<td style="border:1px solid #ccc;">' . e($s->orders_count) . '</td>'
-                    . '<td style="border:1px solid #ccc;">' . e('AED ' . $s->total) . '</td>'
-                    . '<td style="border:1px solid #ccc;">' . e(optional($s->created_at)->toDateTimeString()) . '</td>'
-                    . '</tr>';
-            }
-        });
-
-        $html = '<html><head><meta charset="UTF-8"></head><body>'
-            . '<table cellspacing="0" cellpadding="5">' . $rowsHtml . '</table>'
-            . '</body></html>';
-
-        return response($html, 200, [
-            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ]);
     }
 
 }

@@ -1,5 +1,5 @@
 import { attachOrderToShipment } from '@/actions/App/Http/Controllers/OrderController';
-import { Pagination } from '@/components/shared';
+import { ExportData, Pagination } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -11,7 +11,7 @@ import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
 import { getFormatedAmount } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { show as showOrders } from '@/routes/orders';
-import { index, show } from '@/routes/shipments';
+import { exportData, index, show } from '@/routes/shipments';
 import { attachCreate } from '@/routes/shipments/customers';
 import type { BreadcrumbItem, Customer, Order, ShowShipmentProps } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
@@ -95,9 +95,15 @@ export default function ShipmentShowPage() {
             <Head title={`Shipment ${shipment.tracking_number}`} />
             <div className="container mt-5 space-y-6 px-5">
                 {/* Shipment info */}
-                <Card>
-                    <CardHeader className="border-b-1 border-b-gray-100">
+                <Card className="px-2 py-3">
+                    <CardHeader className="flex items-center justify-between gap-2 border-b-1 border-b-gray-100 pb-2">
                         <CardTitle>Shipment Info</CardTitle>
+                        <ExportData
+                            onExport={(type) => {
+                                const q = { type };
+                                window.location.href = exportData.url({ shipment: shipment.id }, { query: q });
+                            }}
+                        />
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">

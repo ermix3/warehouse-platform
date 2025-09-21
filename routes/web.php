@@ -27,10 +27,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::apiResource('shipments', ShipmentController::class);
     Route::prefix('shipments')->name('shipments.')->group(function () {
-        Route::get('export-data', [ShipmentController::class, 'exportData'])->name('exportData');
-        Route::get('{shipment}', [ShipmentController::class, 'show'])->name('show');
-        Route::post('{shipment}/customers', [OrderController::class, 'createCustomerAndAttachOrder'])->name('customers.attachCreate');
-        Route::post('{shipment}/customers/{customer}/attach-order', [OrderController::class, 'attachOrderToShipment'])->name('customers.attachOrder');
+        Route::prefix('{shipment}')->group(function () {
+            Route::get('/', [ShipmentController::class, 'show'])->name('show');
+            Route::get('export-data', [ShipmentController::class, 'exportData'])->name('exportData');
+
+            Route::prefix('customers')->name('customers.')->group(function () {
+                Route::post('/', [OrderController::class, 'createCustomerAndAttachOrder'])->name('attachCreate');
+                Route::post('{customer}/attach-order', [OrderController::class, 'attachOrderToShipment'])->name('attachOrder');
+            });
+        });
     });
 
     Route::apiResource('orders', OrderController::class);

@@ -1,7 +1,7 @@
 import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import { destroy, exportData, index } from '@/routes/shipments';
+import { destroy, index } from '@/routes/shipments';
 import { BreadcrumbItem, PageShipmentProps, Shipment } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -83,10 +83,6 @@ export default function ShipmentsPage() {
                     description="Manage your shipment records and track order deliveries"
                     btnAddLabel="Create Shipment"
                     onBtnAddClick={openCreateDialog}
-                    onBtnExportClick={(type) => {
-                        const q = { type, search: filters.search, sort_by: filters.sort_by, sort_order: filters.sort_order };
-                        window.location.href = exportData.url({ query: q });
-                    }}
                 />
 
                 <DataTable
