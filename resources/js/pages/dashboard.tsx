@@ -2,6 +2,7 @@ import { OrdersByMonthChart } from '@/components/charts/orders-by-month-chart';
 import { RecentOrdersChart } from '@/components/charts/recent-orders-chart';
 import { AnalyticsCard } from '@/components/ui/analytics-card';
 import AppLayout from '@/layouts/app-layout';
+import { getFormatedAmount } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -46,13 +47,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard({ analytics }: Readonly<DashboardProps>) {
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'AED',
-        }).format(amount);
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -79,7 +73,7 @@ export default function Dashboard({ analytics }: Readonly<DashboardProps>) {
                     />
                     <AnalyticsCard
                         title="Total Revenue"
-                        value={formatCurrency(analytics.totals.revenue)}
+                        value={getFormatedAmount(analytics.totals.revenue)}
                         icon={Coins}
                         description="Revenue generated"
                     />

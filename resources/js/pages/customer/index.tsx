@@ -91,6 +91,10 @@ export default function CustomersPage() {
                     data={customers.data}
                     filters={filters}
                     searchPlaceholder="Search customers by name, email, phone, address, or notes..."
+                    colsVisibility={{
+                        address: false,
+                        notes: false,
+                    }}
                 />
 
                 <Pagination links={customers.links} from={customers.from} to={customers.to} total={customers.total} />

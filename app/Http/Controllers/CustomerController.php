@@ -27,8 +27,7 @@ class CustomerController extends Controller
             }
         ])
         ->withCount('orders');
-        
-        // Handle search across multiple fields
+
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -39,9 +38,8 @@ class CustomerController extends Controller
             });
         }
 
-        // Handle sorting with validation
         $sortBy = $request->get('sort_by', 'id');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortOrder = $request->get('sort_order', 'desc');
 
         $allowedSortFields = ['id', 'name', 'email', 'phone', 'address', 'notes', 'unique_products_bought_count', 'orders_count'];
         $allowedSortOrders = ['asc', 'desc'];
@@ -49,8 +47,7 @@ class CustomerController extends Controller
         if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {
             $query->orderBy($sortBy, $sortOrder);
         } else {
-            // Fallback to default sorting
-            $query->orderBy('id', 'asc');
+            $query->orderBy('id', 'desc');
         }
 
         $customers = $query->paginate(15)->appends($request->query());

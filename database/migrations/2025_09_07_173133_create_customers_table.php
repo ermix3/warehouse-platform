@@ -18,6 +18,8 @@ return new class extends Migration {
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
             $table->text('notes')->nullable();
+            $table->decimal('shipping_tax', 5, 2)->nullable()->comment('Shipping tax percentage');
+            $table->decimal('handling_tax', 5, 2)->nullable()->comment('Handling tax percentage');
             $table->timestamps();
         });
     }

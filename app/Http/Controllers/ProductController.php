@@ -23,7 +23,6 @@ class ProductController extends Controller
     {
         $query = Product::with(['supplier']);
 
-        // Handle search across multiple fields including relationships
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('barcode', 'like', "%{$search}%")
@@ -37,9 +36,8 @@ class ProductController extends Controller
             });
         }
 
-        // Handle sorting with validation
         $sortBy = $request->get('sort_by', 'id');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortOrder = $request->get('sort_order', 'desc');
 
         $allowedSortFields = [
             'id', 'barcode', 'name', 'description', 'origin', 'hs_code',
@@ -54,8 +52,7 @@ class ProductController extends Controller
                 ->orderBy('suppliers.name', $sortOrder)
                 ->select('products.*');
         } else {
-            // Fallback to default sorting
-            $query->orderBy('id', 'asc');
+            $query->orderBy('id', 'desc');
         }
 
         $products = $query->paginate(10)->appends($request->query());

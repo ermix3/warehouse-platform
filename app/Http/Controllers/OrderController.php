@@ -23,7 +23,6 @@ class OrderController extends Controller
     {
         $query = Order::with(['customer', 'items.product']);
 
-        // Search by order number, customer name, status
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('order_number', 'like', "%{$search}%")
@@ -34,15 +33,14 @@ class OrderController extends Controller
             });
         }
 
-        // Sorting
         $sortBy = $request->get('sort_by', 'id');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortOrder = $request->get('sort_order', 'desc');
         $allowedSortFields = ['id', 'order_number', 'status', 'total', 'created_at'];
         $allowedSortOrders = ['asc', 'desc'];
         if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {
             $query->orderBy($sortBy, $sortOrder);
         } else {
-            $query->orderBy('id', 'asc');
+            $query->orderBy('id', 'desc');
         }
 
         $orders = $query->paginate(15)->appends($request->query());

@@ -35,6 +35,16 @@ export const createColumns = (onEdit: (customer: Customer) => void, onDelete: (c
         header: 'Notes',
     },
     {
+        accessorKey: 'shipping_tax',
+        header: 'Shipping Tax (%)',
+        cell: ({ row }) => (row.original?.shipping_tax != null ? `${row.original.shipping_tax}%` : ''),
+    },
+    {
+        accessorKey: 'handling_tax',
+        header: 'Handling Tax (%)',
+        cell: ({ row }) => (row.original?.handling_tax != null ? `${row.original.handling_tax}%` : ''),
+    },
+    {
         accessorKey: 'unique_products_bought_count',
         header: 'Products',
         cell: ({ row }) => row.original?.unique_products_bought_count ?? 0,

@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { cn } from '@/lib/utils';
 import { Filters } from '@/types';
 import { router } from '@inertiajs/react';
+import type { VisibilityState } from '@tanstack/react-table';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown, Search } from 'lucide-react';
 import { useState } from 'react';
@@ -16,15 +17,22 @@ interface DataTableProps<TData, TValue> {
     data: TData[];
     filters?: Filters;
     searchPlaceholder?: string;
+    colsVisibility?: VisibilityState;
 }
 
-export function DataTable<TData, TValue>({ columns, data, filters, searchPlaceholder = '' }: Readonly<DataTableProps<TData, TValue>>) {
+export function DataTable<TData, TValue>({
+    columns,
+    data,
+    filters,
+    searchPlaceholder = '',
+    colsVisibility = {},
+}: Readonly<DataTableProps<TData, TValue>>) {
     const [isSearching, setIsSearching] = useState(false);
     const [isSorting, setIsSorting] = useState(false);
     const [search] = useState(filters?.search || '');
     const [sortBy, setSortBy] = useState(filters?.sort_by || '');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(filters?.sort_order || 'asc');
-    const [columnVisibility, setColumnVisibility] = useState({});
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(colsVisibility);
 
     const table = useReactTable({
         data,

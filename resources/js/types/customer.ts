@@ -17,6 +17,8 @@ export interface Customer {
     orders_count: number;
     created_at?: string;
     updated_at?: string;
+    shipping_tax?: number | null;
+    handling_tax?: number | null;
 }
 
 export interface PageCustomerProps {

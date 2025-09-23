@@ -22,7 +22,6 @@ class SupplierController extends Controller
     {
         $query = Supplier::query()->withCount('products');
 
-        // Handle search across multiple fields
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -33,9 +32,8 @@ class SupplierController extends Controller
             });
         }
 
-        // Handle sorting with validation
         $sortBy = $request->get('sort_by', 'id');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortOrder = $request->get('sort_order', 'desc');
 
         $allowedSortFields = ['id', 'name', 'email', 'phone', 'address', 'notes', 'products_count', 'created_at'];
         $allowedSortOrders = ['asc', 'desc'];
@@ -43,8 +41,7 @@ class SupplierController extends Controller
         if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {
             $query->orderBy($sortBy, $sortOrder);
         } else {
-            // Fallback to default sorting
-            $query->orderBy('id', 'asc');
+            $query->orderBy('id', 'desc');
         }
 
         $suppliers = $query->paginate(15)->appends($request->query());

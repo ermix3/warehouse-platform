@@ -33,7 +33,7 @@ class UserController extends Controller
 
         // Handle sorting with validation
         $sortBy = $request->get('sort_by', 'id');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortOrder = $request->get('sort_order', 'desc');
 
         $allowedSortFields = ['id', 'name', 'email', 'email_verified_at', 'created_at'];
         $allowedSortOrders = ['asc', 'desc'];
@@ -42,7 +42,7 @@ class UserController extends Controller
             $query->orderBy($sortBy, $sortOrder);
         } else {
             // Fallback to default sorting
-            $query->orderBy('id', 'asc');
+            $query->orderBy('id', 'desc');
         }
 
         $users = $query->paginate(15)->appends($request->query());

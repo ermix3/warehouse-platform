@@ -286,6 +286,7 @@ export default function ShipmentShowPage() {
                                         <th className="px-3 py-2">Status</th>
                                         <th className="px-3 py-2">Total</th>
                                         <th className="px-3 py-2">Customer code</th>
+                                        <th className="px-3 py-2">Total Products</th>
                                         <th className="px-3 py-2">Details</th>
                                     </tr>
                                 </thead>
@@ -296,6 +297,7 @@ export default function ShipmentShowPage() {
                                             <td className="px-3 py-2 capitalize">{o.status}</td>
                                             <td className="px-3 py-2">{getFormatedAmount(o.total)}</td>
                                             <td className="px-3 py-2">{o.customer?.code ?? '-'}</td>
+                                            <td className="px-3 py-2">{o.items_count}</td>
                                             <td className="px-3 py-2">
                                                 <Button
                                                     variant="outline"

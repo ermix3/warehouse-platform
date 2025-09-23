@@ -29,6 +29,8 @@ class CustomerRequest extends FormRequest
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:1000',
             'notes' => 'nullable|string|max:2000',
+            'shipping_tax' => 'nullable|numeric|min:0|max:100',
+            'handling_tax' => 'nullable|numeric|min:0|max:100',
         ];
     }
 
@@ -49,6 +51,12 @@ class CustomerRequest extends FormRequest
             'phone.max' => 'The phone number must not exceed 20 characters.',
             'address.max' => 'The address must not exceed 1000 characters.',
             'notes.max' => 'The notes must not exceed 2000 characters.',
+            'shipping_tax.numeric' => 'The shipping tax must be a number.',
+            'shipping_tax.min' => 'The shipping tax must be at least :min.',
+            'shipping_tax.max' => 'The shipping tax may not be greater than :max.',
+            'handling_tax.numeric' => 'The handling tax must be a number.',
+            'handling_tax.min' => 'The handling tax must be at least :min.',
+            'handling_tax.max' => 'The handling tax may not be greater than :max.',
         ];
     }
 
@@ -66,6 +74,8 @@ class CustomerRequest extends FormRequest
             'phone' => 'phone number',
             'address' => 'address',
             'notes' => 'notes',
+            'shipping_tax' => 'shipping tax',
+            'handling_tax' => 'handling tax',
         ];
     }
 

@@ -30,6 +30,7 @@ export interface Order {
     customer?: Customer;
     shipment?: Shipment;
     items?: OrderItemLite[];
+    items_count?: number;
     created_at?: string;
     updated_at?: string;
 }

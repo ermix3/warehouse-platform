@@ -25,7 +25,6 @@ class ShipmentController extends Controller
     {
         $query = Shipment::query()->withCount('orders');
 
-        // Search by tracking number, carrier, or status
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('tracking_number', 'like', "%{$search}%")
@@ -34,15 +33,14 @@ class ShipmentController extends Controller
             });
         }
 
-        // Sorting
         $sortBy = $request->get('sort_by', 'id');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortOrder = $request->get('sort_order', 'desc');
         $allowedSortFields = ['id', 'tracking_number', 'carrier', 'status', 'total', 'orders_count', 'created_at', 'updated_at'];
         $allowedSortOrders = ['asc', 'desc'];
         if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {
             $query->orderBy($sortBy, $sortOrder);
         } else {
-            $query->orderBy('id', 'asc');
+            $query->orderBy('id', 'desc');
         }
 
         $shipments = $query->paginate(10)->appends($request->query());
@@ -133,7 +131,10 @@ class ShipmentController extends Controller
     public function show(Request $request, Shipment $shipment): Response
     {
         // Orders for this shipment with pagination
-        $ordersQuery = $shipment->orders()->with('customer')->orderBy('id', 'desc');
+        $ordersQuery = $shipment->orders()
+            ->with('customer')
+            ->withCount('items')
+            ->orderBy('id', 'desc');
         if ($search = $request->get('orders_search')) {
             $ordersQuery->where(function ($q) use ($search) {
                 $q->where('order_number', 'like', "%{$search}%")

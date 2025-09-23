@@ -29,5 +29,5 @@ export const hexy = () => {
  */
 export const getFormatedAmount = (amount: number, min: number = 2, max: number = 2) => {
     if (!amount) return 'AED 0.00';
-    return `AED ${amount.toLocaleString('en-US', { minimumFractionDigits: min, maximumFractionDigits: max })}`;
+    return `AED ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: min, maximumFractionDigits: max })}`;
 };
