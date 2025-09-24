@@ -20,11 +20,14 @@ class ShipmentsExport implements FromCollection, WithHeadings, WithMapping, With
         $this->shipmentId = $shipmentId;
     }
 
+    /**
+     * Get the collection of export rows for the shipment(s).
+     */
     public function collection(): Collection
     {
         $query = Shipment::with([
             'orders.items.product',
-            'orders.customer'
+            'orders.customer',
         ]);
 
         if ($this->shipmentId) {
@@ -35,16 +38,15 @@ class ShipmentsExport implements FromCollection, WithHeadings, WithMapping, With
         $exportData = collect();
 
         foreach ($shipments as $shipment) {
-            $customerIndex = 1;
-            $customersProcessed = [];
+            $customerOrderIndexes = [];
 
             foreach ($shipment->orders as $order) {
-                // Track customer index for item code generation
                 $customerCode = $order->customer?->code ?? 'UNKNOWN';
-                if (!isset($customersProcessed[$customerCode])) {
-                    $customersProcessed[$customerCode] = $customerIndex++;
+                if (!isset($customerOrderIndexes[$customerCode])) {
+                    $customerOrderIndexes[$customerCode] = 1;
                 }
-                $customerIdx = $customersProcessed[$customerCode];
+                $customerIdx = $customerOrderIndexes[$customerCode];
+                $customerOrderIndexes[$customerCode]++;
 
                 $itemIndex = 1;
                 foreach ($order->items as $orderItem) {
@@ -57,7 +59,7 @@ class ShipmentsExport implements FromCollection, WithHeadings, WithMapping, With
                     $exportData->push((object)[
                         'customer_code' => $customerCode,
                         'customer_index' => $customerIdx,
-                        'item_index' => $itemIndex++,
+                        'item_index' => $itemIndex++, // per order
                         'product' => $product,
                         'order_item' => $orderItem,
                         'order' => $order,
