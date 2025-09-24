@@ -25,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function ProductsPage() {
-    const { products, suppliers, filters, flash } = usePage<PageProductProps>().props;
+    const { products, filters, flash } = usePage<PageProductProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -96,10 +96,10 @@ export default function ProductsPage() {
             </div>
 
             {/* Create Dialog */}
-            <CreateProduct open={showCreateDialog} onOpenChange={setShowCreateDialog} suppliers={suppliers} />
+            <CreateProduct open={showCreateDialog} onOpenChange={setShowCreateDialog} />
 
             {/* Edit Dialog */}
-            <EditProduct open={showEditDialog} onOpenChange={setShowEditDialog} product={editProduct} suppliers={suppliers} />
+            <EditProduct open={showEditDialog} onOpenChange={setShowEditDialog} product={editProduct} />
 
             {/* Delete Confirmation Dialog */}
             <DeleteItem

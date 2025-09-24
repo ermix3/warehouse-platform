@@ -13,7 +13,6 @@ export interface Supplier {
     phone?: string;
     address?: string;
     notes?: string;
-    products_count: number;
     created_at?: string;
     updated_at?: string;
 }

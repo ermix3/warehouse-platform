@@ -24,10 +24,7 @@ return new class extends Migration {
             $table->decimal('width', 8, 2)->default(0);
             $table->decimal('net_weight', 12, 2)->default(0);
             $table->decimal('box_weight', 12, 2)->default(0);
-            $table->foreignId('supplier_id')
-                ->nullable()
-                ->constrained('suppliers')
-                ->nullOnDelete();
+
             $table->timestamps();
         });
     }

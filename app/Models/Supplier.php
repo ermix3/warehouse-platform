@@ -14,8 +14,8 @@ class Supplier extends Model
 
     protected $fillable = ['code', 'name', 'email', 'phone', 'address', 'notes'];
 
-    public function products(): HasMany|Supplier
+    public function orders(): HasMany
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Order::class);
     }
 }

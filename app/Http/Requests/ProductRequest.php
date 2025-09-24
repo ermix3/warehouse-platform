@@ -38,7 +38,6 @@ class ProductRequest extends FormRequest
             'width' => 'required|numeric|min:0|max:999999.99',
             'net_weight' => 'required|numeric|min:0|max:999999.99',
             'box_weight' => 'required|numeric|min:0|max:999999.99',
-            'supplier_id' => 'nullable|exists:suppliers,id',
         ];
     }
 
@@ -78,7 +77,6 @@ class ProductRequest extends FormRequest
             'box_weight.required' => 'The box weight is required.',
             'box_weight.numeric' => 'The box weight must be a valid number.',
             'box_weight.min' => 'The box weight must be greater than or equal to 0.',
-            'supplier_id.exists' => 'The selected supplier is invalid.',
         ];
     }
 
@@ -102,7 +100,6 @@ class ProductRequest extends FormRequest
             'width' => 'width',
             'net_weight' => 'net weight',
             'box_weight' => 'box weight',
-            'supplier_id' => 'supplier',
         ];
     }
 
@@ -124,7 +121,6 @@ class ProductRequest extends FormRequest
             'width' => is_numeric($this->width) ? (float) $this->width : $this->width,
             'net_weight' => is_numeric($this->net_weight) ? (float) $this->net_weight : $this->net_weight,
             'box_weight' => is_numeric($this->box_weight) ? (float) $this->box_weight : $this->box_weight,
-            'supplier_id' => $this->supplier_id && is_numeric($this->supplier_id) ? (int) $this->supplier_id : null,
         ]);
     }
 }

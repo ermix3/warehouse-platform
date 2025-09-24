@@ -55,14 +55,6 @@ export const createColumns = (onEdit: (product: Product) => void, onDelete: (pro
         cell: ({ row }) => `${row.getValue('box_weight')} KG`,
     },
     {
-        accessorKey: 'supplier',
-        header: 'Supplier',
-        cell: ({ row }) => {
-            const product = row.original;
-            return product.supplier?.name ?? 'N/A';
-        },
-    },
-    {
         id: 'actions',
         header: 'Actions',
         enableHiding: false,

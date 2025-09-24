@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
-use App\Models\Supplier;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +20,7 @@ class ProductController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Product::with(['supplier']);
+        $query = Product::query();
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -29,10 +28,7 @@ class ProductController extends Controller
                     ->orWhere('name', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%")
                     ->orWhere('origin', 'like', "%{$search}%")
-                    ->orWhere('hs_code', 'like', "%{$search}%")
-                    ->orWhereHas('supplier', function ($supplierQuery) use ($search) {
-                        $supplierQuery->where('name', 'like', "%{$search}%");
-                    });
+                    ->orWhere('hs_code', 'like', "%{$search}%");
             });
         }
 
@@ -47,10 +43,6 @@ class ProductController extends Controller
 
         if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {
             $query->orderBy($sortBy, $sortOrder);
-        } else if ($sortBy === 'supplier' && in_array($sortOrder, $allowedSortOrders)) {
-            $query->leftJoin('suppliers', 'products.supplier_id', '=', 'suppliers.id')
-                ->orderBy('suppliers.name', $sortOrder)
-                ->select('products.*');
         } else {
             $query->orderBy('id', 'desc');
         }
@@ -59,7 +51,6 @@ class ProductController extends Controller
 
         return Inertia::render('product/index', [
             'products' => $products,
-            'suppliers' => Supplier::orderBy('name')->get(),
             'filters' => [
                 'search' => $request->get('search', ''),
                 'sort_by' => $sortBy,
@@ -84,11 +75,10 @@ class ProductController extends Controller
                 'product_id' => $product->id,
                 'product_name' => $product->name,
                 'product_barcode' => $product->barcode,
-                'supplier_id' => $product->supplier_id,
                 'created_by' => auth()->id(),
             ]);
 
-            return Redirect::route('products.index')->with('success', 'Product created successfully.');
+            return back()->with('success', 'Product created successfully.');
 
         } catch (Exception $e) {
             DB::rollBack();

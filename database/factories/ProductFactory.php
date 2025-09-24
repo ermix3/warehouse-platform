@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Product;
-use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ProductFactory extends Factory
@@ -25,7 +24,6 @@ class ProductFactory extends Factory
             'width' => $this->faker->randomFloat(2, 1, 50),
             'net_weight' => $this->faker->randomFloat(2, 0.1, 50),
             'box_weight' => $this->faker->randomFloat(2, 0.1, 10),
-            'supplier_id' => Supplier::inRandomOrder()->first()?->id ?? null,
         ];
     }
 }

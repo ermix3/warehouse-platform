@@ -39,11 +39,6 @@ export const createColumns = (onEdit: (supplier: Supplier) => void, onDelete: (s
         cell: ({ row }) => row.original.notes || '-',
     },
     {
-        accessorKey: 'products_count',
-        header: 'Products',
-        cell: ({ row }) => row.original?.products_count ?? 0,
-    },
-    {
         id: 'actions',
         header: 'Actions',
         enableHiding: false,

@@ -20,7 +20,7 @@ class SupplierController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Supplier::query()->withCount('products');
+        $query = Supplier::query()->withCount('orders');
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -35,7 +35,7 @@ class SupplierController extends Controller
         $sortBy = $request->get('sort_by', 'id');
         $sortOrder = $request->get('sort_order', 'desc');
 
-        $allowedSortFields = ['id', 'name', 'email', 'phone', 'address', 'notes', 'products_count', 'created_at'];
+        $allowedSortFields = ['id', 'name', 'email', 'phone', 'address', 'notes', 'created_at'];
         $allowedSortOrders = ['asc', 'desc'];
 
         if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {
@@ -139,19 +139,12 @@ class SupplierController extends Controller
             DB::beginTransaction();
 
             $supplierData = $supplier->toArray();
-
-            // Check if supplier has related products
-            if ($supplier->products()->exists()) {
-                return Redirect::back()->withErrors([
-                    'error' => 'Cannot delete supplier. This supplier has associated products.'
-                ]);
-            }
-
             $supplier->delete();
 
             DB::commit();
 
             Log::info('Supplier deleted successfully', [
+                'supplier_id' => $supplier->id,
                 'supplier_data' => $supplierData,
                 'deleted_by' => auth()->id(),
             ]);

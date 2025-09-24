@@ -2,14 +2,13 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Textarea } from '@/components/ui/textarea';
 import { index } from '@/routes/products';
 import { CreateProductProps } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { Asterisk } from 'lucide-react';
 
-export default function CreateProduct({ open, onOpenChange, suppliers }: Readonly<CreateProductProps>) {
+export default function CreateProduct({ open, onOpenChange }: Readonly<CreateProductProps>) {
     const form = useForm({
         barcode: '',
         name: '',
@@ -23,7 +22,6 @@ export default function CreateProduct({ open, onOpenChange, suppliers }: Readonl
         width: '',
         net_weight: '',
         box_weight: '',
-        supplier_id: '',
     });
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -46,14 +44,6 @@ export default function CreateProduct({ open, onOpenChange, suppliers }: Readonl
         }
         onOpenChange(isOpen);
     };
-
-    const supplierOptions = [
-        { value: '', label: 'No supplier' },
-        ...suppliers.map((supplier) => ({
-            value: supplier.id.toString(),
-            label: supplier.name,
-        })),
-    ];
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
@@ -231,19 +221,6 @@ export default function CreateProduct({ open, onOpenChange, suppliers }: Readonl
                                 onChange={(e) => form.setData('box_weight', e.target.value)}
                             />
                             {form.errors.box_weight && <div className="mt-1 text-sm text-red-600">{form.errors.box_weight}</div>}
-                        </div>
-
-                        <div className="sm:col-span-1 md:col-span-2">
-                            <Label htmlFor="create-supplier_id">Supplier</Label>
-                            <SearchableSelect
-                                options={supplierOptions}
-                                value={form.data.supplier_id}
-                                onValueChange={(value) => form.setData('supplier_id', value)}
-                                placeholder="Select a supplier (optional)"
-                                emptyText="No suppliers found."
-                                className={form.errors.supplier_id ? 'border-red-500' : ''}
-                            />
-                            {form.errors.supplier_id && <div className="mt-1 text-sm text-red-600">{form.errors.supplier_id}</div>}
                         </div>
                     </div>
 
