@@ -11,6 +11,7 @@ import {
     SharedEnums,
     Shipment,
     ShipmentLite,
+    SupplierLite,
 } from '@/types';
 
 export interface OrderLite {
@@ -27,6 +28,8 @@ export interface Order {
     total: number;
     customer_id: number;
     shipment_id: number;
+    supplier_id?: number | null;
+    supplier?: SupplierLite;
     customer?: Customer;
     shipment?: Shipment;
     items?: OrderItemLite[];
@@ -38,6 +41,7 @@ export interface Order {
 export interface PageOrderProps {
     orders: DataPagination<Order>;
     customers: CustomerLite[];
+    suppliers: SupplierLite[];
     shipments: ShipmentLite[];
     products: Product[];
     filters: Filters;
@@ -52,6 +56,9 @@ export interface CreateOrderProps {
     customers: CustomerLite[];
     shipments: ShipmentLite[];
     products: Product[];
+    suppliers: SupplierLite[];
+    enums: SharedEnums;
+    flash?: Flash;
 }
 
 export interface EditOrderProps {
@@ -61,15 +68,20 @@ export interface EditOrderProps {
     customers: CustomerLite[];
     shipments: ShipmentLite[];
     products: Product[];
+    suppliers: SupplierLite[];
+    enums: SharedEnums;
+    flash?: Flash;
 }
 
 export interface ShowOrderProps {
-    customer: Customer;
     filters: Filters;
     flash?: Flash;
     enums: SharedEnums;
     order: Order;
     orderItems: DataPagination<OrderItem>;
     products: Product[];
+    customers: CustomerLite[];
+    shipments: ShipmentLite[];
+    suppliers: SupplierLite[];
     [key: string]: unknown;
 }

@@ -75,11 +75,11 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
             <DialogContent className="max-h-[85vh] w-full overflow-hidden p-0 sm:max-w-2xl md:max-w-3xl">
-                <DialogHeader className="sticky top-0 z-10 border-b px-6 py-4">
+                <DialogHeader className="sticky top-0 z-10 border-b px-6 py-3">
                     <DialogTitle>Edit Product</DialogTitle>
                     <DialogDescription>Update the product details. Fields marked with a red asterisk are required.</DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="max-h-[calc(85vh-9rem)] space-y-6 overflow-y-auto px-6 py-0">
+                <form onSubmit={handleSubmit} className="max-h-[calc(85vh-9rem)] space-y-3 overflow-y-auto px-6 py-0">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
                         <div>
                             <Label htmlFor="edit-barcode">
@@ -217,8 +217,8 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                        <div className={'sm:col-span-1 md:col-span-1'}>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                        <div className={'md:col-span-2'}>
                             <Label htmlFor="edit-net_weight">
                                 Net Weight (kg) <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                             </Label>
@@ -234,7 +234,7 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                             {form.errors.net_weight && <div className="mt-1 text-sm text-red-600">{form.errors.net_weight}</div>}
                         </div>
 
-                        <div className={'sm:col-span-1 md:col-span-1'}>
+                        <div className={'md:col-span-2'}>
                             <Label htmlFor="edit-box_weight">
                                 Box Weight (kg) <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                             </Label>

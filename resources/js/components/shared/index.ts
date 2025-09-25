@@ -6,3 +6,4 @@ export * from './export-data';
 export * from './my-tooltip';
 export * from './pagination';
 export * from './title-actions-section';
+export * from './my-divider';

@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Shipment;
+use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OrderFactory extends Factory
@@ -19,8 +20,9 @@ class OrderFactory extends Factory
             'order_number' => 'ORD-' . now()->format('Ymd') . '-' . $this->faker->unique()->numerify('####'),
             'status' => $this->faker->randomElement(OrderStatus::values()),
             'total' => 0,
-            'customer_id' => Customer::inRandomOrder()->first()?->id ?? 1,
+            'customer_id' => Customer::inRandomOrder()->first()?->id ?? Customer::factory(),
             'shipment_id' => Shipment::factory(),
+            'supplier_id' => Supplier::inRandomOrder()->first()?->id ?? null,
         ];
     }
 

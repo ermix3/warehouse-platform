@@ -1,3 +1,4 @@
+import { MyDivider } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -8,10 +9,10 @@ import { OrderStatusIcons } from '@/lib/order-status-helper';
 import { store } from '@/routes/orders';
 import { CreateOrderProps, PageOrderProps } from '@/types';
 import { useForm, usePage } from '@inertiajs/react';
-import { Asterisk, CirclePlus, Clock, Trash2 } from 'lucide-react';
+import { Asterisk, CirclePlus, Clock, Minus, Plus, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-export default function CreateOrder({ open, onOpenChange, customers, shipments, products }: Readonly<CreateOrderProps>) {
+export default function CreateOrder({ open, onOpenChange, customers, shipments, products, suppliers }: Readonly<CreateOrderProps>) {
     const { enums } = usePage<PageOrderProps>().props;
     const form = useForm({
         order_number: '',
@@ -19,6 +20,7 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
         total: '',
         customer_id: '',
         shipment_id: '',
+        supplier_id: '',
         order_items: [] as { product_id: string; ctn: string }[],
     });
 
@@ -59,11 +61,12 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
     };
 
     // Prepare options for SearchableSelect
+    const statusOptions = Object.values(enums.orderStatus);
+    const productOptions = products.map((p) => ({ value: p.id.toString(), label: p.name }));
     const customerOptions = customers.map((customer) => ({
         value: customer.id.toString(),
         label: customer.name,
     }));
-
     const shipmentOptions = [
         { value: '', label: 'No shipment' },
         ...shipments.map((shipment) => ({
@@ -71,15 +74,21 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
             label: shipment.tracking_number ? `${shipment.tracking_number} (${shipment.carrier})` : `Shipment #${shipment.id}`,
         })),
     ];
-
-    const statusOptions = Object.values(enums.orderStatus);
-
-    const productOptions = products.map((p) => ({ value: p.id.toString(), label: p.name }));
+    const supplierOptions = [
+        { value: '', label: 'No supplier' },
+        ...suppliers.map((supplier) => ({
+            value: supplier.id.toString(),
+            label: supplier.name,
+        })),
+    ];
 
     const fieldErrors = form.errors as Record<string, string>;
 
     const addItem = () => {
-        if (!newItem.product_id) return; // simple guard
+        if (!newItem.product_id) {
+            form.setError('order_items', 'Please select a product.');
+            return;
+        }
         form.setData('order_items', [...form.data.order_items, newItem]);
         setNewItem({ product_id: '', ctn: '1' });
     };
@@ -90,13 +99,35 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
         form.setData('order_items', next);
     };
 
+    // Per-row handlers for adjusting CTN on existing items
+    const setRowCtn = (idx: number, value: string) => {
+        const next = [...form.data.order_items];
+        const parsed = Math.max(1, parseInt(value || '1') || 1);
+        next[idx] = { ...next[idx], ctn: parsed.toString() };
+        form.setData('order_items', next);
+    };
+
+    const incRowCtn = (idx: number) => {
+        const next = [...form.data.order_items];
+        const curr = parseInt(next[idx]?.ctn || '0') || 0;
+        next[idx] = { ...next[idx], ctn: Math.max(1, curr + 1).toString() };
+        form.setData('order_items', next);
+    };
+
+    const decRowCtn = (idx: number) => {
+        const next = [...form.data.order_items];
+        const curr = parseInt(next[idx]?.ctn || '0') || 0;
+        next[idx] = { ...next[idx], ctn: Math.max(1, curr - 1).toString() };
+        form.setData('order_items', next);
+    };
+
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent className="max-h-[85vh] max-w-6xl overflow-y-auto">
+            <DialogContent className="max-h-[89vh] max-w-7xl overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Create Order</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                             <Label htmlFor="create-order_number">
@@ -161,11 +192,24 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
                             />
                             {form.errors.shipment_id && <div className="mt-1 text-sm text-red-600">{form.errors.shipment_id}</div>}
                         </div>
+
+                        <div className="sm:col-span-1 md:col-span-2">
+                            <Label htmlFor="create-supplier_id">Supplier</Label>
+                            <SearchableSelect
+                                options={supplierOptions}
+                                value={form.data.supplier_id}
+                                onValueChange={(value) => form.setData('supplier_id', value)}
+                                placeholder="Select a supplier"
+                                emptyText="No suppliers found."
+                                className={form.errors.supplier_id ? 'border-red-500' : ''}
+                            />
+                            {form.errors.supplier_id && <div className="mt-1 text-sm text-red-600">{form.errors.supplier_id}</div>}
+                        </div>
                     </div>
 
-                    <div className="space-y-3">
-                        <div className="space-y-2">
-                            <div className="font-medium">Items</div>
+                    <div>
+                        <div>
+                            <MyDivider label="Items" />
                             <div className="grid grid-cols-12 gap-2">
                                 <div className="col-span-9">
                                     <Label>
@@ -174,9 +218,14 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
                                     <SearchableSelect
                                         options={productOptions}
                                         value={newItem.product_id}
-                                        onValueChange={(v) => setNewItem((s) => ({ ...s, product_id: v }))}
+                                        onValueChange={(v) => {
+                                            setNewItem((s) => ({ ...s, product_id: v }));
+                                            form.setError('order_items', '');
+                                        }}
                                         placeholder="Select product"
                                         emptyText="No products found."
+                                        className={fieldErrors['order_items'] ? 'border-red-500' : ''}
+                                        disabled={form.processing}
                                     />
                                 </div>
                                 <div className="col-span-2">
@@ -186,6 +235,7 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
                                     <Input
                                         type="number"
                                         min={1}
+                                        step={1}
                                         value={newItem.ctn}
                                         onChange={(e) => setNewItem((s) => ({ ...s, ctn: e.target.value }))}
                                     />
@@ -200,17 +250,49 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
                             {fieldErrors['order_items.*.ctn'] && <div className="text-sm text-red-600">Please check carton quantity.</div>}
                         </div>
                         {fieldErrors.order_items && <div className="text-sm text-red-600">{fieldErrors.order_items}</div>}
-                        <div className="rounded-md border">
+                        <div className="my-1 rounded-md">
                             {form.data.order_items.length === 0 ? (
-                                <div className="p-4 text-sm text-muted-foreground">No items added yet.</div>
+                                <div className="divide-y rounded-xl bg-secondary px-2 text-center">
+                                    <div className="p-4 text-sm text-muted-foreground">No items added yet.</div>
+                                </div>
                             ) : (
-                                <div className="divide-y">
-                                    {form.data.order_items.map((it, idx) => (
+                                <div className="max-h-[200px] divide-y overflow-y-auto px-2">
+                                    {form.data.order_items.toReversed().map((it, idx) => (
                                         <div key={idx} className="grid grid-cols-12 items-center gap-2 p-2">
                                             <div className="col-span-6">
                                                 {productOptions.find((o) => o.value === it.product_id)?.label || 'Product #' + it.product_id}
                                             </div>
-                                            <div className="col-span-4">CTN: {it.ctn}</div>
+                                            <div className="col-span-4">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="icon"
+                                                        onClick={() => decRowCtn(idx)}
+                                                        disabled={form.processing || (parseInt(it.ctn || '1') || 1) <= 1}
+                                                        className="h-6 w-6 border-0"
+                                                    >
+                                                        <Minus className="h-4 w-4" />
+                                                    </Button>
+                                                    <Input
+                                                        type="text"
+                                                        value={it.ctn}
+                                                        onChange={(e) => setRowCtn(idx, e.target.value)}
+                                                        className="min-w-10 text-center"
+                                                        disabled={form.processing}
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="icon"
+                                                        onClick={() => incRowCtn(idx)}
+                                                        disabled={form.processing}
+                                                        className="h-6 w-6 border-0"
+                                                    >
+                                                        <Plus className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </div>
                                             <div className="col-span-2 text-right">
                                                 <Button type="button" variant="destructive" size="sm" onClick={() => removeItem(idx)}>
                                                     <Trash2 color={'white'} />
@@ -223,7 +305,7 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
                         </div>
                     </div>
 
-                    <div className="flex justify-between space-x-2">
+                    <div className="flex justify-between">
                         <div className={'flex items-center gap-0'}>
                             <Label htmlFor="create-total" className={'font-bolder mb-0 flex-1'}>
                                 Total Amount (auto) : AED {itemsTotal.toFixed(2)}

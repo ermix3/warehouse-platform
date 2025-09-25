@@ -2,7 +2,7 @@ import { ExportData } from '@/components/shared';
 import MyTooltip from '@/components/shared/my-tooltip';
 import { Pagination } from '@/components/shared/pagination';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
@@ -11,18 +11,23 @@ import AppLayout from '@/layouts/app-layout';
 import { OrderStatusBadge } from '@/lib/order-status-helper';
 import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
 import { getFormatedAmount } from '@/lib/utils';
+import EditOrder from '@/pages/order/EditOrder';
+import CreateProduct from '@/pages/product/CreateProduct';
 import { dashboard } from '@/routes';
 import { attachProduct, index, show } from '@/routes/orders';
 import { exportData, show as showShipment } from '@/routes/shipments';
 import { BreadcrumbItem, ShowOrderProps } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Info, TextSearch } from 'lucide-react';
+import { Info, Pencil, TextSearch } from 'lucide-react';
+import { useState } from 'react';
 
-export default function ShowOrderPage({ order, customer, orderItems, products, flash }: Readonly<ShowOrderProps>) {
+export default function ShowOrderPage({ order, orderItems, products, customers, shipments, suppliers, enums, flash }: Readonly<ShowOrderProps>) {
     const { data, setData, post, processing, errors, reset, isDirty } = useForm({
         product_id: '',
         ctn: 1,
     });
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [showCreateProductDialog, setShowCreateProductDialog] = useState(false);
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -90,16 +95,16 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                         </CardHeader>
                         <CardContent className="space-y-2">
                             <div>
-                                <b>Name:</b> {customer.name}
+                                <b>Name:</b> {order?.customer?.name || '-'}
                             </div>
                             <div>
-                                <b>Email:</b> {customer.email || '-'}
+                                <b>Email:</b> {order?.customer?.email || '-'}
                             </div>
                             <div>
-                                <b>Phone:</b> {customer.phone || '-'}
+                                <b>Phone:</b> {order?.customer?.phone || '-'}
                             </div>
                             <div>
-                                <b>Address:</b> {customer.address || '-'}
+                                <b>Address:</b> {order?.customer?.address || '-'}
                             </div>
                         </CardContent>
                     </Card>
@@ -208,6 +213,17 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                                         Cancel
                                     </Button>
                                 )}
+                                {!isDirty && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="hover:cursor-pointer"
+                                        disabled={processing}
+                                        onClick={() => setShowCreateProductDialog(true)}
+                                    >
+                                        No product found
+                                    </Button>
+                                )}
                             </div>
                         </form>
                     </details>
@@ -217,6 +233,12 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                 <Card>
                     <CardHeader>
                         <CardTitle>Order Items</CardTitle>
+                        <CardAction>
+                            <Button variant="outline" className="hover:cursor-pointer" onClick={() => setShowEditDialog(true)} disabled={processing}>
+                                Edit
+                                <Pencil className="mt-1 h-4 w-4" />
+                            </Button>
+                        </CardAction>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto">
@@ -263,6 +285,21 @@ export default function ShowOrderPage({ order, customer, orderItems, products, f
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Edit current order */}
+            <EditOrder
+                open={showEditDialog}
+                onOpenChange={setShowEditDialog}
+                order={order}
+                customers={customers}
+                suppliers={suppliers}
+                shipments={shipments}
+                products={products}
+                enums={enums}
+            />
+
+            {/*    Add product */}
+            <CreateProduct open={showCreateProductDialog} onOpenChange={setShowCreateProductDialog} />
         </AppLayout>
     );
 }

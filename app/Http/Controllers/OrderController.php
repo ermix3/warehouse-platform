@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Shipment;
+use App\Models\Supplier;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ class OrderController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Order::with(['customer', 'items.product']);
+        $query = Order::with(['customer', 'supplier', 'items.product']);
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -47,11 +48,13 @@ class OrderController extends Controller
         $customers = Customer::all();
         $shipments = Shipment::all();
         $products = Product::all();
+        $suppliers = Supplier::all();
         return Inertia::render('order/index', [
             'orders' => $orders,
             'customers' => $customers,
             'shipments' => $shipments ?? [],
             'products' => $products,
+            'suppliers' => $suppliers,
         ]);
     }
 
@@ -80,7 +83,7 @@ class OrderController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('orders.index')->with('success', 'Order created successfully.');
+            return back()->with('success', 'Order created successfully.');
         } catch (Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => $e->getMessage()]);
@@ -117,7 +120,7 @@ class OrderController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
+            return back()->with('success', 'Order updated successfully.');
         } catch (Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => $e->getMessage()]);
@@ -152,8 +155,6 @@ class OrderController extends Controller
     public function show(Request $request, $id): Response
     {
         $order = Order::with(['customer', 'items.product', 'shipment'])->findOrFail($id);
-        $customer = $order->customer;
-        $products = Product::all();
 
         // Paginate and search order items
         $itemsQuery = $order->items()->with('product');
@@ -164,11 +165,18 @@ class OrderController extends Controller
         }
         $orderItems = $itemsQuery->orderByDesc('id')->paginate(10)->appends($request->query());
 
+        $products = Product::all();
+        $customers=Customer::all(['id','name']);
+        $suppliers=Supplier::all(['id','name']);
+        $shipments=Shipment::all(['id', 'tracking_number', 'carrier']);
+
         return Inertia::render('order/show', [
             'order' => $order,
-            'customer' => $customer,
             'orderItems' => $orderItems,
             'products' => $products,
+            'customers' => $customers,
+            'suppliers' => $suppliers,
+            'shipments' => $shipments,
         ]);
     }
 

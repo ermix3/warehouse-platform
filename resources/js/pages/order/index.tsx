@@ -25,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function OrdersPage() {
-    const { orders, customers, shipments, products, filters, flash } = usePage<PageOrderProps>().props;
+    const { orders, customers, shipments, products, suppliers, filters, flash, enums } = usePage<PageOrderProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -95,15 +95,25 @@ export default function OrdersPage() {
                 <Pagination links={orders.links} from={orders.from} to={orders.to} total={orders.total} />
             </div>
 
-            <CreateOrder open={showCreateDialog} onOpenChange={setShowCreateDialog} customers={customers} shipments={shipments} products={products} />
+            <CreateOrder
+                open={showCreateDialog}
+                onOpenChange={setShowCreateDialog}
+                customers={customers}
+                suppliers={suppliers}
+                shipments={shipments}
+                products={products}
+                enums={enums}
+            />
 
             <EditOrder
                 open={showEditDialog}
                 onOpenChange={setShowEditDialog}
                 order={editOrder}
                 customers={customers}
+                suppliers={suppliers}
                 shipments={shipments}
                 products={products}
+                enums={enums}
             />
 
             <DeleteItem

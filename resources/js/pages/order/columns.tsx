@@ -36,6 +36,11 @@ export const createColumns = (onEdit: (order: Order) => void, onDelete: (order: 
             cell: ({ row }) => row.original.customer?.name || 'Unknown',
         },
         {
+            accessorKey: 'supplier',
+            header: 'Supplier',
+            cell: ({ row }) => row.original.supplier?.name ?? 'N/A',
+        },
+        {
             accessorKey: 'created_at',
             header: 'Created At',
             cell: ({ row }) => {

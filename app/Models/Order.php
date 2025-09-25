@@ -35,6 +35,11 @@ class Order extends Model
         return $this->belongsTo(Shipment::class);
     }
 
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
     /**
      * Recalculate the order total from its items and related products.
      */
