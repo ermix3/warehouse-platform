@@ -57,6 +57,8 @@ export interface CreateOrderProps {
     shipments: ShipmentLite[];
     products: Product[];
     suppliers: SupplierLite[];
+    customer_id?: string;
+    shipment_id?: string;
     enums: SharedEnums;
     flash?: Flash;
 }

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Exports\ShipmentsExport;
 use App\Http\Requests\ShipmentRequest;
 use App\Models\Customer;
+use App\Models\Product;
 use App\Models\Shipment;
+use App\Models\Supplier;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,9 +29,9 @@ class ShipmentController extends Controller
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('tracking_number', 'like', "%{$search}%")
-                    ->orWhere('carrier', 'like', "%{$search}%")
-                    ->orWhere('status', 'like', "%{$search}%");
+                $q->where('tracking_number', 'like', "%$search%")
+                    ->orWhere('carrier', 'like', "%$search%")
+                    ->orWhere('status', 'like', "%$search%");
             });
         }
 
@@ -82,7 +84,7 @@ class ShipmentController extends Controller
                 'user_id' => auth()->id(),
             ]);
 
-            return Redirect::back()
+            return back()
                 ->withInput()
                 ->withErrors(['error' => 'Failed to create shipment. Please try again.']);
         }
@@ -108,7 +110,7 @@ class ShipmentController extends Controller
                 'updated_by' => auth()->id(),
             ]);
 
-            return Redirect::route('shipments.index')->with('success', 'Shipment updated successfully.');
+            return back()->with('success', 'Shipment updated successfully.');
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -119,7 +121,7 @@ class ShipmentController extends Controller
                 'user_id' => auth()->id(),
             ]);
 
-            return Redirect::back()
+            return back()
                 ->withInput()
                 ->withErrors(['error' => 'Failed to update shipment. Please try again.']);
         }
@@ -137,9 +139,9 @@ class ShipmentController extends Controller
             ->orderBy('id', 'desc');
         if ($search = $request->get('orders_search')) {
             $ordersQuery->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%{$search}%")
-                    ->orWhere('status', 'like', "%{$search}%")
-                    ->orWhere('total', 'like', "%{$search}%");
+                $q->where('order_number', 'like', "%$search%")
+                    ->orWhere('status', 'like', "%$search%")
+                    ->orWhere('total', 'like', "%$search%");
             });
         }
         $orders = $ordersQuery->paginate(10, ['*'], 'orders_page')->appends($request->query());
@@ -153,24 +155,29 @@ class ShipmentController extends Controller
 
         // To paginate distinct customers, fetch IDs then query customers
         $customerIds = $customersQuery->pluck('customer_id')->toArray();
-        $customersPaginator = Customer::whereIn('id', $customerIds)
-            ->orderBy('id', 'desc');
+        $customersPaginator = Customer::whereIn('id', $customerIds)->latest();
         if ($search = $request->get('customers_search')) {
             $customersPaginator->where(function ($q) use ($search) {
-                $q->where('code', 'like', "%{$search}%")
-                    ->orWhere('name', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%");
+                $q->where('code', 'like', "%$search%")
+                    ->orWhere('name', 'like', "%$search%")
+                    ->orWhere('phone', 'like', "%$search%");
             });
         }
         $customers = $customersPaginator->paginate(10, ['*'], 'customers_page')->appends($request->query());
 
-        $allCustomers = Customer::get(['id', 'code', 'name']);
+        $allCustomers = Customer::latest()->get(['id', 'code', 'name']);
+        $products = Product::latest()->get();
+        $suppliers=Supplier::latest()->get(['id','name']);
+        $shipments=Shipment::latest()->get(['id', 'tracking_number', 'carrier']);
 
         return Inertia::render('shipment/show', [
             'shipment' => $shipment->fresh()->loadCount('orders'),
             'orders' => $orders,
             'customers' => $customers,
             'allCustomers' => $allCustomers,
+            'products' => $products,
+            'suppliers' => $suppliers,
+            'shipments' => $shipments,
             'filters' => [
                 'orders_search' => $request->get('orders_search', ''),
                 'customers_search' => $request->get('customers_search', ''),
@@ -191,9 +198,7 @@ class ShipmentController extends Controller
 
             // Prevent delete if referenced by orders
             if ($shipment->orders()->exists()) {
-                return Redirect::back()->withErrors([
-                    'error' => 'Cannot delete shipment. This shipment is associated with existing orders.'
-                ]);
+                return back()->withErrors(['error' => 'Cannot delete shipment. This shipment is associated with existing orders.']);
             }
 
             $shipment->delete();
@@ -215,9 +220,7 @@ class ShipmentController extends Controller
                 'user_id' => auth()->id(),
             ]);
 
-            return Redirect::back()->withErrors([
-                'error' => 'Failed to delete shipment. Please try again.'
-            ]);
+            return back()->withErrors(['error' => 'Failed to delete shipment. Please try again.']);
         }
     }
 
@@ -232,11 +235,11 @@ class ShipmentController extends Controller
             $type = 'xlsx';
         }
 
-        Log::info("Exporting detailed shipment '{$shipment->id}' for type '$type'.");
+        Log::info("Exporting detailed shipment '$shipment->id' for type '$type'.");
 
         $allowed = ['csv', 'xlsx', 'xls', 'ods', 'excel'];
         if (!in_array($type, $allowed)) {
-            return Redirect::back()->withErrors(['error' => 'Invalid export type. Allowed types: csv, xlsx, xls, ods']);
+            return back()->withErrors(['error' => 'Invalid export type. Allowed types: csv, xlsx, xls, ods']);
         }
 
         $export = new ShipmentsExport($shipment->id);
@@ -251,7 +254,7 @@ class ShipmentController extends Controller
             return Excel::download($export, $filename);
         } catch (\PhpOffice\PhpSpreadsheet\Exception $e) {
             Log::error('Failed to export shipment (Spreadsheet Exception): ' . $e->getMessage());
-            return Redirect::back()->withErrors(['error' => 'Failed to export shipment.']);
+            return back()->withErrors(['error' => 'Failed to export shipment.']);
         }
     }
 

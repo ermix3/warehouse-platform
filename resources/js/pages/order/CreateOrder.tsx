@@ -10,9 +10,18 @@ import { store } from '@/routes/orders';
 import { CreateOrderProps, PageOrderProps } from '@/types';
 import { useForm, usePage } from '@inertiajs/react';
 import { Asterisk, CirclePlus, Clock, Minus, Plus, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-export default function CreateOrder({ open, onOpenChange, customers, shipments, products, suppliers }: Readonly<CreateOrderProps>) {
+export default function CreateOrder({
+    open,
+    onOpenChange,
+    customers,
+    shipments,
+    products,
+    suppliers,
+    customer_id,
+    shipment_id,
+}: Readonly<CreateOrderProps>) {
     const { enums } = usePage<PageOrderProps>().props;
     const form = useForm({
         order_number: '',
@@ -23,6 +32,12 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
         supplier_id: '',
         order_items: [] as { product_id: string; ctn: string }[],
     });
+
+    useEffect(() => {
+        form.setData('customer_id', customer_id || '');
+        form.setData('shipment_id', shipment_id || '');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [customer_id]);
 
     const [newItem, setNewItem] = useState<{ product_id: string; ctn: string }>({
         product_id: '',
@@ -176,6 +191,7 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
                                 placeholder="Select a customer"
                                 emptyText="No customers found."
                                 className={form.errors.customer_id ? 'border-red-500' : ''}
+                                disabled={Boolean(customer_id)}
                             />
                             {form.errors.customer_id && <div className="mt-1 text-sm text-red-600">{form.errors.customer_id}</div>}
                         </div>
@@ -189,6 +205,7 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
                                 placeholder="Select shipment (optional)"
                                 emptyText="No shipment found."
                                 className={form.errors.shipment_id ? 'border-red-500' : ''}
+                                disabled={Boolean(shipment_id)}
                             />
                             {form.errors.shipment_id && <div className="mt-1 text-sm text-red-600">{form.errors.shipment_id}</div>}
                         </div>
@@ -257,7 +274,7 @@ export default function CreateOrder({ open, onOpenChange, customers, shipments, 
                                 </div>
                             ) : (
                                 <div className="max-h-[200px] divide-y overflow-y-auto px-2">
-                                    {form.data.order_items.toReversed().map((it, idx) => (
+                                    {form.data.order_items.reverse().map((it, idx) => (
                                         <div key={idx} className="grid grid-cols-12 items-center gap-2 p-2">
                                             <div className="col-span-6">
                                                 {productOptions.find((o) => o.value === it.product_id)?.label || 'Product #' + it.product_id}

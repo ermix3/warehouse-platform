@@ -1,4 +1,4 @@
-import { type Customer, DataPagination, type Filters, Flash, Order, SharedEnums } from '@/types';
+import { type Customer, DataPagination, type Filters, Flash, Order, Product, SharedEnums, SupplierLite } from '@/types';
 
 export interface ShipmentLite {
     id: number;
@@ -47,6 +47,9 @@ export interface ShowShipmentProps {
     orders: DataPagination<Order>;
     customers: DataPagination<Pick<Customer, 'id' | 'code' | 'name' | 'phone'>>;
     allCustomers: Array<Pick<Customer, 'id' | 'code' | 'name'>>;
+    shipments: ShipmentLite[];
+    products: Product[];
+    suppliers: SupplierLite[];
     filters: ShowShipmentFilters;
     flash?: Flash;
     enums: SharedEnums;

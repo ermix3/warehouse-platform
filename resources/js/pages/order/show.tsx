@@ -2,10 +2,7 @@ import { ExportData } from '@/components/shared';
 import MyTooltip from '@/components/shared/my-tooltip';
 import { Pagination } from '@/components/shared/pagination';
 import { Button } from '@/components/ui/button';
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { SearchableSelect } from '@/components/ui/searchable-select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { OrderStatusBadge } from '@/lib/order-status-helper';
@@ -14,18 +11,14 @@ import { getFormatedAmount } from '@/lib/utils';
 import EditOrder from '@/pages/order/EditOrder';
 import CreateProduct from '@/pages/product/CreateProduct';
 import { dashboard } from '@/routes';
-import { attachProduct, index, show } from '@/routes/orders';
+import { index, show } from '@/routes/orders';
 import { exportData, show as showShipment } from '@/routes/shipments';
 import { BreadcrumbItem, ShowOrderProps } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
-import { Info, Pencil, TextSearch } from 'lucide-react';
+import { Head, router } from '@inertiajs/react';
+import { Info, TextSearch } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ShowOrderPage({ order, orderItems, products, customers, shipments, suppliers, enums, flash }: Readonly<ShowOrderProps>) {
-    const { data, setData, post, processing, errors, reset, isDirty } = useForm({
-        product_id: '',
-        ctn: 1,
-    });
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showCreateProductDialog, setShowCreateProductDialog] = useState(false);
 
@@ -47,21 +40,6 @@ export default function ShowOrderPage({ order, orderItems, products, customers, 
             href: '',
         },
     ];
-
-    const productOptions = products.map((p) => ({
-        value: p.id.toString(),
-        label: `${p.barcode} - ${p.name}`,
-    }));
-
-    const selectedProduct = products.find((p) => p.id.toString() === data.product_id);
-
-    const handleAttach = (e: React.FormEvent) => {
-        e.preventDefault();
-        post(attachProduct(order.id).url, {
-            preserveScroll: true,
-            onSuccess: () => reset(),
-        });
-    };
 
     return (
         <AppLayout flash={flash} breadcrumbs={breadcrumbs}>
@@ -160,85 +138,23 @@ export default function ShowOrderPage({ order, orderItems, products, customers, 
                     </Card>
                 </div>
 
-                {/* Attach Product Card */}
-                <div className="mb-4">
-                    <details className="rounded border p-3">
-                        <summary className="cursor-pointer font-medium">Attach Product</summary>
-                        <form onSubmit={handleAttach} className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-4">
-                            <div>
-                                <Label htmlFor="product">Product *</Label>
-                                <SearchableSelect
-                                    options={productOptions}
-                                    value={data.product_id}
-                                    onValueChange={(value) => setData('product_id', value)}
-                                    placeholder="Search and select product..."
-                                />
-                                {errors.product_id && <div className="mt-1 text-sm text-red-500">{errors.product_id}</div>}
-                            </div>
-                            <div>
-                                <Label htmlFor="ctn">Cartons (CTN) *</Label>
-                                <Input
-                                    id="ctn"
-                                    type="number"
-                                    min={1}
-                                    value={data.ctn}
-                                    onChange={(e) => setData('ctn', parseInt(e.target.value) || 1)}
-                                    className="pr-16"
-                                />
-                                {errors.ctn && <div className="mt-1 text-sm text-red-500">{errors.ctn}</div>}
-                            </div>
-                            {selectedProduct && (
-                                <div className="space-y-2">
-                                    <Label>Details</Label>
-                                    <div className="rounded-md border p-3 text-sm">
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <span className="text-muted-foreground">Box Qty:</span>
-                                            <span>{selectedProduct.box_qtt || '-'}</span>
-                                            <span className="text-muted-foreground">Unit Price:</span>
-                                            <span>AED {Number(selectedProduct.unit_price)?.toFixed(2)}</span>
-                                            <span className="text-muted-foreground">Total:</span>
-                                            <span className="font-medium">
-                                                {getFormatedAmount(selectedProduct.unit_price * selectedProduct.box_qtt * (data.ctn || 0))}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            <div className="flex items-end space-x-2">
-                                <Button type="submit" disabled={processing || !isDirty}>
-                                    {processing ? 'Creating...' : 'Attach'}
-                                </Button>
-                                {isDirty && (
-                                    <Button type="button" variant="outline" onClick={() => reset()} disabled={processing}>
-                                        Cancel
-                                    </Button>
-                                )}
-                                {!isDirty && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="hover:cursor-pointer"
-                                        disabled={processing}
-                                        onClick={() => setShowCreateProductDialog(true)}
-                                    >
-                                        No product found
-                                    </Button>
-                                )}
-                            </div>
-                        </form>
-                    </details>
-                </div>
+                {/* Attach Products Card */}
+                <details className="mb-4 rounded border p-3" open>
+                    <summary className="cursor-pointer font-medium">Attach Products</summary>
+                    <div className="flex items-center justify-center gap-4">
+                        <Button type="button" className="hover:cursor-pointer" onClick={() => setShowCreateProductDialog(true)}>
+                            No product found
+                        </Button>
+                        <Button variant="outline" className="hover:cursor-pointer" onClick={() => setShowEditDialog(true)}>
+                            Attach products
+                        </Button>
+                    </div>
+                </details>
 
                 {/* Order Items Table */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Order Items</CardTitle>
-                        <CardAction>
-                            <Button variant="outline" className="hover:cursor-pointer" onClick={() => setShowEditDialog(true)} disabled={processing}>
-                                Edit
-                                <Pencil className="mt-1 h-4 w-4" />
-                            </Button>
-                        </CardAction>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto">

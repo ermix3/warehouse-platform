@@ -77,11 +77,8 @@ export default function EditOrder({ open, onOpenChange, order, customers, shipme
 
     // Prepare options for SearchableSelect
     const statusOptions = Object.values(enums.orderStatus);
-    const productOptions = products.map((p) => ({ value: p.id.toString(), label: p.name }));
-    const customerOptions = customers.map((customer) => ({
-        value: customer.id.toString(),
-        label: customer.name,
-    }));
+    const productOptions = products.map((p) => ({ value: p.id.toString(), label: `${p.barcode} - ${p.name}` }));
+    const customerOptions = customers.map((customer) => ({ value: customer.id.toString(), label: customer.name }));
     const shipmentOptions = [
         { value: '', label: 'No shipment' },
         ...shipments.map((shipment) => ({
@@ -271,7 +268,7 @@ export default function EditOrder({ open, onOpenChange, order, customers, shipme
                                 </div>
                             ) : (
                                 <div className="max-h-[200px] divide-y overflow-y-auto px-2">
-                                    {form.data.order_items.toReversed().map((it, idx) => (
+                                    {form.data.order_items.reverse().map((it, idx) => (
                                         <div key={idx} className="grid grid-cols-12 items-center gap-2 p-2">
                                             <div className="col-span-6">
                                                 {productOptions.find((o) => o.value === it.product_id)?.label || 'Product #' + it.product_id}

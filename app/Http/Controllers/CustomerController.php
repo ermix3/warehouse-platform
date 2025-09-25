@@ -80,7 +80,7 @@ class CustomerController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            return Redirect::route('customers.index')->with('success', 'Customer created successfully.');
+            return back()->with('success', 'Customer created successfully.');
 
         } catch (Exception $e) {
             DB::rollBack();

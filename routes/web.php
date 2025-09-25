@@ -26,22 +26,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::apiResource('users', UserController::class)->except('show');
 
     Route::apiResource('shipments', ShipmentController::class);
-    Route::prefix('shipments')->name('shipments.')->group(function () {
-        Route::prefix('{shipment}')->group(function () {
-            Route::get('/', [ShipmentController::class, 'show'])->name('show');
-            Route::get('export-data', [ShipmentController::class, 'exportData'])->name('exportData');
-
-            Route::prefix('customers')->name('customers.')->group(function () {
-                Route::post('/', [OrderController::class, 'createCustomerAndAttachOrder'])->name('attachCreate');
-                Route::post('{customer}/attach-order', [OrderController::class, 'attachOrderToShipment'])->name('attachOrder');
-            });
-        });
-    });
+    Route::get('/shipments/{shipment}/export-data', [ShipmentController::class, 'exportData'])->name('shipments.exportData');
 
     Route::apiResource('orders', OrderController::class);
-    Route::prefix('orders')->name('orders.')->group(function () {
-        Route::post('{order}/attach-product', [OrderController::class, 'attachProduct'])->name('attachProduct');
-    });
 });
 
 require __DIR__ . '/settings.php';
