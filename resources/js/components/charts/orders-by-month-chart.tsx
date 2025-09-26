@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface OrdersByMonthChartProps {
     data: Array<{
@@ -27,8 +27,18 @@ export function OrdersByMonthChart({ data }: OrdersByMonthChartProps) {
             <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={transformedData}>
-                        <XAxis dataKey="monthLabel" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                        <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+                        <XAxis
+                            dataKey="monthLabel"
+                            tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+                            tickLine={false}
+                            axisLine={false}
+                        />
+                        <YAxis
+                            tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+                            tickLine={false}
+                            axisLine={false}
+                        />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                         <Tooltip
                             content={({ active, payload, label }) => {
                                 if (active && payload && payload.length) {
@@ -62,10 +72,10 @@ export function OrdersByMonthChart({ data }: OrdersByMonthChartProps) {
                         <Line
                             type="monotone"
                             dataKey="count"
-                            stroke="hsl(var(--primary))"
+                            stroke="var(--chart-1)"
                             strokeWidth={2}
-                            dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 4 }}
-                            activeDot={{ r: 6, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                            dot={{ fill: 'var(--chart-1)', stroke: 'var(--background)', strokeWidth: 1.5, r: 3.5 }}
+                            activeDot={{ r: 6, stroke: 'var(--ring)', fill: 'var(--chart-1)', strokeWidth: 2 }}
                         />
                     </LineChart>
                 </ResponsiveContainer>

@@ -23,7 +23,7 @@ export function AnalyticsCard({
     variant = 'default',
     trend,
     className,
-}: AnalyticsCardProps) {
+}: Readonly<AnalyticsCardProps>) {
     const variantClasses = {
         default: '',
         warning: 'border-yellow-200 bg-yellow-50/50',
@@ -39,18 +39,25 @@ export function AnalyticsCard({
     };
 
     return (
-        <Card className={cn('relative overflow-hidden', variantClasses[variant], className)}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Card
+            className={cn(
+                'relative overflow-hidden bg-card text-card-foreground border border-border shadow-sm transition-colors',
+                'hover:shadow-md hover:ring-1 hover:ring-[var(--ring)]',
+                variantClasses[variant],
+                className
+            )}
+        >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <CardTitle className="text-sm font-medium tracking-tight">{title}</CardTitle>
                 <Icon className={cn('h-4 w-4', iconClasses[variant])} />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{value}</div>
+                <div className="text-3xl font-bold leading-tight">{value}</div>
                 {description && (
-                    <p className="text-xs text-muted-foreground">{description}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{description}</p>
                 )}
                 {trend && (
-                    <div className="flex items-center space-x-1 text-xs">
+                    <div className="mt-2 flex items-center space-x-1 text-xs">
                         <span
                             className={cn(
                                 'font-medium',

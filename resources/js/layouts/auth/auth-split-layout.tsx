@@ -15,13 +15,13 @@ export default function AuthSplitLayout({ children, title, description }: PropsW
     return (
         <div className="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
             <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-                <div className="absolute inset-0 bg-zinc-900" />
+                <div className="absolute inset-0 bg-[url(/images/one.webp)] bg-cover bg-center bg-no-repeat" />
                 <Link href={home()} className="relative z-20 flex items-center text-lg font-medium">
-                    <AppLogoIcon className="mr-2 size-8 fill-current text-white" />
-                    {name}
+                    <AppLogoIcon />
+                    <span className="font-bolder ml-2">{name}</span>
                 </Link>
                 {quote && (
-                    <div className="relative z-20 mt-auto">
+                    <div className="relative z-20 mt-auto rounded-lg bg-sidebar-primary/40 px-10 py-2 dark:bg-sidebar-accent">
                         <blockquote className="space-y-2">
                             <p className="text-lg">&ldquo;{quote.message}&rdquo;</p>
                             <footer className="text-sm text-neutral-300">{quote.author}</footer>

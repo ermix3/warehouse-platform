@@ -43,20 +43,48 @@ class DashboardController extends Controller
                 'revenue' => $totalRevenue,
             ],
             'ordersByMonth' => $this->getOrdersByMonthChart(),
+            'ordersByStatus' => $this->getOrdersByStatus(),
             'recentOrders' => $recentOrders,
         ];
     }
     private function getOrdersByMonthChart()
     {
-        return DB::table('orders')
-            ->select(
-                DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
-                DB::raw('COUNT(*) as count'),
-                DB::raw('SUM(total) as revenue')
-            )
-            ->where('created_at', '>=', Carbon::now()->subMonths(12))
+        $orders = Order::select(
+            DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
+            DB::raw('count(*) as count'),
+            DB::raw('sum(total) as revenue')
+        )
+            ->where('created_at', '>=', now()->subMonths(12))
             ->groupBy('month')
             ->orderBy('month')
             ->get();
+
+        return $orders;
+    }
+
+    private function getOrdersByStatus()
+    {
+        $statuses = \App\Enums\OrderStatus::cases();
+        $statusNames = array_column($statuses, 'value');
+
+        $ordersByStatus = Order::select(
+            'status',
+            DB::raw('count(*) as count')
+        )
+            ->groupBy('status')
+            ->get()
+            ->keyBy('status');
+
+        // Ensure all statuses are represented in the result
+        $result = [];
+        foreach ($statuses as $status) {
+            $statusValue = $status->value;
+            $result[] = [
+                'status' => $statusValue,
+                'count' => (int) ($ordersByStatus[$statusValue]->count ?? 0),
+            ];
+        }
+
+        return $result;
     }
 }

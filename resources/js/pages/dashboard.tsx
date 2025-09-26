@@ -1,4 +1,5 @@
 import { OrdersByMonthChart } from '@/components/charts/orders-by-month-chart';
+import { OrdersByStatusChart } from '@/components/charts/orders-by-status-chart';
 import { RecentOrdersChart } from '@/components/charts/recent-orders-chart';
 import { AnalyticsCard } from '@/components/ui/analytics-card';
 import AppLayout from '@/layouts/app-layout';
@@ -20,6 +21,10 @@ interface DashboardProps {
             month: string;
             count: number;
             revenue: number;
+        }>;
+        ordersByStatus: Array<{
+            status: string;
+            count: number;
         }>;
         recentOrders: Array<{
             id: number;
@@ -87,8 +92,11 @@ export default function Dashboard({ analytics }: Readonly<DashboardProps>) {
                 </div>
 
                 {/* Charts */}
-                <div className="grid gap-6">
+                <div className="grid gap-6 md:grid-cols-2">
                     <OrdersByMonthChart data={analytics.ordersByMonth} />
+                    <OrdersByStatusChart data={analytics.ordersByStatus} />
+                </div>
+                <div className="grid gap-6">
                     <RecentOrdersChart data={analytics.recentOrders} />
                 </div>
             </div>
