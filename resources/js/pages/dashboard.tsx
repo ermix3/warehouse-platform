@@ -3,7 +3,7 @@ import { OrdersByStatusChart } from '@/components/charts/orders-by-status-chart'
 import { RecentOrdersChart } from '@/components/charts/recent-orders-chart';
 import { AnalyticsCard } from '@/components/ui/analytics-card';
 import AppLayout from '@/layouts/app-layout';
-import { getFormatedAmount } from '@/lib/utils';
+import { getFormattedAmount } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -78,7 +78,7 @@ export default function Dashboard({ analytics }: Readonly<DashboardProps>) {
                     />
                     <AnalyticsCard
                         title="Total Revenue"
-                        value={getFormatedAmount(analytics.totals.revenue)}
+                        value={getFormattedAmount(analytics.totals.revenue)}
                         icon={Coins}
                         description="Revenue generated"
                     />

@@ -1,21 +1,25 @@
-import { DataPagination, Filters, Flash } from '@/types';
+import type { BaseEntity, DataPagination, SharedData, Timestamps } from '@/types';
 
-export interface User {
-    id: number;
+export interface UserRequest {
     name: string;
     email: string;
-    avatar?: string;
-    email_verified_at: string | null;
-    created_at: string;
-    updated_at: string;
-    [key: string]: unknown; // This allows for additional properties...
+    password: string;
+    password_confirmation: string;
+    avatar: File | string | null;
 }
 
-export interface PageUserProps {
+export interface UserLite extends Pick<BaseEntity, 'id'> {
+    name: string;
+    email: string;
+}
+
+export interface User extends UserLite, Timestamps {
+    email_verified_at?: string;
+    avatar_url?: string;
+}
+
+export interface PageUserProps extends SharedData {
     users: DataPagination<User>;
-    flash?: Flash;
-    filters: Filters;
-    [key: string]: unknown;
 }
 
 export interface CreateUserProps {
@@ -23,8 +27,6 @@ export interface CreateUserProps {
     onOpenChange: (open: boolean) => void;
 }
 
-export interface EditUserProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+export interface EditUserProps extends CreateUserProps {
     user: User | null;
 }

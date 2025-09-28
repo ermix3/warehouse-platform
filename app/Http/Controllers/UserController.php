@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -66,10 +67,20 @@ class UserController extends Controller
             DB::beginTransaction();
 
             $validated = $request->validated();
-            $validated['password'] = Hash::make($validated['password']);
-            unset($validated['password_confirmation']);
 
-            $user = User::create($validated);
+            $userData = [
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ];
+
+            // Handle avatar upload
+            if ($request->hasFile('avatar') && $request->file('avatar')) {
+                $path = $request->file('avatar')->store('avatars', 'public');
+                $userData['avatar'] = $path;
+            }
+
+            $user = User::create($userData);
 
             DB::commit();
 
@@ -80,8 +91,8 @@ class UserController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            return Redirect::route('users.index')->with('success', 'User created successfully.');
-
+            return Redirect::route('users.index')
+                ->with('success', 'User created successfully.');
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -108,15 +119,27 @@ class UserController extends Controller
             $oldData = $user->toArray();
             $validated = $request->validated();
 
-            // Handle password update
-            if (isset($validated['password'])) {
-                $validated['password'] = Hash::make($validated['password']);
-            } else {
-                unset($validated['password']);
-            }
-            unset($validated['password_confirmation']);
+            $userData = [
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+            ];
 
-            $user->update($validated);
+            // Only update password if provided
+            if (!empty($validated['password'])) {
+                $userData['password'] = Hash::make($validated['password']);
+            }
+
+            // Handle avatar upload
+            if ($request->hasFile('avatar') && $request->file('avatar')) {
+                // Delete old avatar if exists
+                if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                    Storage::disk('public')->delete($user->avatar);
+                }
+                $path = $request->file('avatar')->store('avatars', 'public');
+                $userData['avatar'] = $path;
+            }
+
+            $user->update($userData);
 
             DB::commit();
 
@@ -129,8 +152,8 @@ class UserController extends Controller
                 'updated_by' => auth()->id(),
             ]);
 
-            return Redirect::route('users.index')->with('success', 'User updated successfully.');
-
+            return Redirect::route('users.index')
+                ->with('success', 'User updated successfully.');
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -138,7 +161,7 @@ class UserController extends Controller
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
-                'user_id' => auth()->id(),
+                'auth_id' => auth()->id(),
             ]);
 
             return Redirect::back()
@@ -148,7 +171,7 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified user from storage.
+     * Remove the specified resource from storage.
      */
     public function destroy(User $user): RedirectResponse
     {
@@ -156,6 +179,10 @@ class UserController extends Controller
             DB::beginTransaction();
 
             $userData = $user->toArray();
+            // Delete avatar if exists
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
 
             $user->delete();
 
@@ -166,20 +193,19 @@ class UserController extends Controller
                 'deleted_by' => auth()->id(),
             ]);
 
-            return Redirect::route('users.index')->with('success', 'User deleted successfully.');
-
+            return Redirect::route('users.index')
+                ->with('success', 'User deleted successfully.');
         } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Failed to delete user', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
-                'user_id' => auth()->id(),
+                'auth_id' => auth()->id(),
             ]);
 
-            return Redirect::back()->withErrors([
-                'error' => 'Failed to delete user. Please try again.'
-            ]);
+            return Redirect::back()
+                ->with('error', 'Failed to delete user. Please try again.');
         }
     }
 }

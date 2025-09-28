@@ -1,22 +1,20 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ShipmentStatusIcons } from '@/lib/shipment-status-helper';
+import { shipmentStatusOptions } from '@/lib/utils';
 import { store } from '@/routes/shipments';
-import { CreateShipmentProps, PageShipmentProps } from '@/types';
+import { CreateShipmentProps, ShipmentRequest } from '@/types';
 import { ShipmentStatus } from '@/types/enums';
-import { useForm, usePage } from '@inertiajs/react';
-import { Clock } from 'lucide-react';
-import { useState } from 'react';
+import { useForm } from '@inertiajs/react';
+import { Asterisk, Clock, Loader2 } from 'lucide-react';
+import React from 'react';
 
 export default function CreateShipment({ open, onOpenChange }: Readonly<CreateShipmentProps>) {
-    const { enums } = usePage<PageShipmentProps>().props;
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const form = useForm({
+    const { data, setData, post, reset, clearErrors, errors, processing } = useForm<ShipmentRequest>({
         tracking_number: '',
         carrier: '',
         status: ShipmentStatus.PENDING,
@@ -25,54 +23,52 @@ export default function CreateShipment({ open, onOpenChange }: Readonly<CreateSh
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setIsSubmitting(true);
 
-        form.post(store().url, {
+        post(store().url, {
             onSuccess: () => {
                 onOpenChange(false);
-                form.reset();
-                setIsSubmitting(false);
+                reset();
             },
-            onError: (error) => {
-                form.setError(error);
-                setIsSubmitting(false);
-            },
-            onFinish: () => {
-                setIsSubmitting(false);
+            onError: () => {
+                console.log('CreateShipment - handleSubmit => Error ');
             },
         });
     };
 
     const handleDialogChange = (isOpen: boolean) => {
         if (!isOpen) {
-            form.reset();
-            form.clearErrors();
+            reset();
+            clearErrors();
         }
         onOpenChange(isOpen);
     };
 
-    // Get shipment status options from the shared enums
-    const shipmentStatusOptions = Object.values(enums.shipmentStatus);
-
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
-                <DialogHeader>
+            <DialogContent className="max-h-[60vh] w-full overflow-hidden p-0 sm:max-w-2xl">
+                <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Create Shipment</DialogTitle>
+                    <DialogDescription>
+                        Fill in the shipment details.
+                        <span className="text-sm font-bold italic">
+                            Fields marked with {<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />}
+                            are required
+                        </span>
+                    </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 px-5 md:grid-cols-2">
                         <div>
                             <Label htmlFor="create-tracking_number">Tracking Number</Label>
                             <Input
                                 id="create-tracking_number"
                                 type="text"
-                                value={form.data.tracking_number}
-                                onChange={(e) => form.setData('tracking_number', e.target.value)}
+                                value={data.tracking_number}
+                                onChange={(e) => setData('tracking_number', e.target.value)}
                                 placeholder="Enter tracking number"
-                                className={form.errors.tracking_number ? 'border-red-500' : ''}
+                                className={errors.tracking_number ? 'border-red-500' : ''}
                             />
-                            {form.errors.tracking_number && <div className="mt-1 text-sm text-red-600">{form.errors.tracking_number}</div>}
+                            {errors.tracking_number && <div className="mt-1 text-sm text-red-600">{errors.tracking_number}</div>}
                         </div>
 
                         <div>
@@ -80,19 +76,19 @@ export default function CreateShipment({ open, onOpenChange }: Readonly<CreateSh
                             <Input
                                 id="create-carrier"
                                 type="text"
-                                value={form.data.carrier}
-                                onChange={(e) => form.setData('carrier', e.target.value)}
+                                value={data.carrier}
+                                onChange={(e) => setData('carrier', e.target.value)}
                                 placeholder="FedEx, UPS, USPS, etc."
-                                className={form.errors.carrier ? 'border-red-500' : ''}
+                                className={errors.carrier ? 'border-red-500' : ''}
                             />
-                            {form.errors.carrier && <div className="mt-1 text-sm text-red-600">{form.errors.carrier}</div>}
+                            {errors.carrier && <div className="mt-1 text-sm text-red-600">{errors.carrier}</div>}
                         </div>
                     </div>
 
-                    <div>
+                    <div className="px-5">
                         <Label htmlFor="create-status">Status</Label>
-                        <Select value={form.data.status} onValueChange={(value) => form.setData('status', value as ShipmentStatus)}>
-                            <SelectTrigger id="create-status" className={form.errors.status ? 'border-red-500' : ''}>
+                        <Select value={data.status} onValueChange={(value) => setData('status', value as ShipmentStatus)}>
+                            <SelectTrigger id="create-status" className={errors.status ? 'border-red-500' : ''}>
                                 <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -109,29 +105,42 @@ export default function CreateShipment({ open, onOpenChange }: Readonly<CreateSh
                                 })}
                             </SelectContent>
                         </Select>
-                        {form.errors.status && <div className="mt-1 text-sm text-red-600">{form.errors.status}</div>}
+                        {errors.status && <div className="mt-1 text-sm text-red-600">{errors.status}</div>}
                     </div>
 
-                    <div>
+                    <div className="px-5">
                         <Label htmlFor="create-notes">Notes</Label>
                         <Textarea
                             id="create-notes"
-                            value={form.data.notes}
-                            onChange={(e) => form.setData('notes', e.target.value)}
+                            value={data.notes}
+                            onChange={(e) => setData('notes', e.target.value)}
                             rows={3}
                             placeholder="Additional information about this shipment"
                         />
-                        {form.errors.notes && <div className="mt-1 text-sm text-red-600">{form.errors.notes}</div>}
+                        {errors.notes && <div className="mt-1 text-sm text-red-600">{errors.notes}</div>}
                     </div>
 
-                    <div className="flex justify-end space-x-2">
-                        <Button type="button" variant="outline" onClick={() => handleDialogChange(false)} disabled={isSubmitting}>
+                    <DialogFooter className="sticky bottom-0 border-t bg-background px-5 py-3">
+                        <Button type="button" variant="outline" onClick={() => handleDialogChange(false)} disabled={processing}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Saving...' : 'Save Shipment'}
+                        <Button type="submit" disabled={processing} className={'px-6'}>
+                            <span
+                                className={
+                                    processing ? 'absolute opacity-0 transition-opacity duration-300' : 'opacity-100 transition-opacity duration-300'
+                                }
+                            >
+                                Create
+                            </span>
+                            <span
+                                className={
+                                    processing ? 'opacity-100 transition-opacity duration-300' : 'absolute opacity-0 transition-opacity duration-300'
+                                }
+                            >
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            </span>
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>

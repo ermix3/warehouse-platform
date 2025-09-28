@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getFormattedAmount } from '@/lib/utils';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface OrdersByMonthChartProps {
@@ -27,17 +28,8 @@ export function OrdersByMonthChart({ data }: OrdersByMonthChartProps) {
             <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={transformedData}>
-                        <XAxis
-                            dataKey="monthLabel"
-                            tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-                            tickLine={false}
-                            axisLine={false}
-                        />
-                        <YAxis
-                            tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-                            tickLine={false}
-                            axisLine={false}
-                        />
+                        <XAxis dataKey="monthLabel" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} />
+                        <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} />
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                         <Tooltip
                             content={({ active, payload, label }) => {
@@ -55,12 +47,7 @@ export function OrdersByMonthChart({ data }: OrdersByMonthChartProps) {
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="text-[0.70rem] text-muted-foreground uppercase">Revenue</span>
-                                                    <span className="font-bold">
-                                                        {new Intl.NumberFormat('en-US', {
-                                                            style: 'currency',
-                                                            currency: 'USD',
-                                                        }).format(payload[0].payload.revenue)}
-                                                    </span>
+                                                    <span className="font-bold">{getFormattedAmount(payload[0].payload.revenue)}</span>
                                                 </div>
                                             </div>
                                         </div>

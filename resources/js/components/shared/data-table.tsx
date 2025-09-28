@@ -139,9 +139,7 @@ export function DataTable<TData, TValue>({
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
-                                    const nonSortableColumns = ['actions', 'details'];
-                                    const isSortable = !nonSortableColumns.includes(header.column.id);
-
+                                    const isSortable = header.column.getCanSort();
                                     return (
                                         <TableHead
                                             key={header.id}

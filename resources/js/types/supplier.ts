@@ -1,27 +1,28 @@
-import { DataPagination, Filters, Flash } from '@/types';
+import type { BaseEntity, DataPagination, SharedData, Timestamps } from '@/types';
 
-export interface SupplierLite {
-    id: number;
+export interface SupplierRequest {
+    code: string;
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    notes: string;
+}
+
+export interface SupplierLite extends Pick<BaseEntity, 'id'> {
+    code: string;
     name: string;
 }
 
-export interface Supplier {
-    id: number;
-    code: string;
-    name: string;
+export interface Supplier extends SupplierLite, Timestamps {
     email?: string;
     phone?: string;
     address?: string;
     notes?: string;
-    created_at?: string;
-    updated_at?: string;
 }
 
-export interface PageSupplierProps {
+export interface PageSupplierProps extends SharedData {
     suppliers: DataPagination<Supplier>;
-    filters: Filters;
-    flash?: Flash;
-    [key: string]: unknown;
 }
 
 export interface CreateSupplierProps {
@@ -29,8 +30,6 @@ export interface CreateSupplierProps {
     onOpenChange: (open: boolean) => void;
 }
 
-export interface EditSupplierProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+export interface EditSupplierProps extends CreateSupplierProps {
     supplier: Supplier | null;
 }

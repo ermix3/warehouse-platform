@@ -1,4 +1,3 @@
-import { SharedEnums } from '@/types/enums';
 import { InertiaLinkProps } from '@inertiajs/react';
 import { LucideIcon } from 'lucide-react';
 
@@ -32,19 +31,47 @@ export interface NavItem {
     isActive?: boolean;
 }
 
-export interface SharedData {
-    name: string;
-    quote: { message: string; author: string };
-    auth: Auth;
-    sidebarOpen: boolean;
-    [key: string]: unknown;
+export interface Timestamps {
+    created_at: string;
+    updated_at: string;
 }
 
-export interface PaginationLink {
-    url: string | null;
+export interface BaseEntity extends Timestamps {
+    id: number;
+}
+
+export interface SelectOption<T = string> {
+    value: T;
     label: string;
-    page: number | null;
-    active: boolean;
+}
+
+export type SortOrder = 'asc' | 'desc';
+
+export interface Filters {
+    search?: string;
+    sort_by?: string;
+    sort_order?: SortOrder;
+}
+
+export interface Flash {
+    success?: string;
+    error?: string;
+}
+
+type Quote = {
+    message: string;
+    author: string;
+};
+
+export interface SharedData {
+    name: string;
+    sidebarOpen: boolean;
+    quote: Quote;
+    auth: Auth;
+    filters: Filters;
+    enums: SharedEnums;
+    flash?: Flash;
+    [key: string]: unknown;
 }
 
 export interface Links {
@@ -68,17 +95,22 @@ export interface DataPagination<T> {
     prev_page_url: string | null;
     to: number;
     total: number;
-    enums: SharedEnums;
     [key: string]: unknown;
 }
 
-export interface Filters {
-    search?: string;
-    sort_by?: string;
-    sort_order?: 'asc' | 'desc';
+export interface PaginationProps {
+    links: Links[];
+    from: number;
+    to: number;
+    total: number;
 }
 
-export interface Flash {
-    success?: string;
-    error?: string;
+export interface FileInputProps {
+    id: string;
+    accept?: string;
+    onChange: (file: File | null) => void;
+    preview?: string | null;
+    className?: string;
+    label?: string;
+    disabled?: boolean;
 }

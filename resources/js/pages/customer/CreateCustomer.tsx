@@ -1,96 +1,109 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { store } from '@/routes/customers';
-import { CreateCustomerProps } from '@/types';
+import { CreateCustomerProps, CustomerRequest } from '@/types';
 import { useForm } from '@inertiajs/react';
+import { Asterisk, Loader2 } from 'lucide-react';
+import React from 'react';
 
 export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCustomerProps>) {
-    const form = useForm<{
-        code: string;
-        name: string;
-        email: string;
-        phone: string;
-        address: string;
-        notes: string;
-        shipping_tax: string;
-        handling_tax: string;
-    }>({
+    const { data, setData, errors, clearErrors, post, processing, reset } = useForm<CustomerRequest>({
         code: '',
         name: '',
         email: '',
         phone: '',
         address: '',
         notes: '',
-        shipping_tax: '',
-        handling_tax: '',
+        shipping_tax: 0,
+        handling_tax: 0,
     });
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        form.post(store().url, {
+        post(store.url(), {
             onSuccess: () => {
                 onOpenChange(false);
-                form.reset();
+                reset();
+            },
+            onError: (error) => {
+                console.log('CreateCustomer - handleSubmit => Error ', error);
             },
         });
     };
 
     const handleDialogChange = (isOpen: boolean) => {
         if (!isOpen) {
-            form.reset();
-            form.clearErrors();
+            reset();
+            clearErrors();
         }
         onOpenChange(isOpen);
     };
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent className="max-w-md">
-                <DialogHeader>
+            <DialogContent className="max-h-[70vh] w-full overflow-hidden p-0 sm:max-w-2xl">
+                <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Create Customer</DialogTitle>
+                    <DialogDescription>
+                        Fill in the user details.{' '}
+                        <span className="text-sm font-bold italic">
+                            Fields marked with {<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />}
+                            are required
+                        </span>
+                    </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="md:flex md:space-x-4">
+                    <div className="px-5 md:flex md:space-x-4">
                         <div className="flex-1">
-                            <Label htmlFor="create-code">Customer Code *</Label>
+                            <Label htmlFor="create-code">
+                                Customer Code
+                                <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                            </Label>
                             <Input
                                 id="create-code"
                                 type="text"
                                 placeholder="e.g. CUST-10001"
-                                value={form.data.code}
-                                onChange={(e) => form.setData('code', e.target.value)}
+                                value={data.code}
+                                onChange={(e) => setData('code', e.target.value)}
                                 required
                             />
-                            {form.errors.code && <div className="mt-1 text-sm text-red-600">{form.errors.code}</div>}
+                            {errors.code && <div className="mt-1 text-sm text-red-600">{errors.code}</div>}
                         </div>
                         <div className="mt-4 flex-1 md:mt-0">
-                            <Label htmlFor="create-name">Name *</Label>
+                            <Label htmlFor="create-name">
+                                Name
+                                <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                            </Label>
                             <Input
                                 id="create-name"
                                 type="text"
                                 placeholder="e.g. John Doe"
-                                value={form.data.name}
-                                onChange={(e) => form.setData('name', e.target.value)}
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
                                 required
                             />
-                            {form.errors.name && <div className="mt-1 text-sm text-red-600">{form.errors.name}</div>}
+                            {errors.name && <div className="mt-1 text-sm text-red-600">{errors.name}</div>}
                         </div>
                     </div>
 
-                    <div className="md:flex md:space-x-4">
+                    <div className="px-5 md:flex md:space-x-4">
                         <div className="flex-1">
-                            <Label htmlFor="create-email">Email</Label>
+                            <Label htmlFor="create-email">
+                                Email
+                                <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                            </Label>
                             <Input
                                 id="create-email"
                                 type="email"
                                 placeholder="e.g. john@example.com"
-                                value={form.data.email}
-                                onChange={(e) => form.setData('email', e.target.value)}
+                                value={data.email}
+                                onChange={(e) => setData('email', e.target.value)}
+                                required
                             />
-                            {form.errors.email && <div className="mt-1 text-sm text-red-600">{form.errors.email}</div>}
+                            {errors.email && <div className="mt-1 text-sm text-red-600">{errors.email}</div>}
                         </div>
                         <div className="mt-4 flex-1 md:mt-0">
                             <Label htmlFor="create-phone">Phone</Label>
@@ -98,14 +111,14 @@ export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCu
                                 id="create-phone"
                                 type="tel"
                                 placeholder="e.g. +1 555-123-4567"
-                                value={form.data.phone}
-                                onChange={(e) => form.setData('phone', e.target.value)}
+                                value={data.phone}
+                                onChange={(e) => setData('phone', e.target.value)}
                             />
-                            {form.errors.phone && <div className="mt-1 text-sm text-red-600">{form.errors.phone}</div>}
+                            {errors.phone && <div className="mt-1 text-sm text-red-600">{errors.phone}</div>}
                         </div>
                     </div>
 
-                    <div className="md:flex md:space-x-4">
+                    <div className="px-5 md:flex md:space-x-4">
                         <div className="flex-1">
                             <Label htmlFor="create-shipping-tax">Shipping Tax (%)</Label>
                             <Input
@@ -115,10 +128,10 @@ export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCu
                                 max="100"
                                 step="0.01"
                                 placeholder="e.g. 5.00"
-                                value={form.data.shipping_tax}
-                                onChange={(e) => form.setData('shipping_tax', e.target.value)}
+                                value={data.shipping_tax}
+                                onChange={(e) => setData('shipping_tax', +e.target.value)}
                             />
-                            {form.errors.shipping_tax && <div className="mt-1 text-sm text-red-600">{form.errors.shipping_tax}</div>}
+                            {errors.shipping_tax && <div className="mt-1 text-sm text-red-600">{errors.shipping_tax}</div>}
                         </div>
                         <div className="mt-4 flex-1 md:mt-0">
                             <Label htmlFor="create-handling-tax">Handling Tax (%)</Label>
@@ -129,45 +142,58 @@ export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCu
                                 max="100"
                                 step="0.01"
                                 placeholder="e.g. 2.50"
-                                value={form.data.handling_tax}
-                                onChange={(e) => form.setData('handling_tax', e.target.value)}
+                                value={data.handling_tax}
+                                onChange={(e) => setData('handling_tax', +e.target.value)}
                             />
-                            {form.errors.handling_tax && <div className="mt-1 text-sm text-red-600">{form.errors.handling_tax}</div>}
+                            {errors.handling_tax && <div className="mt-1 text-sm text-red-600">{errors.handling_tax}</div>}
                         </div>
                     </div>
 
-                    <div>
+                    <div className="px-5">
                         <Label htmlFor="create-address">Address</Label>
                         <Textarea
                             id="create-address"
                             placeholder="e.g. 123 Main St, Springfield, USA"
-                            value={form.data.address}
-                            onChange={(e) => form.setData('address', e.target.value)}
+                            value={data.address}
+                            onChange={(e) => setData('address', e.target.value)}
                             rows={3}
                         />
-                        {form.errors.address && <div className="mt-1 text-sm text-red-600">{form.errors.address}</div>}
+                        {errors.address && <div className="mt-1 text-sm text-red-600">{errors.address}</div>}
                     </div>
 
-                    <div>
+                    <div className="px-5">
                         <Label htmlFor="create-notes">Notes</Label>
                         <Textarea
                             id="create-notes"
                             placeholder="e.g. VIP customer, prefers weekend delivery"
-                            value={form.data.notes}
-                            onChange={(e) => form.setData('notes', e.target.value)}
+                            value={data.notes}
+                            onChange={(e) => setData('notes', e.target.value)}
                             rows={3}
                         />
-                        {form.errors.notes && <div className="mt-1 text-sm text-red-600">{form.errors.notes}</div>}
+                        {errors.notes && <div className="mt-1 text-sm text-red-600">{errors.notes}</div>}
                     </div>
 
-                    <div className="flex justify-end space-x-2">
+                    <DialogFooter className="sticky bottom-0 border-t bg-background px-6 py-3">
                         <Button type="button" variant="outline" onClick={() => handleDialogChange(false)}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={form.processing}>
-                            {form.processing ? 'Creating...' : 'Create'}
+                        <Button type="submit" disabled={processing} className={'px-6'}>
+                            <span
+                                className={
+                                    processing ? 'absolute opacity-0 transition-opacity duration-300' : 'opacity-100 transition-opacity duration-300'
+                                }
+                            >
+                                Create
+                            </span>
+                            <span
+                                className={
+                                    processing ? 'opacity-100 transition-opacity duration-300' : 'absolute opacity-0 transition-opacity duration-300'
+                                }
+                            >
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            </span>
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>

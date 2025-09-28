@@ -4,14 +4,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-
-interface Option {
-    value: string;
-    label: string;
-}
+import { SelectOption } from '@/types';
 
 interface SearchableSelectProps {
-    readonly options: Option[];
+    readonly options: SelectOption[];
     readonly value: string;
     readonly onValueChange: (value: string) => void;
     readonly placeholder?: string;

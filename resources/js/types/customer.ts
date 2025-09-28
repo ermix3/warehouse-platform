@@ -1,31 +1,34 @@
-import { type DataPagination, type Filters, Flash } from '@/types';
+import { BaseEntity, DataPagination, SharedData, Timestamps } from '@/types';
 
-export interface CustomerLite {
-    id: number;
+export interface CustomerRequest {
+    code: string;
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    notes: string;
+    shipping_tax: number;
+    handling_tax: number;
+}
+
+export interface CustomerLite extends Pick<BaseEntity, 'id'> {
+    code: string;
     name: string;
 }
 
-export interface Customer {
-    id: number;
-    name: string;
-    code: string;
+export interface Customer extends CustomerLite, Timestamps {
     email?: string;
     phone?: string;
     address?: string;
     notes?: string;
-    unique_products_bought_count: number;
-    orders_count: number;
-    created_at?: string;
-    updated_at?: string;
-    shipping_tax?: number | null;
-    handling_tax?: number | null;
+    shipping_tax?: number;
+    handling_tax?: number;
+    unique_products_bought_count?: number;
+    orders_count?: number;
 }
 
-export interface PageCustomerProps {
+export interface PageCustomerProps extends SharedData {
     customers: DataPagination<Customer>;
-    filters: Filters;
-    flash?: Flash;
-    [key: string]: unknown;
 }
 
 export interface CreateCustomerProps {
@@ -33,8 +36,6 @@ export interface CreateCustomerProps {
     onOpenChange: (open: boolean) => void;
 }
 
-export interface EditCustomerProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+export interface EditCustomerProps extends CreateCustomerProps {
     customer: Customer | null;
 }

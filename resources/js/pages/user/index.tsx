@@ -1,4 +1,4 @@
-import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared/';
+import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { destroy, index } from '@/routes/users';

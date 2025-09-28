@@ -1,24 +1,23 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ShipmentStatusIcons } from '@/lib/shipment-status-helper';
+import { shipmentStatusOptions } from '@/lib/utils';
 import { update } from '@/routes/shipments';
-import { EditShipmentProps, PageShipmentProps } from '@/types';
-import { useForm, usePage } from '@inertiajs/react';
-import { Clock } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { EditShipmentProps, ShipmentRequest } from '@/types';
+import { ShipmentStatus } from '@/types/enums';
+import { useForm } from '@inertiajs/react';
+import { Asterisk, CircleAlert, Clock, Loader2 } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
 
 export default function EditShipment({ open, onOpenChange, shipment }: Readonly<EditShipmentProps>) {
-    const { enums } = usePage<PageShipmentProps>().props;
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const form = useForm({
+    const { data, setData, put, reset, clearErrors, errors, processing } = useForm<ShipmentRequest>({
         tracking_number: '',
         carrier: '',
-        status: '',
+        status: ShipmentStatus.PENDING,
         notes: '',
     });
 
@@ -26,18 +25,18 @@ export default function EditShipment({ open, onOpenChange, shipment }: Readonly<
 
     useEffect(() => {
         if (open && shipment && shipment.id !== prevIdRef.current) {
-            form.setData({
+            setData({
                 tracking_number: shipment.tracking_number ?? '',
                 carrier: shipment.carrier ?? '',
-                status: shipment.status ?? 'pending',
+                status: shipment.status ?? ShipmentStatus.PENDING,
                 notes: shipment.notes ?? '',
             });
             prevIdRef.current = shipment.id;
         }
 
         if (!open) {
-            form.reset();
-            form.clearErrors();
+            reset();
+            clearErrors();
             prevIdRef.current = null;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -48,46 +47,44 @@ export default function EditShipment({ open, onOpenChange, shipment }: Readonly<
 
         if (!shipment) return;
 
-        setIsSubmitting(true);
-        form.put(update(shipment.id).url, {
+        put(update(shipment.id).url, {
             onSuccess: () => {
                 onOpenChange(false);
-                setIsSubmitting(false);
             },
-            onError: (errors) => {
-                form.setError(errors);
-                setIsSubmitting(false);
-            },
-            onFinish: () => {
-                setIsSubmitting(false);
+            onError: (error) => {
+                console.log('EditShipment - handleSubmit => Error ', error);
             },
         });
     };
-
-    // Get shipment status options from the shared enums
-    const shipmentStatusOptions = Object.values(enums.shipmentStatus);
 
     if (!shipment) return null;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
-                <DialogHeader>
+            <DialogContent className="max-h-[60vh] w-full overflow-hidden p-0 sm:max-w-2xl">
+                <DialogHeader className="border-b px-5 py-3">
                     <DialogTitle>Edit Shipment {shipment.tracking_number ? `#${shipment.tracking_number}` : `ID: ${shipment.id}`}</DialogTitle>
+                    <DialogDescription>
+                        Update the shipment details.
+                        <span className="text-sm font-bold italic">
+                            Fields marked with {<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />}
+                            are required
+                        </span>
+                    </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 px-5 md:grid-cols-2">
                         <div>
                             <Label htmlFor="edit-tracking_number">Tracking Number</Label>
                             <Input
                                 id="edit-tracking_number"
                                 type="text"
-                                value={form.data.tracking_number}
-                                onChange={(e) => form.setData('tracking_number', e.target.value)}
+                                value={data.tracking_number}
+                                onChange={(e) => setData('tracking_number', e.target.value)}
                                 placeholder="Enter tracking number"
-                                className={form.errors.tracking_number ? 'border-red-500' : ''}
+                                className={errors.tracking_number ? 'border-red-500' : ''}
                             />
-                            {form.errors.tracking_number && <div className="mt-1 text-sm text-red-600">{form.errors.tracking_number}</div>}
+                            {errors.tracking_number && <div className="mt-1 text-sm text-red-600">{errors.tracking_number}</div>}
                         </div>
 
                         <div>
@@ -95,19 +92,19 @@ export default function EditShipment({ open, onOpenChange, shipment }: Readonly<
                             <Input
                                 id="edit-carrier"
                                 type="text"
-                                value={form.data.carrier}
-                                onChange={(e) => form.setData('carrier', e.target.value)}
+                                value={data.carrier}
+                                onChange={(e) => setData('carrier', e.target.value)}
                                 placeholder="FedEx, UPS, USPS, etc."
-                                className={form.errors.carrier ? 'border-red-500' : ''}
+                                className={errors.carrier ? 'border-red-500' : ''}
                             />
-                            {form.errors.carrier && <div className="mt-1 text-sm text-red-600">{form.errors.carrier}</div>}
+                            {errors.carrier && <div className="mt-1 text-sm text-red-600">{errors.carrier}</div>}
                         </div>
                     </div>
 
-                    <div>
+                    <div className="px-5">
                         <Label htmlFor="edit-status">Status</Label>
-                        <Select value={form.data.status} onValueChange={(value) => form.setData('status', value)}>
-                            <SelectTrigger id="edit-status" className={form.errors.status ? 'border-red-500' : ''}>
+                        <Select value={data.status} onValueChange={(value) => setData('status', value as ShipmentStatus)}>
+                            <SelectTrigger id="edit-status" className={errors.status ? 'border-red-500' : ''}>
                                 <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -124,35 +121,51 @@ export default function EditShipment({ open, onOpenChange, shipment }: Readonly<
                                 })}
                             </SelectContent>
                         </Select>
-                        {form.errors.status && <div className="mt-1 text-sm text-red-600">{form.errors.status}</div>}
+                        {errors.status && <div className="mt-1 text-sm text-red-600">{errors.status}</div>}
                     </div>
 
-                    <div>
+                    <div className="px-5">
                         <Label htmlFor="edit-notes">Notes</Label>
                         <Textarea
                             id="edit-notes"
-                            value={form.data.notes}
-                            onChange={(e) => form.setData('notes', e.target.value)}
+                            value={data.notes}
+                            onChange={(e) => setData('notes', e.target.value)}
                             rows={3}
                             placeholder="Additional information about this shipment"
                         />
-                        {form.errors.notes && <div className="mt-1 text-sm text-red-600">{form.errors.notes}</div>}
+                        {errors.notes && <div className="mt-1 text-sm text-red-600">{errors.notes}</div>}
                     </div>
 
                     {shipment.orders_count > 0 && (
-                        <div className="rounded-md bg-blue-50 p-4 text-blue-800">
-                            <p className="text-sm font-medium">This shipment has {shipment.orders_count} associated orders.</p>
+                        <div className="mx-5 rounded-md bg-blue-50 p-2 text-blue-800">
+                            <p className="text-sm font-medium">
+                                <CircleAlert className="mr-2 mb-1 inline-block h-5 w-5" />
+                                This shipment has {shipment.orders_count} associated orders.
+                            </p>
                         </div>
                     )}
 
-                    <div className="flex justify-end space-x-2">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+                    <DialogFooter className="sticky bottom-0 border-t bg-background px-5 py-3">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={processing}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Saving...' : 'Update Shipment'}
+                        <Button type="submit" disabled={processing} className={'px-6'}>
+                            <span
+                                className={
+                                    processing ? 'absolute opacity-0 transition-opacity duration-300' : 'opacity-100 transition-opacity duration-300'
+                                }
+                            >
+                                Update
+                            </span>
+                            <span
+                                className={
+                                    processing ? 'opacity-100 transition-opacity duration-300' : 'absolute opacity-0 transition-opacity duration-300'
+                                }
+                            >
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            </span>
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { getFormatedAmount } from '@/lib/utils';
+import { getFormattedAmount } from '@/lib/utils';
 import { show } from '@/routes/orders';
 import { router } from '@inertiajs/react';
 import { TextSearch } from 'lucide-react';
@@ -59,7 +59,7 @@ export function RecentOrdersChart({ data }: Readonly<RecentOrdersChartProps>) {
                                         <div className="text-sm text-muted-foreground">{order.customer.email}</div>
                                     </div>
                                 </TableCell>
-                                <TableCell>{getFormatedAmount(order.total)}</TableCell>
+                                <TableCell>{getFormattedAmount(order.total)}</TableCell>
                                 <TableCell>{formatDate(order.created_at)}</TableCell>
                                 <TableCell>
                                     <Button

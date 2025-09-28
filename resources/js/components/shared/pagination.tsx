@@ -1,13 +1,6 @@
 import { Button } from '@/components/ui/button';
-import { PaginationLink } from '@/types';
+import { PaginationProps } from '@/types';
 import { router } from '@inertiajs/react';
-
-type PaginationProps = {
-    links: PaginationLink[];
-    from: number;
-    to: number;
-    total: number;
-};
 
 export function Pagination({ links, from, to, total }: Readonly<PaginationProps>) {
     if (links.length === 0) return null;

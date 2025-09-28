@@ -1,29 +1,33 @@
-import { type Customer, DataPagination, type Filters, Flash, Order, Product, SharedEnums, SupplierLite } from '@/types';
+import { BaseEntity, DataPagination, SharedData, Timestamps } from '@/types';
+import type { Customer } from './customer';
+import { ShipmentStatus } from './enums';
+import type { Order } from './order';
+import type { Product } from './product';
+import type { SupplierLite } from './supplier';
 
-export interface ShipmentLite {
-    id: number;
-    tracking_number?: string;
-    carrier?: string;
+export interface ShipmentRequest {
+    tracking_number: string;
+    carrier: string;
+    status: ShipmentStatus;
+    notes: string;
 }
 
-export interface Shipment {
-    id: number;
-    tracking_number?: string;
-    carrier?: string;
-    status: string;
+export interface ShipmentLite extends Pick<BaseEntity, 'id'> {
+    tracking_number: string | null;
+    carrier: string | null;
+    status: ShipmentStatus;
+}
+
+export interface Shipment extends ShipmentLite, Timestamps {
+    notes: string | null;
     total: number;
-    notes?: string;
+    orders?: Order[];
+    customer?: Customer;
     orders_count: number;
-    created_at?: string;
-    updated_at?: string;
 }
 
-export interface PageShipmentProps {
+export interface PageShipmentProps extends SharedData {
     shipments: DataPagination<Shipment>;
-    filters: Filters;
-    flash?: Flash;
-    enums: SharedEnums;
-    [key: string]: unknown;
 }
 
 export interface CreateShipmentProps {
@@ -31,9 +35,7 @@ export interface CreateShipmentProps {
     onOpenChange: (open: boolean) => void;
 }
 
-export interface EditShipmentProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+export interface EditShipmentProps extends CreateShipmentProps {
     shipment: Shipment | null;
 }
 
@@ -42,16 +44,14 @@ interface ShowShipmentFilters {
     customers_search?: string;
 }
 
-export interface ShowShipmentProps {
+export interface ShowShipmentProps extends Pick<SharedData, 'flash'> {
     shipment: Shipment;
     orders: DataPagination<Order>;
     customers: DataPagination<Pick<Customer, 'id' | 'code' | 'name' | 'phone'>>;
-    allCustomers: Array<Pick<Customer, 'id' | 'code' | 'name'>>;
+    allCustomers: Customer[];
     shipments: ShipmentLite[];
     products: Product[];
     suppliers: SupplierLite[];
     filters: ShowShipmentFilters;
-    flash?: Flash;
-    enums: SharedEnums;
     [key: string]: unknown;
 }

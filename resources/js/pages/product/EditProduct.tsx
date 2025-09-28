@@ -4,49 +4,49 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { update } from '@/routes/products';
-import { EditProductProps } from '@/types';
+import { EditProductProps, ProductRequest } from '@/types';
 import { useForm } from '@inertiajs/react';
-import { Asterisk } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { Asterisk, Loader2 } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
 
 export default function EditProduct({ open, onOpenChange, product }: Readonly<EditProductProps>) {
-    const form = useForm({
+    const { put, setData, reset, clearErrors, data, errors, processing } = useForm<ProductRequest>({
         barcode: '',
         name: '',
         description: '',
         origin: '',
         hs_code: '',
-        unit_price: '',
-        box_qtt: '',
-        height: '',
-        length: '',
-        width: '',
-        net_weight: '',
-        box_weight: '',
+        unit_price: 0,
+        box_qtt: 0,
+        height: 0,
+        length: 0,
+        width: 0,
+        net_weight: 0,
+        box_weight: 0,
     });
     const prevProductId = useRef<number | null>(null);
 
     useEffect(() => {
         if (open && product && product.id !== prevProductId.current) {
-            form.setData({
+            setData({
                 barcode: product.barcode,
                 name: product.name,
                 description: product.description ?? '',
                 origin: product.origin,
                 hs_code: product.hs_code,
-                unit_price: product.unit_price.toString(),
-                box_qtt: product.box_qtt.toString(),
-                height: product.height.toString(),
-                length: product.length.toString(),
-                width: product.width.toString(),
-                net_weight: product.net_weight.toString(),
-                box_weight: product.box_weight.toString(),
+                unit_price: product.unit_price,
+                box_qtt: product.box_qtt,
+                height: product.height,
+                length: product.length,
+                width: product.width,
+                net_weight: product.net_weight,
+                box_weight: product.box_weight,
             });
             prevProductId.current = product.id;
         }
         if (!open) {
-            form.reset();
-            form.clearErrors();
+            reset();
+            clearErrors();
             prevProductId.current = null;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,8 +54,8 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
 
     const handleDialogChange = (isOpen: boolean) => {
         if (!isOpen) {
-            form.reset();
-            form.clearErrors();
+            reset();
+            clearErrors();
             prevProductId.current = null;
         }
         onOpenChange(isOpen);
@@ -64,9 +64,12 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (product) {
-            form.put(update.url(product.id), {
+            put(update.url(product.id), {
                 onSuccess: () => {
                     onOpenChange(false);
+                },
+                onError: (error) => {
+                    console.log('EditProduct - handleSubmit => Error ', error);
                 },
             });
         }
@@ -75,12 +78,18 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
             <DialogContent className="max-h-[85vh] w-full overflow-hidden p-0 sm:max-w-2xl md:max-w-3xl">
-                <DialogHeader className="sticky top-0 z-10 border-b px-6 py-3">
+                <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Edit Product</DialogTitle>
-                    <DialogDescription>Update the product details. Fields marked with a red asterisk are required.</DialogDescription>
+                    <DialogDescription>
+                        Update the product details.
+                        <span className="text-sm font-bold italic">
+                            Fields marked with {<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />}
+                            are required
+                        </span>
+                    </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="max-h-[calc(85vh-9rem)] space-y-3 overflow-y-auto px-6 py-0">
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                <form onSubmit={handleSubmit} className="max-h-[calc(85vh-9rem)] space-y-3 overflow-y-auto">
+                    <div className="grid grid-cols-1 gap-4 px-5 sm:grid-cols-2 md:grid-cols-3">
                         <div>
                             <Label htmlFor="edit-barcode">
                                 Barcode <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
@@ -89,10 +98,11 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                                 id="edit-barcode"
                                 type="text"
                                 placeholder="e.g., 1234567890123"
-                                value={form.data.barcode}
-                                onChange={(e) => form.setData('barcode', e.target.value)}
+                                value={data.barcode}
+                                onChange={(e) => setData('barcode', e.target.value)}
+                                required
                             />
-                            {form.errors.barcode && <div className="mt-1 text-sm text-red-600">{form.errors.barcode}</div>}
+                            {errors.barcode && <div className="mt-1 text-sm text-red-600">{errors.barcode}</div>}
                         </div>
 
                         <div>
@@ -103,10 +113,11 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                                 id="edit-name"
                                 type="text"
                                 placeholder="Product name"
-                                value={form.data.name}
-                                onChange={(e) => form.setData('name', e.target.value)}
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
+                                required
                             />
-                            {form.errors.name && <div className="mt-1 text-sm text-red-600">{form.errors.name}</div>}
+                            {errors.name && <div className="mt-1 text-sm text-red-600">{errors.name}</div>}
                         </div>
 
                         <div>
@@ -117,10 +128,11 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                                 id="edit-origin"
                                 type="text"
                                 placeholder="Country of origin"
-                                value={form.data.origin}
-                                onChange={(e) => form.setData('origin', e.target.value)}
+                                value={data.origin}
+                                onChange={(e) => setData('origin', e.target.value)}
+                                required
                             />
-                            {form.errors.origin && <div className="mt-1 text-sm text-red-600">{form.errors.origin}</div>}
+                            {errors.origin && <div className="mt-1 text-sm text-red-600">{errors.origin}</div>}
                         </div>
 
                         <div>
@@ -131,10 +143,11 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                                 id="edit-hs_code"
                                 type="text"
                                 placeholder="e.g., 9403.20"
-                                value={form.data.hs_code}
-                                onChange={(e) => form.setData('hs_code', e.target.value)}
+                                value={data.hs_code}
+                                onChange={(e) => setData('hs_code', e.target.value)}
+                                required
                             />
-                            {form.errors.hs_code && <div className="mt-1 text-sm text-red-600">{form.errors.hs_code}</div>}
+                            {errors.hs_code && <div className="mt-1 text-sm text-red-600">{errors.hs_code}</div>}
                         </div>
 
                         <div>
@@ -146,11 +159,11 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                                 type="number"
                                 step="0.01"
                                 min="0"
-                                placeholder="0.00"
-                                value={form.data.unit_price}
-                                onChange={(e) => form.setData('unit_price', e.target.value)}
+                                value={data.unit_price}
+                                onChange={(e) => setData('unit_price', +e.target.value)}
+                                required
                             />
-                            {form.errors.unit_price && <div className="mt-1 text-sm text-red-600">{form.errors.unit_price}</div>}
+                            {errors.unit_price && <div className="mt-1 text-sm text-red-600">{errors.unit_price}</div>}
                         </div>
 
                         <div>
@@ -161,11 +174,11 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                                 id="edit-box_qtt"
                                 type="number"
                                 min="0"
-                                placeholder="Units per box"
-                                value={form.data.box_qtt}
-                                onChange={(e) => form.setData('box_qtt', e.target.value)}
+                                value={data.box_qtt}
+                                onChange={(e) => setData('box_qtt', +e.target.value)}
+                                required
                             />
-                            {form.errors.box_qtt && <div className="mt-1 text-sm text-red-600">{form.errors.box_qtt}</div>}
+                            {errors.box_qtt && <div className="mt-1 text-sm text-red-600">{errors.box_qtt}</div>}
                         </div>
 
                         <div>
@@ -177,11 +190,11 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                                 type="number"
                                 step="0.01"
                                 min="0"
-                                placeholder="0.00"
-                                value={form.data.height}
-                                onChange={(e) => form.setData('height', e.target.value)}
+                                value={data.height}
+                                onChange={(e) => setData('height', +e.target.value)}
+                                required
                             />
-                            {form.errors.height && <div className="mt-1 text-sm text-red-600">{form.errors.height}</div>}
+                            {errors.height && <div className="mt-1 text-sm text-red-600">{errors.height}</div>}
                         </div>
 
                         <div>
@@ -193,11 +206,11 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                                 type="number"
                                 step="0.01"
                                 min="0"
-                                placeholder="0.00"
-                                value={form.data.length}
-                                onChange={(e) => form.setData('length', e.target.value)}
+                                value={data.length}
+                                onChange={(e) => setData('length', +e.target.value)}
+                                required
                             />
-                            {form.errors.length && <div className="mt-1 text-sm text-red-600">{form.errors.length}</div>}
+                            {errors.length && <div className="mt-1 text-sm text-red-600">{errors.length}</div>}
                         </div>
 
                         <div className={'sm:col-span-2 md:col-span-1'}>
@@ -209,15 +222,15 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                                 type="number"
                                 step="0.01"
                                 min="0"
-                                placeholder="0.00"
-                                value={form.data.width}
-                                onChange={(e) => form.setData('width', e.target.value)}
+                                value={data.width}
+                                onChange={(e) => setData('width', +e.target.value)}
+                                required
                             />
-                            {form.errors.width && <div className="mt-1 text-sm text-red-600">{form.errors.width}</div>}
+                            {errors.width && <div className="mt-1 text-sm text-red-600">{errors.width}</div>}
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                    <div className="grid grid-cols-1 gap-4 px-5 md:grid-cols-4">
                         <div className={'md:col-span-2'}>
                             <Label htmlFor="edit-net_weight">
                                 Net Weight (kg) <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
@@ -227,11 +240,11 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                                 type="number"
                                 step="0.01"
                                 min="0"
-                                placeholder="0.00"
-                                value={form.data.net_weight}
-                                onChange={(e) => form.setData('net_weight', e.target.value)}
+                                value={data.net_weight}
+                                onChange={(e) => setData('net_weight', +e.target.value)}
+                                required
                             />
-                            {form.errors.net_weight && <div className="mt-1 text-sm text-red-600">{form.errors.net_weight}</div>}
+                            {errors.net_weight && <div className="mt-1 text-sm text-red-600">{errors.net_weight}</div>}
                         </div>
 
                         <div className={'md:col-span-2'}>
@@ -243,32 +256,45 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                                 type="number"
                                 step="0.01"
                                 min="0"
-                                placeholder="0.00"
-                                value={form.data.box_weight}
-                                onChange={(e) => form.setData('box_weight', e.target.value)}
+                                value={data.box_weight}
+                                onChange={(e) => setData('box_weight', +e.target.value)}
+                                required
                             />
-                            {form.errors.box_weight && <div className="mt-1 text-sm text-red-600">{form.errors.box_weight}</div>}
+                            {errors.box_weight && <div className="mt-1 text-sm text-red-600">{errors.box_weight}</div>}
                         </div>
                     </div>
 
-                    <div>
+                    <div className="px-5">
                         <Label htmlFor="edit-description">Description</Label>
                         <Textarea
                             id="edit-description"
                             placeholder="Optional notes..."
-                            value={form.data.description}
-                            onChange={(e) => form.setData('description', e.target.value)}
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
                             rows={3}
                         />
-                        {form.errors.description && <div className="mt-1 text-sm text-red-600">{form.errors.description}</div>}
+                        {errors.description && <div className="mt-1 text-sm text-red-600">{errors.description}</div>}
                     </div>
 
-                    <DialogFooter className="sticky bottom-0 border-t bg-background px-6 py-3">
-                        <Button type="button" variant="outline" onClick={() => handleDialogChange(false)} disabled={form.processing}>
+                    <DialogFooter className="sticky bottom-0 border-t bg-background px-5 py-3">
+                        <Button type="button" variant="outline" onClick={() => handleDialogChange(false)} disabled={processing}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={form.processing}>
-                            {form.processing ? 'Updating...' : 'Update'}
+                        <Button type="submit" disabled={processing} className={'px-6'}>
+                            <span
+                                className={
+                                    processing ? 'absolute opacity-0 transition-opacity duration-300' : 'opacity-100 transition-opacity duration-300'
+                                }
+                            >
+                                Update
+                            </span>
+                            <span
+                                className={
+                                    processing ? 'opacity-100 transition-opacity duration-300' : 'absolute opacity-0 transition-opacity duration-300'
+                                }
+                            >
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            </span>
                         </Button>
                     </DialogFooter>
                 </form>

@@ -102,7 +102,6 @@ export default function OrdersPage() {
                 suppliers={suppliers}
                 shipments={shipments}
                 products={products}
-                enums={enums}
             />
 
             <EditOrder
@@ -113,7 +112,6 @@ export default function OrdersPage() {
                 suppliers={suppliers}
                 shipments={shipments}
                 products={products}
-                enums={enums}
             />
 
             <DeleteItem

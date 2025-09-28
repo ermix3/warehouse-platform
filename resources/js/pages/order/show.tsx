@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { OrderStatusBadge } from '@/lib/order-status-helper';
 import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
-import { getFormatedAmount } from '@/lib/utils';
+import { getFormattedAmount } from '@/lib/utils';
 import EditOrder from '@/pages/order/EditOrder';
 import CreateProduct from '@/pages/product/CreateProduct';
 import { dashboard } from '@/routes';
@@ -18,7 +18,7 @@ import { Head, router } from '@inertiajs/react';
 import { Info, TextSearch } from 'lucide-react';
 import { useState } from 'react';
 
-export default function ShowOrderPage({ order, orderItems, products, customers, shipments, suppliers, enums, flash }: Readonly<ShowOrderProps>) {
+export default function ShowOrderPage({ order, orderItems, products, customers, shipments, suppliers, flash }: Readonly<ShowOrderProps>) {
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showCreateProductDialog, setShowCreateProductDialog] = useState(false);
 
@@ -183,13 +183,13 @@ export default function ShowOrderPage({ order, orderItems, products, customers, 
                                             .map(({ id, ctn, product }, index) => (
                                                 <TableRow key={id}>
                                                     <TableCell>{index + 1}</TableCell>
-                                                    <TableCell>{product?.barcode + ' - ' + product?.name}</TableCell>
-                                                    <TableCell>{product?.box_qtt || '-'}</TableCell>
+                                                    <TableCell>{product.barcode + ' - ' + product.name}</TableCell>
+                                                    <TableCell>{product.box_qtt || '-'}</TableCell>
                                                     <TableCell>{ctn}</TableCell>
-                                                    <TableCell>{ctn * (product?.box_qtt || 0)}</TableCell>
-                                                    <TableCell>{getFormatedAmount(product?.unit_price ?? 0)}</TableCell>
+                                                    <TableCell>{ctn * (product.box_qtt || 0)}</TableCell>
+                                                    <TableCell>{getFormattedAmount(product.unit_price ?? 0)}</TableCell>
                                                     <TableCell>
-                                                        {getFormatedAmount(Number(product?.unit_price) * (product?.box_qtt ?? 0) * (ctn || 0))}
+                                                        {getFormattedAmount(Number(product.unit_price) * (product.box_qtt ?? 0) * (ctn || 0))}
                                                     </TableCell>
                                                 </TableRow>
                                             ))
@@ -211,10 +211,9 @@ export default function ShowOrderPage({ order, orderItems, products, customers, 
                 suppliers={suppliers}
                 shipments={shipments}
                 products={products}
-                enums={enums}
             />
 
-            {/*    Add product */}
+            {/* Add product */}
             <CreateProduct open={showCreateProductDialog} onOpenChange={setShowCreateProductDialog} />
         </AppLayout>
     );

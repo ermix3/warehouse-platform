@@ -1,19 +1,15 @@
-import type { Order, Product, ProductLite } from '@/types';
+import type { BaseEntity, Order, ProductLite, Timestamps } from '@/types';
 
-export interface OrderItemLite {
-    id?: number;
-    product_id: number;
-    ctn: number;
-    product?: ProductLite;
+export interface OrderItemRequest {
+    product_id: string;
+    ctn: string;
 }
 
-export interface OrderItem {
-    id: number;
-    order_id: number;
-    product_id: number;
+export interface OrderItemLite extends Pick<BaseEntity, 'id'> {
     ctn: number;
-    created_at?: string;
-    updated_at?: string;
-    product?: Product;
+    product: ProductLite;
+}
+
+export interface OrderItem extends OrderItemLite, Timestamps {
     order?: Order;
 }

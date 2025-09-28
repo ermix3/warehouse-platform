@@ -7,12 +7,12 @@ import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import AppLayout from '@/layouts/app-layout';
 import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
-import { getFormatedAmount } from '@/lib/utils';
+import { getFormattedAmount } from '@/lib/utils';
 import EditShipment from '@/pages/shipment/EditShipment';
 import { dashboard } from '@/routes';
 import { destroy as destroyOrder, show as showOrder } from '@/routes/orders';
 import { exportData, index, show } from '@/routes/shipments';
-import { BreadcrumbItem, Customer, Order, ShowShipmentProps } from '@/types';
+import { BreadcrumbItem, Customer, Order, SelectOption, ShowShipmentProps } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Pencil, TextSearch, Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -20,7 +20,7 @@ import CreateCustomer from '../customer/CreateCustomer';
 import CreateOrder from '../order/CreateOrder';
 
 export default function ShipmentShowPage() {
-    const { shipment, orders, customers, allCustomers, products, shipments, suppliers, filters, flash, enums } = usePage<ShowShipmentProps>().props;
+    const { shipment, orders, customers, allCustomers, products, shipments, suppliers, filters, flash } = usePage<ShowShipmentProps>().props;
 
     const [ordersSearch, setOrdersSearch] = useState(filters.orders_search ?? '');
     const [customersSearch, setCustomersSearch] = useState(filters.customers_search ?? '');
@@ -49,7 +49,7 @@ export default function ShipmentShowPage() {
         router.get(show.url(shipment.id), { ...filters, customers_search: customersSearch }, { preserveScroll: true });
     };
 
-    const customerOptions = allCustomers.map((c) => ({
+    const customerOptions: SelectOption[] = allCustomers.map((c) => ({
         value: c.id.toString(),
         label: `${c.code} - ${c.name}`,
     }));
@@ -150,7 +150,7 @@ export default function ShipmentShowPage() {
                             </div>
                             <div>
                                 <Label className="text-md font-bold">Total</Label>
-                                <div className="mt-2 text-sm font-medium"> {getFormatedAmount(shipment.total)}</div>
+                                <div className="mt-2 text-sm font-medium"> {getFormattedAmount(shipment.total)}</div>
                             </div>
                         </div>
                     </CardContent>
@@ -291,7 +291,7 @@ export default function ShipmentShowPage() {
                                         <tr key={o.id} className="border-b last:border-0">
                                             <td className="px-3 py-2">{o.order_number}</td>
                                             <td className="px-3 py-2 capitalize">{o.status}</td>
-                                            <td className="px-3 py-2">{getFormatedAmount(o.total)}</td>
+                                            <td className="px-3 py-2">{getFormattedAmount(o.total)}</td>
                                             <td className="px-3 py-2">{o.customer?.code ?? '-'}</td>
                                             <td className="px-3 py-2">{o.items_count}</td>
                                             <td className="flex gap-2 px-3 py-2">
@@ -351,7 +351,6 @@ export default function ShipmentShowPage() {
                 customer_id={selectedCustomerId}
                 shipment_id={shipment.id.toString()}
                 products={products}
-                enums={enums}
             />
 
             {/* Delete order */}

@@ -1,89 +1,67 @@
 import {
+    BaseEntity,
     Customer,
     CustomerLite,
     DataPagination,
-    Filters,
-    Flash,
     OrderItem,
     OrderItemLite,
-    OrderStatus,
-    Product,
-    SharedEnums,
+    OrderItemRequest,
+    ProductLite,
+    SharedData,
     Shipment,
     ShipmentLite,
     SupplierLite,
+    Timestamps,
 } from '@/types';
+import { OrderStatus } from './enums';
 
-export interface OrderLite {
-    id: number;
-    order_number: OrderStatus;
-    status: string;
-    total: number;
-}
-
-export interface Order {
-    id: number;
+export interface OrderRequest {
     order_number: string;
     status: OrderStatus;
     total: number;
-    customer_id: number;
-    shipment_id: number;
-    supplier_id?: number | null;
-    supplier?: SupplierLite;
-    customer?: Customer;
+    customer_id: string;
+    shipment_id: string;
+    supplier_id: string;
+    order_items: OrderItemRequest[];
+}
+
+export interface OrderLite extends Pick<BaseEntity, 'id'> {
+    order_number: string;
+    status: OrderStatus;
+    total: number;
+}
+
+export interface Order extends OrderLite, Timestamps {
+    customer: Customer;
     shipment?: Shipment;
-    items?: OrderItemLite[];
+    supplier?: SupplierLite;
+    items: OrderItemLite[];
     items_count?: number;
-    created_at?: string;
-    updated_at?: string;
 }
 
-export interface PageOrderProps {
-    orders: DataPagination<Order>;
+export interface RelatedItems {
     customers: CustomerLite[];
-    suppliers: SupplierLite[];
     shipments: ShipmentLite[];
-    products: Product[];
-    filters: Filters;
-    flash?: Flash;
-    enums: SharedEnums;
-    [key: string]: unknown;
+    suppliers: SupplierLite[];
+    products: ProductLite[];
 }
 
-export interface CreateOrderProps {
+export interface PageOrderProps extends SharedData, RelatedItems {
+    orders: DataPagination<Order>;
+}
+
+export interface EditOrderProps extends RelatedItems {
+    order: Order | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    customers: CustomerLite[];
-    shipments: ShipmentLite[];
-    products: Product[];
-    suppliers: SupplierLite[];
+}
+
+export interface CreateOrderProps extends Omit<EditOrderProps, 'order'> {
     customer_id?: string;
     shipment_id?: string;
-    enums: SharedEnums;
-    flash?: Flash;
 }
 
-export interface EditOrderProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    order: Order | null;
-    customers: CustomerLite[];
-    shipments: ShipmentLite[];
-    products: Product[];
-    suppliers: SupplierLite[];
-    enums: SharedEnums;
-    flash?: Flash;
-}
-
-export interface ShowOrderProps {
-    filters: Filters;
-    flash?: Flash;
-    enums: SharedEnums;
-    order: Order;
+export interface ShowOrderProps extends Pick<SharedData, 'flash'>, RelatedItems {
     orderItems: DataPagination<OrderItem>;
-    products: Product[];
-    customers: CustomerLite[];
-    shipments: ShipmentLite[];
-    suppliers: SupplierLite[];
-    [key: string]: unknown;
+    order: Order;
 }
