@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { createColumns } from './columns';
 import CreateUser from './CreateUser';
 import EditUser from './EditUser';
+import { usePermission } from '@/hooks/use-permission';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -71,14 +72,22 @@ export default function UsersPage() {
         }
     };
 
-    const columns = createColumns(openEditDialog, openDeleteDialog);
+    //##############//#####################//#############
+    //##############// Handle Permissions //##############
+    //#############//####################//###############
+    const { hasPermission } = usePermission();
+    const canAdd = hasPermission('create_users');
+    const canEdit = hasPermission('edit_users');
+    const canDelete = hasPermission('delete_users');
+
+    const columns = createColumns(openEditDialog, openDeleteDialog, canEdit, canDelete);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
             <Head title="Users" />
 
             <div className="container mt-5 px-5">
-                <TitleActionsSection title="Users" description="Manage your users" btnAddLabel="Create User" onBtnAddClick={openCreateDialog} />
+                <TitleActionsSection title="Users" description="Manage your users" btnAddLabel="Create User" onBtnAddClick={openCreateDialog} canAdd={canAdd} />
 
                 <DataTable columns={columns} data={users.data} filters={filters} searchPlaceholder="Search users by name or email..." />
 

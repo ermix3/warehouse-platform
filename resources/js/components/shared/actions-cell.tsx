@@ -6,9 +6,11 @@ export interface ActionsCellProps<T> {
     item: T;
     onEdit: (item: T) => void;
     onDelete: (item: T) => void;
+    canEdit?: boolean;
+    canDelete?: boolean;
 }
 
-export function ActionsCell<T>({ item, onEdit, onDelete }: Readonly<ActionsCellProps<T>>) {
+export function ActionsCell<T>({ item, onEdit, onDelete, canEdit, canDelete }: Readonly<ActionsCellProps<T>>) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -18,14 +20,18 @@ export function ActionsCell<T>({ item, onEdit, onDelete }: Readonly<ActionsCellP
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEdit(item)} className="hover:cursor-pointer">
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDelete(item)} className="text-red-600 hover:cursor-pointer">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                </DropdownMenuItem>
+                {(canEdit === undefined || canEdit) && (
+                    <DropdownMenuItem onClick={() => onEdit(item)} className="hover:cursor-pointer">
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </DropdownMenuItem>
+                )}
+                {(canDelete === undefined || canDelete) && (
+                    <DropdownMenuItem onClick={() => onDelete(item)} className="text-red-600 hover:cursor-pointer">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                    </DropdownMenuItem>
+                )}
             </DropdownMenuContent>
         </DropdownMenu>
     );

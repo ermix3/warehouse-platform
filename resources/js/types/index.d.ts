@@ -1,5 +1,6 @@
 import { InertiaLinkProps } from '@inertiajs/react';
 import { LucideIcon } from 'lucide-react';
+import { RolesEnum } from './enums';
 
 export * from './customer';
 export * from './enums';
@@ -9,6 +10,7 @@ export * from './product';
 export * from './shipment';
 export * from './supplier';
 export * from './user';
+export * from './role';
 
 export interface Auth {
     user: User;
@@ -29,6 +31,7 @@ export interface NavItem {
     href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    roles?: RolesEnum[];
 }
 
 export interface Timestamps {

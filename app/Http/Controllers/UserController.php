@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,9 +24,11 @@ class UserController extends Controller
     /**
      * Display a listing of users with search and sorting.
      */
-    public function index(Request $request): Response
+    public function index(HttpRequest $request): Response
     {
-        $query = User::query()->where('id', '!=', auth()->id());
+        $this->authorize('viewAny', User::class);
+
+        $query = User::query()->where('id', '!=', Auth::id());
 
         // Handle search across multiple fields
         if ($search = $request->get('search')) {
@@ -63,6 +69,8 @@ class UserController extends Controller
      */
     public function store(UserRequest $request): RedirectResponse
     {
+        $this->authorize('create', User::class);
+
         try {
             DB::beginTransaction();
 
@@ -88,7 +96,7 @@ class UserController extends Controller
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'user_email' => $user->email,
-                'created_by' => auth()->id(),
+                'created_by' => Auth::id(),
             ]);
 
             return Redirect::route('users.index')
@@ -99,7 +107,7 @@ class UserController extends Controller
             Log::error('Failed to create user', [
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
-                'user_id' => auth()->id(),
+                'auth_id' => Auth::id(),
             ]);
 
             return Redirect::back()
@@ -113,6 +121,8 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, User $user): RedirectResponse
     {
+        $this->authorize('update', $user);
+
         try {
             DB::beginTransaction();
 
@@ -129,14 +139,18 @@ class UserController extends Controller
                 $userData['password'] = Hash::make($validated['password']);
             }
 
-            // Handle avatar upload
-            if ($request->hasFile('avatar') && $request->file('avatar')) {
-                // Delete old avatar if exists
-                if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                    Storage::disk('public')->delete($user->avatar);
+            // Handle avatar update
+            if ($request->hasFile('avatar')) {
+                $file = $request->file('avatar');
+                if ($file->isValid()) {
+                    // Delete old avatar if exists
+                    if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                        Storage::disk('public')->delete($user->avatar);
+                    }
+
+                    $path = $file->store('avatars', 'public');
+                    $userData['avatar'] = $path;
                 }
-                $path = $request->file('avatar')->store('avatars', 'public');
-                $userData['avatar'] = $path;
             }
 
             $user->update($userData);
@@ -149,7 +163,7 @@ class UserController extends Controller
                 'user_email' => $user->email,
                 'old_data' => $oldData,
                 'new_data' => $user->fresh()->toArray(),
-                'updated_by' => auth()->id(),
+                'updated_by' => Auth::id(),
             ]);
 
             return Redirect::route('users.index')
@@ -161,7 +175,7 @@ class UserController extends Controller
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
-                'auth_id' => auth()->id(),
+                'auth_id' => Auth::id(),
             ]);
 
             return Redirect::back()
@@ -173,8 +187,13 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+    /**
+     * Remove the specified user from storage.
+     */
     public function destroy(User $user): RedirectResponse
     {
+        $this->authorize('delete', $user);
+
         try {
             DB::beginTransaction();
 
@@ -190,7 +209,7 @@ class UserController extends Controller
 
             Log::info('User deleted successfully', [
                 'user_data' => $userData,
-                'deleted_by' => auth()->id(),
+                'deleted_by' => Auth::id(),
             ]);
 
             return Redirect::route('users.index')
@@ -201,7 +220,7 @@ class UserController extends Controller
             Log::error('Failed to delete user', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
-                'auth_id' => auth()->id(),
+                'auth_id' => Auth::id(),
             ]);
 
             return Redirect::back()

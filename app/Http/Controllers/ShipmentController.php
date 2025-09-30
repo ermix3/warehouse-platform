@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RolesEnum;
 use App\Exports\ShipmentsExport;
 use App\Http\Requests\ShipmentRequest;
 use App\Models\Customer;
@@ -11,6 +12,7 @@ use App\Models\Supplier;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -25,7 +27,16 @@ class ShipmentController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Shipment::query()->withCount('orders');
+        $this->authorize('viewAny', Shipment::class);
+        $user = Auth::user();
+        if ($user->hasRole(RolesEnum::CUSTOMER)) {
+            $query = Shipment::query()->withCount('orders')
+                ->whereHas('orders', function ($q) use ($user) {
+                    $q->where('customer_id', $user->id);
+                });
+        } else {
+            $query = Shipment::query()->withCount('orders');
+        }
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -62,6 +73,7 @@ class ShipmentController extends Controller
      */
     public function store(ShipmentRequest $request): RedirectResponse
     {
+        $this->authorize('create', Shipment::class);
         try {
             DB::beginTransaction();
 
@@ -71,7 +83,7 @@ class ShipmentController extends Controller
 
             Log::info('Shipment created successfully', [
                 'shipment_id' => $shipment->id,
-                'created_by' => auth()->id(),
+                'created_by' => Auth::id(),
             ]);
 
             return Redirect::route('shipments.index')->with('success', 'Shipment created successfully.');
@@ -81,7 +93,7 @@ class ShipmentController extends Controller
             Log::error('Failed to create shipment', [
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return back()
@@ -95,6 +107,7 @@ class ShipmentController extends Controller
      */
     public function update(ShipmentRequest $request, Shipment $shipment): RedirectResponse
     {
+        $this->authorize('update', $shipment);
         try {
             DB::beginTransaction();
 
@@ -107,7 +120,7 @@ class ShipmentController extends Controller
                 'shipment_id' => $shipment->id,
                 'old_data' => $oldData,
                 'new_data' => $shipment->fresh()->toArray(),
-                'updated_by' => auth()->id(),
+                'updated_by' => Auth::id(),
             ]);
 
             return back()->with('success', 'Shipment updated successfully.');
@@ -118,7 +131,7 @@ class ShipmentController extends Controller
                 'shipment_id' => $shipment->id,
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return back()
@@ -132,6 +145,7 @@ class ShipmentController extends Controller
      */
     public function show(Request $request, Shipment $shipment): Response
     {
+        $this->authorize('view', $shipment);
         // Orders for this shipment with pagination
         $ordersQuery = $shipment->orders()
             ->with('customer')
@@ -167,8 +181,8 @@ class ShipmentController extends Controller
 
         $allCustomers = Customer::latest()->get(['id', 'code', 'name']);
         $products = Product::latest()->get();
-        $suppliers=Supplier::latest()->get(['id','name']);
-        $shipments=Shipment::latest()->get(['id', 'tracking_number', 'carrier']);
+        $suppliers = Supplier::latest()->get(['id', 'name']);
+        $shipments = Shipment::latest()->get(['id', 'tracking_number', 'carrier']);
 
         return Inertia::render('shipment/show', [
             'shipment' => $shipment->fresh()->loadCount('orders'),
@@ -191,6 +205,7 @@ class ShipmentController extends Controller
      */
     public function destroy(Shipment $shipment): RedirectResponse
     {
+        $this->authorize('delete', $shipment);
         try {
             DB::beginTransaction();
 
@@ -207,7 +222,7 @@ class ShipmentController extends Controller
 
             Log::info('Shipment deleted successfully', [
                 'shipment_data' => $shipmentData,
-                'deleted_by' => auth()->id(),
+                'deleted_by' => Auth::id(),
             ]);
 
             return Redirect::route('shipments.index')->with('success', 'Shipment deleted successfully.');
@@ -217,7 +232,7 @@ class ShipmentController extends Controller
             Log::error('Failed to delete shipment', [
                 'shipment_id' => $shipment->id,
                 'error' => $e->getMessage(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return back()->withErrors(['error' => 'Failed to delete shipment. Please try again.']);
@@ -229,6 +244,7 @@ class ShipmentController extends Controller
      */
     public function exportData(Request $request, Shipment $shipment)
     {
+        $this->authorize('view', $shipment);
         $type = strtolower($request->get('type', 'xlsx'));
 
         if ($type === 'excel') {
@@ -244,7 +260,8 @@ class ShipmentController extends Controller
 
         $export = new ShipmentsExport($shipment->id);
 
-        $filename = sprintf('shipment_%s_details_%s.%s',
+        $filename = sprintf(
+            'shipment_%s_details_%s.%s',
             $shipment->tracking_number ?? $shipment->id,
             now()->format('Y-m-d_H-i-s'),
             $type
@@ -257,5 +274,4 @@ class ShipmentController extends Controller
             return back()->withErrors(['error' => 'Failed to export shipment.']);
         }
     }
-
 }

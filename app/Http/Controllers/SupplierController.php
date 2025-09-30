@@ -7,6 +7,7 @@ use App\Models\Supplier;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -20,6 +21,7 @@ class SupplierController extends Controller
      */
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Supplier::class);
         $query = Supplier::query()->withCount('orders');
 
         if ($search = $request->get('search')) {
@@ -61,6 +63,7 @@ class SupplierController extends Controller
      */
     public function store(SupplierRequest $request): RedirectResponse
     {
+        $this->authorize('create', Supplier::class);
         try {
             DB::beginTransaction();
 
@@ -71,7 +74,7 @@ class SupplierController extends Controller
             Log::info('Supplier created successfully', [
                 'supplier_id' => $supplier->id,
                 'supplier_name' => $supplier->name,
-                'created_by' => auth()->id(),
+                'created_by' => Auth::id(),
             ]);
 
             return Redirect::route('suppliers.index')->with('success', 'Supplier created successfully.');
@@ -82,7 +85,7 @@ class SupplierController extends Controller
             Log::error('Failed to create supplier', [
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return Redirect::back()
@@ -96,6 +99,8 @@ class SupplierController extends Controller
      */
     public function update(SupplierRequest $request, Supplier $supplier): RedirectResponse
     {
+        $this->authorize('update', $supplier);
+
         try {
             DB::beginTransaction();
 
@@ -109,7 +114,7 @@ class SupplierController extends Controller
                 'supplier_name' => $supplier->name,
                 'old_data' => $oldData,
                 'new_data' => $supplier->fresh()->toArray(),
-                'updated_by' => auth()->id(),
+                'updated_by' => Auth::id(),
             ]);
 
             return Redirect::route('suppliers.index')->with('success', 'Supplier updated successfully.');
@@ -121,7 +126,7 @@ class SupplierController extends Controller
                 'supplier_id' => $supplier->id,
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return Redirect::back()
@@ -135,6 +140,8 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier): RedirectResponse
     {
+        $this->authorize('delete', $supplier);
+
         try {
             DB::beginTransaction();
 
@@ -146,7 +153,7 @@ class SupplierController extends Controller
             Log::info('Supplier deleted successfully', [
                 'supplier_id' => $supplier->id,
                 'supplier_data' => $supplierData,
-                'deleted_by' => auth()->id(),
+                'deleted_by' => Auth::id(),
             ]);
 
             return Redirect::route('suppliers.index')->with('success', 'Supplier deleted successfully.');
@@ -157,7 +164,7 @@ class SupplierController extends Controller
             Log::error('Failed to delete supplier', [
                 'supplier_id' => $supplier->id,
                 'error' => $e->getMessage(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return Redirect::back()->withErrors([

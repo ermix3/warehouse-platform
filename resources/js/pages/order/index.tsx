@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { createColumns } from './columns';
 import CreateOrder from './CreateOrder';
 import EditOrder from './EditOrder';
+import { usePermission } from '@/hooks/use-permission';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -25,7 +26,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function OrdersPage() {
-    const { orders, customers, shipments, products, suppliers, filters, flash, enums } = usePage<PageOrderProps>().props;
+    const { orders, customers, shipments, products, suppliers, filters, flash } = usePage<PageOrderProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -71,7 +72,16 @@ export default function OrdersPage() {
         }
     };
 
-    const columns = createColumns(openEditDialog, openDeleteDialog);
+    //##############//#####################//#############
+    //##############// Handle Permissions //#############
+    //#############//####################//#############
+    const { hasPermission } = usePermission();
+    const canAdd = hasPermission('create_orders');
+    const canEdit = hasPermission('edit_orders');
+    const canDelete = hasPermission('delete_orders');
+    const canView = hasPermission('view_orders');
+
+    const columns = createColumns(openEditDialog, openDeleteDialog, canEdit, canDelete, canView);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
@@ -83,6 +93,7 @@ export default function OrdersPage() {
                     description="Manage your orders records"
                     btnAddLabel="Create Order"
                     onBtnAddClick={openCreateDialog}
+                    canAdd={canAdd}
                 />
 
                 <DataTable

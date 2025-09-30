@@ -4,6 +4,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
@@ -29,6 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/shipments/{shipment}/export-data', [ShipmentController::class, 'exportData'])->name('shipments.exportData');
 
     Route::apiResource('orders', OrderController::class);
+
+    Route::apiResource('roles', RoleController::class)->except('show');
 });
 
 require __DIR__ . '/settings.php';

@@ -1,8 +1,13 @@
 import ActionsCell from '@/components/shared/actions-cell';
 import { Customer } from '@/types/customer';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 
-export const createColumns = (onEdit: (customer: Customer) => void, onDelete: (customer: Customer) => void): ColumnDef<Customer>[] => [
+export const createColumns = (
+    onEdit: (customer: Customer) => void,
+    onDelete: (customer: Customer) => void,
+    canEdit?: boolean,
+    canDelete?: boolean,
+): ColumnDef<Customer>[] => [
     {
         accessorKey: 'id',
         header: 'ID',
@@ -54,10 +59,16 @@ export const createColumns = (onEdit: (customer: Customer) => void, onDelete: (c
         header: 'Orders',
         cell: ({ row }) => row.original?.orders_count ?? 0,
     },
-    {
-        id: 'actions',
-        header: 'Actions',
-        enableHiding: false,
-        cell: ({ row }) => <ActionsCell item={row.original} onEdit={onEdit} onDelete={onDelete} />,
-    },
+    ...(canEdit || canDelete
+        ? [
+              {
+                  id: 'actions',
+                  header: 'Actions',
+                  enableHiding: false,
+                  cell: ({ row }: { row: Row<Customer> }) => (
+                      <ActionsCell item={row.original} onEdit={onEdit} onDelete={onDelete} canEdit={canEdit} canDelete={canDelete} />
+                  ),
+              },
+          ]
+        : []),
 ];

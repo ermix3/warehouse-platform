@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\RolesEnum;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -13,26 +14,40 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('admin@'),
-        ]);
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@gmail.com',
-            'password' => Hash::make('test@'),
-        ]);
-
+        // Seed roles and permissions first
         $this->call([
-            UserSeeder::class,
+            RoleAndPermissionSeeder::class,
+        ]);
+
+        // Create demo users with different roles
+        $this->createDemoUsers();
+
+        // Seed other data
+        $this->call([
             CustomerSeeder::class,
             SupplierSeeder::class,
-            // ShipmentSeeder::class,
             ProductSeeder::class,
             OrderSeeder::class,
-            // OrderItemSeeder::class,
         ]);
+    }
+
+    /**
+     * Create demo users with different roles.
+     */
+    protected function createDemoUsers(): void
+    {
+        foreach (RolesEnum::cases() as $role) {
+            $user = User::firstOrCreate(
+                ['email' => $role->value . '@gmail.com'],
+                [
+                    'name' => ucwords($role->value . ' user'),
+                    'password' => Hash::make($role->value . '@'),
+                ]
+            );
+
+            if (!$user->hasRole($role)) {
+                $user->assignRole($role);
+            }
+        }
     }
 }

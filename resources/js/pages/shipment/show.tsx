@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
 import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
 import { getFormattedAmount } from '@/lib/utils';
@@ -103,6 +104,17 @@ export default function ShipmentShowPage() {
         },
     ];
 
+    //##############//#####################//#############
+    //##############// Handle Permissions //#############
+    //#############//####################//#############
+    const { hasPermission } = usePermission();
+    const canAddCustomer = hasPermission('create_customers');
+    const canAddOrder = hasPermission('create_orders');
+    const canDeleteOrder = hasPermission('delete_orders');
+    const canViewOrder = hasPermission('view_orders');
+    const canEditShipments = hasPermission('edit_shipments');
+    const canExportShipments = hasPermission('export_shipments');
+
     return (
         <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
             <Head title={`Shipment #${shipment.id}`} />
@@ -112,25 +124,31 @@ export default function ShipmentShowPage() {
                 <Card className="px-2 py-3">
                     <CardHeader className="flex items-center justify-between gap-2 border-b-1 border-b-gray-100 pb-2">
                         <CardTitle>Shipment Info</CardTitle>
-                        <div className="flex items-center gap-2">
-                            <MyTooltip title="Edit shipment">
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="hover:cursor-pointer"
-                                    onClick={() => setShowEditShipmentDialog(true)}
-                                >
-                                    <Pencil className="mt-1 h-4 w-4" />
-                                </Button>
-                            </MyTooltip>
-                            <ExportData
-                                btnSize={'icon'}
-                                onExport={(type) => {
-                                    const q = { type };
-                                    window.location.href = exportData.url({ shipment: shipment.id }, { query: q });
-                                }}
-                            />
-                        </div>
+                        {(canEditShipments || canExportShipments) && (
+                            <div className="flex items-center gap-2">
+                                {canEditShipments && (
+                                    <MyTooltip title="Edit shipment">
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            className="hover:cursor-pointer"
+                                            onClick={() => setShowEditShipmentDialog(true)}
+                                        >
+                                            <Pencil className="mt-1 h-4 w-4" />
+                                        </Button>
+                                    </MyTooltip>
+                                )}
+                                {canExportShipments && (
+                                    <ExportData
+                                        btnSize={'icon'}
+                                        onExport={(type) => {
+                                            const q = { type };
+                                            window.location.href = exportData.url({ shipment: shipment.id }, { query: q });
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        )}
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -166,57 +184,59 @@ export default function ShipmentShowPage() {
                         </form>
                     </CardHeader>
                     <CardContent>
-                        <div className="mb-4">
-                            <details className="rounded border p-3">
-                                <summary className="cursor-pointer font-medium">Attach Customer</summary>
-                                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
-                                    <div className="w-full md:col-span-2">
-                                        <Label className="text-md inline-block w-full font-bold" htmlFor="customer-select">
-                                            Select Customer
-                                        </Label>
-                                        <div className="mt-2">
-                                            <SearchableSelect
-                                                options={customerOptions}
-                                                value={selectedCustomerIdToAttachOrder}
-                                                onValueChange={(value) => setSelectedCustomerIdToAttachOrder(value)}
-                                                placeholder="Search and select customer..."
-                                            />
+                        {(canAddOrder || canAddCustomer) && (
+                            <div className="mb-4">
+                                <details className="rounded border p-3">
+                                    <summary className="cursor-pointer font-medium">Attach Customer</summary>
+                                    <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
+                                        <div className="w-full md:col-span-2">
+                                            <Label className="text-md inline-block w-full font-bold" htmlFor="customer-select">
+                                                Select Customer
+                                            </Label>
+                                            <div className="mt-2">
+                                                <SearchableSelect
+                                                    options={customerOptions}
+                                                    value={selectedCustomerIdToAttachOrder}
+                                                    onValueChange={(value) => setSelectedCustomerIdToAttachOrder(value)}
+                                                    placeholder="Search and select customer..."
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-end md:col-span-1">
+                                            <Button
+                                                type="button"
+                                                className="w-full hover:cursor-pointer sm:w-auto"
+                                                disabled={!selectedCustomerIdToAttachOrder}
+                                                onClick={() => openCreateOrderDialog(selectedCustomerIdToAttachOrder)}
+                                            >
+                                                Attach Order
+                                            </Button>
+                                            {selectedCustomerIdToAttachOrder && (
+                                                <Button
+                                                    type="button"
+                                                    className="w-full hover:cursor-pointer sm:w-auto"
+                                                    variant="outline"
+                                                    onClick={() => setSelectedCustomerIdToAttachOrder('')}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            )}
+                                            {!selectedCustomerIdToAttachOrder && canAddCustomer && (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    className="w-full hover:cursor-pointer sm:w-auto"
+                                                    onClick={() => setShowCreateCustomerDialog(true)}
+                                                >
+                                                    No customer found
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
-
-                                    <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-end md:col-span-1">
-                                        <Button
-                                            type="button"
-                                            className="w-full hover:cursor-pointer sm:w-auto"
-                                            disabled={!selectedCustomerIdToAttachOrder}
-                                            onClick={() => openCreateOrderDialog(selectedCustomerIdToAttachOrder)}
-                                        >
-                                            Attach Order
-                                        </Button>
-                                        {selectedCustomerIdToAttachOrder && (
-                                            <Button
-                                                type="button"
-                                                className="w-full hover:cursor-pointer sm:w-auto"
-                                                variant="outline"
-                                                onClick={() => setSelectedCustomerIdToAttachOrder('')}
-                                            >
-                                                Cancel
-                                            </Button>
-                                        )}
-                                        {!selectedCustomerIdToAttachOrder && (
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                className="w-full hover:cursor-pointer sm:w-auto"
-                                                onClick={() => setShowCreateCustomerDialog(true)}
-                                            >
-                                                No customer found
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                            </details>
-                        </div>
+                                </details>
+                            </div>
+                        )}
 
                         <div className="overflow-x-auto">
                             <table className="min-w-full text-sm">
@@ -226,7 +246,7 @@ export default function ShipmentShowPage() {
                                         <th className="px-3 py-2">Name</th>
                                         <th className="px-3 py-2">Phone</th>
                                         <th className="px-3 py-2">Address</th>
-                                        <th className="px-3 py-2">Action</th>
+                                        {canAddOrder && <th className="px-3 py-2">Action</th>}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -236,15 +256,17 @@ export default function ShipmentShowPage() {
                                             <td className="px-3 py-2">{c.name}</td>
                                             <td className="px-3 py-2">{c.phone ?? '-'}</td>
                                             <td className="px-3 py-2">{c.address ?? '-'}</td>
-                                            <td className="px-3 py-2">
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() => openCreateOrderDialog(c.id.toString())}
-                                                    className="hover:cursor-pointer"
-                                                >
-                                                    Attach Order
-                                                </Button>
-                                            </td>
+                                            {canAddOrder && (
+                                                <td className="px-3 py-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => openCreateOrderDialog(c.id.toString())}
+                                                        className="hover:cursor-pointer"
+                                                    >
+                                                        Attach Order
+                                                    </Button>
+                                                </td>
+                                            )}
                                         </tr>
                                     ))}
                                     {customers.data.length === 0 && (
@@ -283,7 +305,7 @@ export default function ShipmentShowPage() {
                                         <th className="px-3 py-2">Total</th>
                                         <th className="px-3 py-2">Customer code</th>
                                         <th className="px-3 py-2">Total Products</th>
-                                        <th className="px-3 py-2">Actions</th>
+                                        {(canViewOrder || canDeleteOrder) && <th className="px-3 py-2">Actions</th>}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -294,28 +316,34 @@ export default function ShipmentShowPage() {
                                             <td className="px-3 py-2">{getFormattedAmount(o.total)}</td>
                                             <td className="px-3 py-2">{o.customer?.code ?? '-'}</td>
                                             <td className="px-3 py-2">{o.items_count}</td>
-                                            <td className="flex gap-2 px-3 py-2">
-                                                <MyTooltip title="Details">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => router.visit(showOrder(o.id))}
-                                                        className="hover:cursor-pointer"
-                                                    >
-                                                        <TextSearch />
-                                                    </Button>
-                                                </MyTooltip>
-                                                <MyTooltip title="Delete">
-                                                    <Button
-                                                        variant="destructive"
-                                                        size="sm"
-                                                        onClick={() => openDeleteOrderDialog(o)}
-                                                        className="text-center hover:cursor-pointer"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </MyTooltip>
-                                            </td>
+                                            {(canViewOrder || canDeleteOrder) && (
+                                                <td className="flex gap-2 px-3 py-2">
+                                                    {canViewOrder && (
+                                                        <MyTooltip title="Details">
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => router.visit(showOrder(o.id))}
+                                                                className="hover:cursor-pointer"
+                                                            >
+                                                                <TextSearch />
+                                                            </Button>
+                                                        </MyTooltip>
+                                                    )}
+                                                    {canDeleteOrder && (
+                                                        <MyTooltip title="Delete">
+                                                            <Button
+                                                                variant="destructive"
+                                                                size="sm"
+                                                                onClick={() => openDeleteOrderDialog(o)}
+                                                                className="text-center hover:cursor-pointer"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </MyTooltip>
+                                                    )}
+                                                </td>
+                                            )}
                                         </tr>
                                     ))}
                                     {orders.data.length === 0 && (

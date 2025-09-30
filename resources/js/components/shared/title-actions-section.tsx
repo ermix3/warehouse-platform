@@ -9,6 +9,8 @@ interface TitleActionsSectionProps {
     onBtnAddClick?: () => void;
     children?: React.ReactNode;
     onBtnExportClick?: (type: 'csv' | 'excel') => void;
+    canAdd?: boolean;
+    canExport?: boolean;
 }
 
 export function TitleActionsSection({
@@ -17,6 +19,8 @@ export function TitleActionsSection({
     btnAddLabel,
     onBtnAddClick,
     onBtnExportClick,
+    canAdd,
+    canExport,
     children,
 }: Readonly<TitleActionsSectionProps>) {
     return (
@@ -29,8 +33,8 @@ export function TitleActionsSection({
                 </div>
             )}
             <div className={`flex items-center gap-2`}>
-                {onBtnExportClick && <ExportData onExport={onBtnExportClick} />}
-                {onBtnAddClick && <Button onClick={onBtnAddClick}>{btnAddLabel}</Button>}
+                {onBtnExportClick && (canExport == undefined || canExport) && <ExportData onExport={onBtnExportClick} />}
+                {onBtnAddClick && (canAdd == undefined || canAdd) && <Button onClick={onBtnAddClick}>{btnAddLabel}</Button>}
             </div>
         </div>
     );

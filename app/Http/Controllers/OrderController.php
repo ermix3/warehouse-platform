@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RolesEnum;
 use App\Http\Requests\OrderRequest;
 use App\Models\Customer;
 use App\Models\Order;
@@ -10,6 +11,7 @@ use App\Models\Shipment;
 use App\Models\Supplier;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,7 +23,13 @@ class OrderController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Order::with(['customer', 'supplier', 'items.product']);
+        $user = Auth::user();
+        if ($user->hasRole(RolesEnum::CUSTOMER)) {
+            $query = Order::with(['customer', 'supplier', 'items.product'])
+                ->where('customer_id', $user->id);
+        } else {
+            $query = Order::with(['customer', 'supplier', 'items.product']);
+        }
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -62,6 +70,8 @@ class OrderController extends Controller
      */
     public function store(OrderRequest $request)
     {
+        $this->authorize('create', Order::class);
+
         DB::beginTransaction();
         try {
             $validated = $request->validated();
@@ -90,6 +100,8 @@ class OrderController extends Controller
      */
     public function update(OrderRequest $request, Order $order)
     {
+        $this->authorize('update', $order);
+
         DB::beginTransaction();
         try {
             $order->update($request->validated());
@@ -117,6 +129,7 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
+        $this->authorize('delete', $order);
         $shipmentId = $order->shipment_id;
         // Delete related items using the correct relation name
         $order->items()->delete();
@@ -135,6 +148,10 @@ class OrderController extends Controller
      */
     public function show(Request $request, $id): Response
     {
+        $order = Order::with(['customer', 'items.product', 'shipment'])->findOrFail($id);
+        $this->authorize('view', $order);
+
+        // Paginate and search order items
         $order = Order::with(['customer', 'items.product', 'shipment'])->findOrFail($id);
 
         // Paginate and search order items

@@ -7,6 +7,7 @@ use App\Models\Product;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -20,6 +21,7 @@ class ProductController extends Controller
      */
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Product::class);
         $query = Product::query();
 
         if ($search = $request->get('search')) {
@@ -36,8 +38,16 @@ class ProductController extends Controller
         $sortOrder = $request->get('sort_order', 'desc');
 
         $allowedSortFields = [
-            'id', 'barcode', 'name', 'description', 'origin', 'hs_code',
-            'net_weight', 'box_weight', 'created_at', 'updated_at'
+            'id',
+            'barcode',
+            'name',
+            'description',
+            'origin',
+            'hs_code',
+            'net_weight',
+            'box_weight',
+            'created_at',
+            'updated_at'
         ];
         $allowedSortOrders = ['asc', 'desc'];
 
@@ -64,6 +74,7 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request): RedirectResponse
     {
+        $this->authorize('create', Product::class);
         try {
             DB::beginTransaction();
 
@@ -75,18 +86,17 @@ class ProductController extends Controller
                 'product_id' => $product->id,
                 'product_name' => $product->name,
                 'product_barcode' => $product->barcode,
-                'created_by' => auth()->id(),
+                'created_by' => Auth::id(),
             ]);
 
             return back()->with('success', 'Product created successfully.');
-
         } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Failed to create product', [
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return Redirect::back()
@@ -100,6 +110,7 @@ class ProductController extends Controller
      */
     public function update(ProductRequest $request, Product $product): RedirectResponse
     {
+        $this->authorize('update', $product);
         try {
             DB::beginTransaction();
 
@@ -114,11 +125,10 @@ class ProductController extends Controller
                 'product_barcode' => $product->barcode,
                 'old_data' => $oldData,
                 'new_data' => $product->fresh()->toArray(),
-                'updated_by' => auth()->id(),
+                'updated_by' => Auth::id(),
             ]);
 
             return Redirect::route('products.index')->with('success', 'Product updated successfully.');
-
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -126,7 +136,7 @@ class ProductController extends Controller
                 'product_id' => $product->id,
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return Redirect::back()
@@ -140,6 +150,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): RedirectResponse
     {
+        $this->authorize('delete', $product);
         try {
             DB::beginTransaction();
 
@@ -158,18 +169,17 @@ class ProductController extends Controller
 
             Log::info('Product deleted successfully', [
                 'product_data' => $productData,
-                'deleted_by' => auth()->id(),
+                'deleted_by' => Auth::id(),
             ]);
 
             return Redirect::route('products.index')->with('success', 'Product deleted successfully.');
-
         } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Failed to delete product', [
                 'product_id' => $product->id,
                 'error' => $e->getMessage(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return Redirect::back()->withErrors([

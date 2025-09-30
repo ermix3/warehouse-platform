@@ -2,9 +2,14 @@
 
 import ActionsCell from '@/components/shared/actions-cell';
 import { Product } from '@/types/product';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 
-export const createColumns = (onEdit: (product: Product) => void, onDelete: (product: Product) => void): ColumnDef<Product>[] => [
+export const createColumns = (
+    onEdit: (product: Product) => void,
+    onDelete: (product: Product) => void,
+    canEdit?: boolean,
+    canDelete?: boolean,
+): ColumnDef<Product>[] => [
     {
         accessorKey: 'id',
         header: 'ID',
@@ -54,10 +59,16 @@ export const createColumns = (onEdit: (product: Product) => void, onDelete: (pro
         header: 'Box Weight',
         cell: ({ row }) => `${row.getValue('box_weight')} KG`,
     },
-    {
-        id: 'actions',
-        header: 'Actions',
-        enableHiding: false,
-        cell: ({ row }) => <ActionsCell item={row.original} onEdit={onEdit} onDelete={onDelete} />,
-    },
+    ...(canEdit || canDelete
+        ? [
+              {
+                  id: 'actions',
+                  header: 'Actions',
+                  enableHiding: false,
+                  cell: ({ row }: { row: Row<Product> }) => (
+                      <ActionsCell item={row.original} onEdit={onEdit} onDelete={onDelete} canEdit={canEdit} canDelete={canDelete} />
+                  ),
+              },
+          ]
+        : []),
 ];

@@ -8,36 +8,43 @@ import products from '@/routes/products';
 import shipments from '@/routes/shipments';
 import suppliers from '@/routes/suppliers';
 import users from '@/routes/users';
-import { type NavItem } from '@/types';
+import type { NavItem } from '@/types';
+import { RolesEnum } from '@/types/enums';
 import { Link } from '@inertiajs/react';
-import { Handshake, LayoutGrid, Ship, ShoppingBag, ShoppingCart, UserRoundCog, UsersRound } from 'lucide-react';
+import { Cog, Handshake, LayoutGrid, Ship, ShoppingBag, ShoppingCart, UserRoundCog, UsersRound } from 'lucide-react';
 import AppLogo from './app-logo';
+import roles from '@/routes/roles';
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT, RolesEnum.CUSTOMER],
     },
     {
         title: 'Products',
         href: products.index(),
         icon: ShoppingBag,
+        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT],
     },
     {
         title: 'Orders',
         href: orders.index(),
         icon: ShoppingCart,
+        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT, RolesEnum.CUSTOMER],
     },
     {
         title: 'Suppliers',
         href: suppliers.index(),
         icon: Handshake,
+        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT],
     },
     {
         title: 'Customers',
         href: customers.index(),
         icon: UsersRound,
+        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT],
     },
 ];
 
@@ -46,11 +53,19 @@ const footerNavItems: NavItem[] = [
         title: 'Shipments',
         href: shipments.index(),
         icon: Ship,
+        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT, RolesEnum.CUSTOMER],
     },
     {
         title: 'Users',
         href: users.index(),
         icon: UserRoundCog,
+        roles: [RolesEnum.ADMIN],
+    },
+    {
+        title: 'Roles',
+        href: roles.index(),
+        icon: Cog,
+        roles: [RolesEnum.ADMIN],
     },
 ];
 

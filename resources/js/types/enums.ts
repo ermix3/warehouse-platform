@@ -3,6 +3,26 @@
  */
 
 /**
+ * Roles enum that matches the backend RolesEnum PHP enum
+ */
+export enum RolesEnum {
+    ADMIN = 'admin',
+    STAFF = 'staff',
+    INVOICE_OFFICE = 'invoice-office',
+    ACCOUNTANT = 'accountant',
+    CUSTOMER = 'customer',
+}
+
+/**
+ * Type for the formatted role objects used in the UI
+ */
+export interface FormattedRole {
+    name: keyof typeof RolesEnum;
+    value: RolesEnum;
+    label: string;
+}
+
+/**
  * Shipment Status enum that matches the backend ShipmentStatus PHP enum
  */
 export enum ShipmentStatus {
@@ -48,4 +68,5 @@ export type FormattedOrderStatus = {
 export type SharedEnums = {
     orderStatus: Record<keyof typeof OrderStatus, FormattedOrderStatus>;
     shipmentStatus: Record<keyof typeof ShipmentStatus, FormattedShipmentStatus>;
+    roles: Record<keyof typeof RolesEnum, FormattedRole>;
 };

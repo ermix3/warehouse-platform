@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { createColumns } from './columns';
 import CreateProduct from './CreateProduct';
 import EditProduct from './EditProduct';
+import { usePermission } from '@/hooks/use-permission';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -71,7 +72,15 @@ export default function ProductsPage() {
         }
     };
 
-    const columns = createColumns(openEditDialog, openDeleteDialog);
+    //##############//#####################//#############
+    //##############// Handle Permissions //#############
+    //#############//####################//#############
+    const { hasPermission } = usePermission();
+    const canAdd = hasPermission('create_products');
+    const canEdit = hasPermission('edit_products');
+    const canDelete = hasPermission('delete_products');
+
+    const columns = createColumns(openEditDialog, openDeleteDialog, canEdit, canDelete);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
@@ -83,6 +92,7 @@ export default function ProductsPage() {
                     description="Manage your product inventory"
                     btnAddLabel="Create Product"
                     onBtnAddClick={openCreateDialog}
+                    canAdd={canAdd}
                 />
 
                 <DataTable

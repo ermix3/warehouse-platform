@@ -1,10 +1,15 @@
 import { ActionsCell } from '@/components/shared';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User } from '@/types';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import { CheckCircle, XCircle } from 'lucide-react';
 
-export const createColumns = (onEdit: (user: User) => void, onDelete: (user: User) => void): ColumnDef<User>[] => [
+export const createColumns = (
+    onEdit: (user: User) => void,
+    onDelete: (user: User) => void,
+    canEdit?: boolean,
+    canDelete?: boolean,
+): ColumnDef<User>[] => [
     {
         accessorKey: 'id',
         header: 'ID',
@@ -52,10 +57,16 @@ export const createColumns = (onEdit: (user: User) => void, onDelete: (user: Use
         header: 'Created',
         cell: ({ row }) => (row.original.created_at ? new Date(row.original.created_at).toLocaleDateString() : '-'),
     },
-    {
-        id: 'actions',
-        header: 'Actions',
-        enableHiding: false, // Always show Actions column
-        cell: ({ row }) => <ActionsCell item={row.original} onEdit={onEdit} onDelete={onDelete} />,
-    },
+    ...(canEdit || canDelete
+        ? [
+              {
+                  id: 'actions',
+                  header: 'Actions',
+                  enableHiding: false,
+                  cell: ({ row }: { row: Row<User> }) => (
+                      <ActionsCell item={row.original} onEdit={onEdit} onDelete={onDelete} canEdit={canEdit} canDelete={canDelete} />
+                  ),
+              },
+          ]
+        : []),
 ];

@@ -4,6 +4,7 @@ import { Pagination } from '@/components/shared/pagination';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
 import { OrderStatusBadge } from '@/lib/order-status-helper';
 import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
@@ -40,6 +41,15 @@ export default function ShowOrderPage({ order, orderItems, products, customers, 
             href: '',
         },
     ];
+
+    //##############//#####################//#############
+    //##############// Handle Permissions //#############
+    //#############//####################//#############
+    const { hasPermission } = usePermission();
+    const canAddProduct = hasPermission('create_products');
+    const canEditOrder = hasPermission('edit_orders');
+    const canExportShipments = hasPermission('export_shipments');
+    const canViewShipments = hasPermission('view_shipments');
 
     return (
         <AppLayout flash={flash} breadcrumbs={breadcrumbs}>
@@ -106,26 +116,32 @@ export default function ShowOrderPage({ order, orderItems, products, customers, 
                                     <div>
                                         <b>Created At:</b> {order.shipment?.created_at ? new Date(order.shipment.created_at).toLocaleString() : '-'}
                                     </div>
-                                    <div className="flex justify-end gap-2 pt-2">
-                                        <MyTooltip title="Details">
-                                            <Button
-                                                size="icon"
-                                                onClick={() => router.visit(showShipment.url(order.shipment!.id))}
-                                                className={'hover:cursor-pointer'}
-                                            >
-                                                <TextSearch />
-                                            </Button>
-                                        </MyTooltip>
+                                    {(canViewShipments || canExportShipments) && (
+                                        <div className="flex justify-end gap-2 pt-2">
+                                            {canViewShipments && (
+                                                <MyTooltip title="Details">
+                                                    <Button
+                                                        size="icon"
+                                                        onClick={() => router.visit(showShipment.url(order.shipment!.id))}
+                                                        className={'hover:cursor-pointer'}
+                                                    >
+                                                        <TextSearch />
+                                                    </Button>
+                                                </MyTooltip>
+                                            )}
 
-                                        <ExportData
-                                            btnVariant={'outline'}
-                                            btnSize={'icon'}
-                                            onExport={(type) => {
-                                                const q = { type };
-                                                window.location.href = exportData.url({ shipment: order.shipment!.id }, { query: q });
-                                            }}
-                                        />
-                                    </div>
+                                            {canExportShipments && (
+                                                <ExportData
+                                                    btnVariant={'outline'}
+                                                    btnSize={'icon'}
+                                                    onExport={(type) => {
+                                                        const q = { type };
+                                                        window.location.href = exportData.url({ shipment: order.shipment!.id }, { query: q });
+                                                    }}
+                                                />
+                                            )}
+                                        </div>
+                                    )}
                                 </>
                             )}
                             {!order.shipment && (
@@ -139,17 +155,23 @@ export default function ShowOrderPage({ order, orderItems, products, customers, 
                 </div>
 
                 {/* Attach Products Card */}
-                <details className="mb-4 rounded border p-3" open>
-                    <summary className="cursor-pointer font-medium">Attach Products</summary>
-                    <div className="flex items-center justify-center gap-4">
-                        <Button type="button" className="hover:cursor-pointer" onClick={() => setShowCreateProductDialog(true)}>
-                            No product found
-                        </Button>
-                        <Button variant="outline" className="hover:cursor-pointer" onClick={() => setShowEditDialog(true)}>
-                            Attach products
-                        </Button>
-                    </div>
-                </details>
+                {(canAddProduct || canEditOrder) && (
+                    <details className="mb-4 rounded border p-3" open>
+                        <summary className="cursor-pointer font-medium">Attach Products</summary>
+                        <div className="flex items-center justify-center gap-4">
+                            {canAddProduct && (
+                                <Button type="button" className="hover:cursor-pointer" onClick={() => setShowCreateProductDialog(true)}>
+                                    No product found
+                                </Button>
+                            )}
+                            {canEditOrder && (
+                                <Button variant="outline" className="hover:cursor-pointer" onClick={() => setShowEditDialog(true)}>
+                                    Attach products
+                                </Button>
+                            )}
+                        </div>
+                    </details>
+                )}
 
                 {/* Order Items Table */}
                 <Card>

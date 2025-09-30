@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { createColumns } from './columns';
 import CreateShipment from './CreateShipment';
 import EditShipment from './EditShipment';
+import { usePermission } from '@/hooks/use-permission';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -71,7 +72,16 @@ export default function ShipmentsPage() {
         }
     };
 
-    const columns = createColumns(openEditDialog, openDeleteDialog);
+    //##############//#####################//#############
+    //##############// Handle Permissions //##############
+    //#############//####################//###############
+    const { hasPermission } = usePermission();
+    const canAdd = hasPermission('create_shipments');
+    const canEdit = hasPermission('edit_shipments');
+    const canDelete = hasPermission('delete_shipments');
+    const canView = hasPermission('view_shipments');
+
+    const columns = createColumns(openEditDialog, openDeleteDialog, canEdit, canDelete, canView);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
@@ -83,6 +93,7 @@ export default function ShipmentsPage() {
                     description="Manage your shipment records and track order deliveries"
                     btnAddLabel="Create Shipment"
                     onBtnAddClick={openCreateDialog}
+                    canAdd={canAdd}
                 />
 
                 <DataTable

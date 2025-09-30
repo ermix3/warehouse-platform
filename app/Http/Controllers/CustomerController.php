@@ -7,6 +7,7 @@ use App\Models\Customer;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -20,13 +21,15 @@ class CustomerController extends Controller
      */
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Customer::class);
+
         $query = Customer::query()->withCount([
             'orders as unique_products_bought_count' => function ($query) {
                 $query->join('order_items', 'orders.id', '=', 'order_items.order_id')
-                      ->selectRaw('count(distinct order_items.product_id)');
+                    ->selectRaw('count(distinct order_items.product_id)');
             }
         ])
-        ->withCount('orders');
+            ->withCount('orders');
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -67,6 +70,8 @@ class CustomerController extends Controller
      */
     public function store(CustomerRequest $request): RedirectResponse
     {
+        $this->authorize('create', Customer::class);
+
         try {
             DB::beginTransaction();
 
@@ -77,7 +82,7 @@ class CustomerController extends Controller
             Log::info('Customer created successfully', [
                 'customer_id' => $customer->id,
                 'customer_name' => $customer->name,
-                'created_by' => auth()->id(),
+                'created_by' => Auth::id(),
             ]);
 
             return back()->with('success', 'Customer created successfully.');
@@ -88,7 +93,7 @@ class CustomerController extends Controller
             Log::error('Failed to create customer', [
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return Redirect::back()
@@ -102,6 +107,8 @@ class CustomerController extends Controller
      */
     public function update(CustomerRequest $request, Customer $customer): RedirectResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             DB::beginTransaction();
 
@@ -115,7 +122,7 @@ class CustomerController extends Controller
                 'customer_name' => $customer->name,
                 'old_data' => $oldData,
                 'new_data' => $customer->fresh()->toArray(),
-                'updated_by' => auth()->id(),
+                'updated_by' => Auth::id(),
             ]);
 
             return Redirect::route('customers.index')->with('success', 'Customer updated successfully.');
@@ -127,7 +134,7 @@ class CustomerController extends Controller
                 'customer_id' => $customer->id,
                 'error' => $e->getMessage(),
                 'data' => $request->validated(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return Redirect::back()
@@ -141,6 +148,8 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer): RedirectResponse
     {
+        $this->authorize('delete', $customer);
+
         try {
             DB::beginTransaction();
 
@@ -159,7 +168,7 @@ class CustomerController extends Controller
 
             Log::info('Customer deleted successfully', [
                 'customer_data' => $customerData,
-                'deleted_by' => auth()->id(),
+                'deleted_by' => Auth::id(),
             ]);
 
             return Redirect::route('customers.index')->with('success', 'Customer deleted successfully.');
@@ -170,7 +179,7 @@ class CustomerController extends Controller
             Log::error('Failed to delete customer', [
                 'customer_id' => $customer->id,
                 'error' => $e->getMessage(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return Redirect::back()->withErrors([

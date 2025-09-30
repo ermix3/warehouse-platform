@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { createColumns } from './columns';
 import CreateSupplier from './CreateSupplier';
 import EditSupplier from './EditSupplier';
+import { usePermission } from '@/hooks/use-permission';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -71,7 +72,15 @@ export default function Index() {
         }
     };
 
-    const columns = createColumns(openEditDialog, openDeleteDialog);
+    //##############//#####################//#############
+    //##############// Handle Permissions //##############
+    //#############//####################//###############
+    const { hasPermission } = usePermission();
+    const canAdd = hasPermission('create_suppliers');
+    const canEdit = hasPermission('edit_suppliers');
+    const canDelete = hasPermission('delete_suppliers');
+
+    const columns = createColumns(openEditDialog, openDeleteDialog, canEdit, canDelete);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
@@ -83,6 +92,7 @@ export default function Index() {
                     description="Manage your suppliers"
                     btnAddLabel="Create Supplier"
                     onBtnAddClick={openCreateDialog}
+                    canAdd={canAdd}
                 />
 
                 <DataTable
