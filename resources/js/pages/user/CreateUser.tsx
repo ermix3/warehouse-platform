@@ -23,9 +23,11 @@ export default function CreateUser({ open, onOpenChange }: Readonly<CreateUserPr
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         post(store.url(), {
+            forceFormData: true,
             onSuccess: () => {
                 onOpenChange(false);
                 reset();
+                setPreview(null);
             },
             onError: (error) => {
                 console.log('CreateUser - handleSubmit => Error ', error);
@@ -56,7 +58,7 @@ export default function CreateUser({ open, onOpenChange }: Readonly<CreateUserPr
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent className="max-h-[65vh] w-full overflow-hidden p-0 sm:max-w-2xl">
+            <DialogContent className="min-h-[65vh] w-full overflow-hidden p-0 sm:max-w-2xl">
                 <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Create User</DialogTitle>
                     <DialogDescription>

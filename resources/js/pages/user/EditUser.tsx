@@ -5,14 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { update } from '@/routes/users';
 import { EditUserProps, UserRequest } from '@/types';
-import { useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { Asterisk, Loader2 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
 export default function EditUser({ open, onOpenChange, user }: Readonly<EditUserProps>) {
     const [preview, setPreview] = useState<string | null>(null);
-    const { data, setData, reset, clearErrors, put, processing, errors } = useForm<UserRequest>({
+    const { data, setData, reset, clearErrors, processing, errors } = useForm<UserRequest>({
         name: '',
         email: '',
         password: '',
@@ -41,6 +41,7 @@ export default function EditUser({ open, onOpenChange, user }: Readonly<EditUser
             setPreview(null);
             prevUserId.current = null;
         }
+        console.log('EditUser - useEffect => data ', data);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, user]);
 
@@ -68,20 +69,26 @@ export default function EditUser({ open, onOpenChange, user }: Readonly<EditUser
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (user) {
-            put(update.url(user.id), {
-                onSuccess: () => {
-                    onOpenChange(false);
+            console.log('EditUser - handleSubmit => data ', data);
+            router.post(
+                update.url(user.id),
+                { ...data, _method: 'put' },
+                {
+                    forceFormData: true,
+                    onSuccess: () => {
+                        onOpenChange(false);
+                    },
+                    onError: (error) => {
+                        console.log('EditUser - handleSubmit => Error ', error);
+                    },
                 },
-                onError: (error) => {
-                    console.log('EditUser - handleSubmit => Error ', error);
-                },
-            });
+            );
         }
     };
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent className="max-h-[65vh] w-full overflow-hidden p-0 sm:max-w-2xl">
+            <DialogContent className="min-h-[65vh] w-full overflow-hidden p-0 sm:max-w-2xl">
                 <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Edit User</DialogTitle>
                     <DialogDescription>
