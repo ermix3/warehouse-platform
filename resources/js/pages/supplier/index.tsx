@@ -1,4 +1,5 @@
 import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
+import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { destroy, index } from '@/routes/suppliers';
@@ -8,7 +9,6 @@ import { useState } from 'react';
 import { createColumns } from './columns';
 import CreateSupplier from './CreateSupplier';
 import EditSupplier from './EditSupplier';
-import { usePermission } from '@/hooks/use-permission';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

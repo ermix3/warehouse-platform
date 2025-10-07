@@ -1,4 +1,5 @@
 import type { BaseEntity, DataPagination, SharedData, Timestamps } from '@/types';
+import type { Permission, RoleLite } from '@/types/role';
 
 export interface UserRequest {
     name: string;
@@ -6,6 +7,8 @@ export interface UserRequest {
     password: string;
     password_confirmation: string;
     avatar: File | string | null;
+    roles?: string[];
+    permissions?: string[];
 }
 
 export interface UserLite extends Pick<BaseEntity, 'id'> {
@@ -16,10 +19,14 @@ export interface UserLite extends Pick<BaseEntity, 'id'> {
 export interface User extends UserLite, Timestamps {
     email_verified_at?: string;
     avatar_url?: string;
+    roles?: RoleLite[];
+    permissions?: Permission[];
 }
 
 export interface PageUserProps extends SharedData {
     users: DataPagination<User>;
+    roles: RoleLite[];
+    permissions: Permission[];
 }
 
 export interface CreateUserProps {

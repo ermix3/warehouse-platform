@@ -1,15 +1,17 @@
-import { FileInput } from '@/components/shared';
+import { CustomMultiSelect, FileInput } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { getPermissionsOptions, getRolesOptions } from '@/lib/utils';
 import { store } from '@/routes/users';
-import { CreateUserProps, UserRequest } from '@/types';
-import { useForm } from '@inertiajs/react';
+import { CreateUserProps, PageUserProps, UserRequest } from '@/types';
+import { useForm, usePage } from '@inertiajs/react';
 import { Asterisk, Loader2 } from 'lucide-react';
 import React, { useState } from 'react';
 
 export default function CreateUser({ open, onOpenChange }: Readonly<CreateUserProps>) {
+    const { roles, permissions } = usePage<PageUserProps>().props;
     const [preview, setPreview] = useState<string | null>(null);
 
     const { data, setData, reset, clearErrors, post, processing, errors } = useForm<UserRequest>({
@@ -18,6 +20,8 @@ export default function CreateUser({ open, onOpenChange }: Readonly<CreateUserPr
         password: '',
         password_confirmation: '',
         avatar: null,
+        roles: [],
+        permissions: [],
     });
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -58,14 +62,13 @@ export default function CreateUser({ open, onOpenChange }: Readonly<CreateUserPr
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent className="min-h-[65vh] w-full overflow-hidden p-0 sm:max-w-2xl">
+            <DialogContent className="min-h-[70vh] w-full overflow-hidden p-0 sm:max-w-2xl">
                 <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Create User</DialogTitle>
                     <DialogDescription>
                         Fill in the user details.
                         <span className="text-sm font-bold italic">
-                            Fields marked with {<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />}
-                            are required
+                            Fields marked with {<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />} are required
                         </span>
                     </DialogDescription>
                 </DialogHeader>
@@ -137,6 +140,40 @@ export default function CreateUser({ open, onOpenChange }: Readonly<CreateUserPr
                                 required
                             />
                             {errors.password_confirmation && <p className="mt-1 text-sm text-red-500">{errors.password_confirmation}</p>}
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <Label>Assign Roles</Label>
+                            <div className="mt-1">
+                                <CustomMultiSelect
+                                    values={data.roles!}
+                                    onValuesChange={(vals) => setData('roles', vals)}
+                                    placeholder={'Select roles'}
+                                    items={getRolesOptions(roles)}
+                                />
+                            </div>
+                            {errors.roles && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {Array.isArray(errors.roles) ? errors.roles.join(', ') : (errors.roles as string)}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <Label>Assign Permissions</Label>
+                            <div className="mt-1">
+                                <CustomMultiSelect
+                                    values={data.permissions!}
+                                    onValuesChange={(vals) => setData('permissions', vals)}
+                                    placeholder={'Select permissions'}
+                                    items={getPermissionsOptions(permissions)}
+                                />
+                            </div>
+                            {errors.permissions && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {Array.isArray(errors.permissions) ? errors.permissions.join(', ') : (errors.permissions as string)}
+                                </p>
+                            )}
                         </div>
                     </div>
 

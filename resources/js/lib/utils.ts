@@ -1,4 +1,4 @@
-import { Permission, SelectOption } from '@/types';
+import { Permission, RoleLite, SelectOption } from '@/types';
 import { OrderStatus, ShipmentStatus } from '@/types/enums';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -49,6 +49,13 @@ export const orderStatusOptions: SelectOption<OrderStatus>[] = Object.values(Ord
 
 export const getPermissionsOptions = (permissions: Permission[]) => {
     return permissions.map((p) => ({
+        label: p.name.replaceAll('_', ' '),
+        value: p.name,
+    }));
+};
+
+export const getRolesOptions = (roles: RoleLite[]) => {
+    return roles.map((p) => ({
         label: p.name.replaceAll('_', ' '),
         value: p.name,
     }));

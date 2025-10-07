@@ -1,4 +1,5 @@
 import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
+import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { destroy, index } from '@/routes/users';
@@ -8,7 +9,6 @@ import { useState } from 'react';
 import { createColumns } from './columns';
 import CreateUser from './CreateUser';
 import EditUser from './EditUser';
-import { usePermission } from '@/hooks/use-permission';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -87,7 +87,13 @@ export default function UsersPage() {
             <Head title="Users" />
 
             <div className="container mt-5 px-5">
-                <TitleActionsSection title="Users" description="Manage your users" btnAddLabel="Create User" onBtnAddClick={openCreateDialog} canAdd={canAdd} />
+                <TitleActionsSection
+                    title="Users"
+                    description="Manage your users"
+                    btnAddLabel="Create User"
+                    onBtnAddClick={openCreateDialog}
+                    canAdd={canAdd}
+                />
 
                 <DataTable columns={columns} data={users.data} filters={filters} searchPlaceholder="Search users by name or email..." />
 

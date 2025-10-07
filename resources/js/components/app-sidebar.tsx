@@ -5,6 +5,7 @@ import { dashboard } from '@/routes';
 import customers from '@/routes/customers';
 import orders from '@/routes/orders';
 import products from '@/routes/products';
+import roles from '@/routes/roles';
 import shipments from '@/routes/shipments';
 import suppliers from '@/routes/suppliers';
 import users from '@/routes/users';
@@ -13,7 +14,6 @@ import { RolesEnum } from '@/types/enums';
 import { Link } from '@inertiajs/react';
 import { Cog, Handshake, LayoutGrid, Ship, ShoppingBag, ShoppingCart, UserRoundCog, UsersRound } from 'lucide-react';
 import AppLogo from './app-logo';
-import roles from '@/routes/roles';
 
 const mainNavItems: NavItem[] = [
     {

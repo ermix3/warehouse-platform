@@ -1,4 +1,5 @@
 import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
+import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { destroy } from '@/routes/roles';
@@ -8,7 +9,6 @@ import { useState } from 'react';
 import { createColumns } from './columns';
 import CreateRole from './CreateRole';
 import EditRole from './EditRole';
-import { usePermission } from '@/hooks/use-permission';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -92,41 +92,32 @@ export default function RolesPage() {
                     canAdd={canAdd}
                 />
 
-                <DataTable
-                    columns={columns}
-                    data={roles.data}
-                    filters={filters}
-                    searchPlaceholder="Search roles..."
-                />
+                <DataTable columns={columns} data={roles.data} filters={filters} searchPlaceholder="Search roles..." />
 
                 <Pagination links={roles.links} from={roles.from} to={roles.to} total={roles.total} />
             </div>
 
-                <CreateRole
-                    open={showCreateDialog}
-                    onOpenChange={setShowCreateDialog}
+            <CreateRole open={showCreateDialog} onOpenChange={setShowCreateDialog} permissions={permissions} />
+
+            {editRole && (
+                <EditRole
+                    open={showEditDialog}
+                    onOpenChange={setShowEditDialog}
+                    role={editRole}
                     permissions={permissions}
+                    key={`edit-role-${editRole.id}`}
                 />
+            )}
 
-                {editRole && (
-                    <EditRole
-                        open={showEditDialog}
-                        onOpenChange={setShowEditDialog}
-                        role={editRole}
-                        permissions={permissions}
-                        key={`edit-role-${editRole.id}`}
-                    />
-                )}
-
-                <DeleteItem
-                    open={showDeleteDialog}
-                    onOpenChange={closeDeleteDialog}
-                    title="Delete Role"
-                    itemName={deleteRole?.name}
-                    description={`Are you sure you want to delete "${deleteRole?.name}"? This action cannot be undone.`}
-                    isDeleting={isDeleting}
-                    onDelete={handleDelete}
-                />
+            <DeleteItem
+                open={showDeleteDialog}
+                onOpenChange={closeDeleteDialog}
+                title="Delete Role"
+                itemName={deleteRole?.name}
+                description={`Are you sure you want to delete "${deleteRole?.name}"? This action cannot be undone.`}
+                isDeleting={isDeleting}
+                onDelete={handleDelete}
+            />
         </AppLayout>
     );
 }

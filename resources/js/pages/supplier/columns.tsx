@@ -2,7 +2,12 @@ import { ActionsCell } from '@/components/shared';
 import { Supplier } from '@/types';
 import { ColumnDef, Row } from '@tanstack/react-table';
 
-export const createColumns = (onEdit: (supplier: Supplier) => void, onDelete: (supplier: Supplier) => void, canEdit?: boolean, canDelete?: boolean): ColumnDef<Supplier>[] => [
+export const createColumns = (
+    onEdit: (supplier: Supplier) => void,
+    onDelete: (supplier: Supplier) => void,
+    canEdit?: boolean,
+    canDelete?: boolean,
+): ColumnDef<Supplier>[] => [
     {
         accessorKey: 'id',
         header: 'ID',
@@ -37,7 +42,7 @@ export const createColumns = (onEdit: (supplier: Supplier) => void, onDelete: (s
         accessorKey: 'notes',
         header: 'Notes',
         cell: ({ row }) => row.original.notes || '-',
-    },  
+    },
     ...(canEdit || canDelete
         ? [
               {

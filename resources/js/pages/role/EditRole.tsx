@@ -75,12 +75,19 @@ export default function EditRole({ open, onOpenChange, role, permissions }: Read
                         </div>
 
                         <div className="">
-                            <Label>Permissions</Label>
+                            <Label>
+                                Permissions <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                            </Label>
                             <CustomMultiSelect
                                 values={data.permissions}
                                 onValuesChange={(values) => setData('permissions', values)}
                                 items={getPermissionsOptions(permissions)}
                             />
+                            {errors.permissions && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {Array.isArray(errors.permissions) ? errors.permissions.join(', ') : (errors.permissions as string)}
+                                </p>
+                            )}
                         </div>
                     </div>
 

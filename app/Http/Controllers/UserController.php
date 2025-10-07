@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -49,10 +51,19 @@ class UserController extends Controller
             $query->orderBy('id', 'desc');
         }
 
-        $users = $query->paginate(15)->appends($request->query());
+        // Eager load roles and permissions for edit dialog prefill
+        $users = $query
+            ->with(['roles:id,name', 'permissions:id,name'])
+            ->paginate(15)
+            ->appends($request->query());
+
+        $roles = Role::select(['id', 'name', 'guard_name'])->orderBy('id')->get();
+        $permissions = Permission::select(['id', 'name'])->orderBy('id')->get();
 
         return Inertia::render('user/index', [
             'users' => $users,
+            'roles' => $roles,
+            'permissions' => $permissions,
             'filters' => [
                 'search' => $request->get('search', ''),
                 'sort_by' => $sortBy,
@@ -87,6 +98,16 @@ class UserController extends Controller
 
             $user = User::create($userData);
 
+            // Sync roles & permissions if provided
+            $roles = $validated['roles'] ?? [];
+            $permissions = $validated['permissions'] ?? [];
+            if (!empty($roles)) {
+                $user->syncRoles($roles);
+            }
+            if (!empty($permissions)) {
+                $user->syncPermissions($permissions);
+            }
+
             DB::commit();
 
             Log::info('User created successfully', [
@@ -94,6 +115,8 @@ class UserController extends Controller
                 'user_name' => $user->name,
                 'user_email' => $user->email,
                 'created_by' => Auth::id(),
+                'roles' => $roles,
+                'permissions' => $permissions,
             ]);
 
             return Redirect::route('users.index')
@@ -151,6 +174,14 @@ class UserController extends Controller
             }
 
             $user->update($userData);
+
+            // Sync roles & permissions if provided
+            if (array_key_exists('roles', $validated)) {
+                $user->syncRoles($validated['roles'] ?? []);
+            }
+            if (array_key_exists('permissions', $validated)) {
+                $user->syncPermissions($validated['permissions'] ?? []);
+            }
 
             DB::commit();
 

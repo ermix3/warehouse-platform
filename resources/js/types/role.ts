@@ -6,7 +6,6 @@ export interface Permission extends Pick<BaseEntity, 'id'> {
 
 export interface RoleLite extends Pick<BaseEntity, 'id'> {
     name: string;
-    guard_name: string;
 }
 
 export interface Role extends RoleLite {

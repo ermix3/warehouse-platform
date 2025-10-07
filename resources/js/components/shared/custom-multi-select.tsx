@@ -21,7 +21,8 @@ export const CustomMultiSelect = ({ values, onValuesChange, placeholder = 'Selec
             <MultiSelectTrigger className="w-full">
                 <MultiSelectValue placeholder={placeholder} />
             </MultiSelectTrigger>
-            <MultiSelectContent>
+            {/*<MultiSelectContent>*/}
+            <MultiSelectContent search={{ placeholder, emptyMessage: 'Not found.' }}>
                 <MultiSelectGroup>
                     {items.map(({ label, value }) => (
                         <MultiSelectItem key={value} value={value}>

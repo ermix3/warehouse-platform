@@ -7,10 +7,10 @@ export * from './enums';
 export * from './order';
 export * from './order-item';
 export * from './product';
+export * from './role';
 export * from './shipment';
 export * from './supplier';
 export * from './user';
-export * from './role';
 
 export interface Auth {
     user: User;

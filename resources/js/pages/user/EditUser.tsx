@@ -1,23 +1,29 @@
 import { FileInput } from '@/components/shared';
+import { CustomMultiSelect } from '@/components/shared/custom-multi-select';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { getPermissionsOptions, getRolesOptions } from '@/lib/utils';
 import { update } from '@/routes/users';
-import { EditUserProps, UserRequest } from '@/types';
-import { router, useForm } from '@inertiajs/react';
+import { EditUserProps, PageUserProps, UserRequest } from '@/types';
+import { router, useForm, usePage } from '@inertiajs/react';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import { Asterisk, Loader2 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
 export default function EditUser({ open, onOpenChange, user }: Readonly<EditUserProps>) {
     const [preview, setPreview] = useState<string | null>(null);
+    const { roles, permissions } = usePage<PageUserProps>().props;
+
     const { data, setData, reset, clearErrors, processing, errors } = useForm<UserRequest>({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
         avatar: null,
+        roles: [],
+        permissions: [],
     });
     const prevUserId = useRef<number | null>(null);
 
@@ -29,6 +35,8 @@ export default function EditUser({ open, onOpenChange, user }: Readonly<EditUser
                 password: '',
                 password_confirmation: '',
                 avatar: user.avatar_url,
+                roles: user.roles?.map((r) => r.name) ?? [],
+                permissions: user.permissions?.map((p) => p.name) ?? [],
             });
             if (user.avatar_url) {
                 setPreview(user.avatar_url);
@@ -41,7 +49,6 @@ export default function EditUser({ open, onOpenChange, user }: Readonly<EditUser
             setPreview(null);
             prevUserId.current = null;
         }
-        console.log('EditUser - useEffect => data ', data);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, user]);
 
@@ -69,7 +76,6 @@ export default function EditUser({ open, onOpenChange, user }: Readonly<EditUser
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (user) {
-            console.log('EditUser - handleSubmit => data ', data);
             router.post(
                 update.url(user.id),
                 { ...data, _method: 'put' },
@@ -94,8 +100,7 @@ export default function EditUser({ open, onOpenChange, user }: Readonly<EditUser
                     <DialogDescription>
                         Update the user details.
                         <span className="text-sm font-bold italic">
-                            Fields marked with {<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />}
-                            are required
+                            Fields marked with {<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />} are required
                         </span>
                     </DialogDescription>
                 </DialogHeader>
@@ -157,6 +162,40 @@ export default function EditUser({ open, onOpenChange, user }: Readonly<EditUser
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                 placeholder="Confirm new password"
                             />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <Label>Assign Roles</Label>
+                            <div className="mt-1">
+                                <CustomMultiSelect
+                                    values={data.roles ?? []}
+                                    onValuesChange={(vals) => setData('roles', vals)}
+                                    placeholder="Select roles"
+                                    items={getRolesOptions(roles)}
+                                />
+                            </div>
+                            {errors.roles && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {Array.isArray(errors.roles) ? errors.roles.join(', ') : (errors.roles as string)}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <Label>Assign Permissions</Label>
+                            <div className="mt-1">
+                                <CustomMultiSelect
+                                    values={data.permissions ?? []}
+                                    onValuesChange={(vals) => setData('permissions', vals)}
+                                    placeholder="Select permissions"
+                                    items={getPermissionsOptions(permissions)}
+                                />
+                            </div>
+                            {errors.permissions && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {Array.isArray(errors.permissions) ? errors.permissions.join(', ') : (errors.permissions as string)}
+                                </p>
+                            )}
                         </div>
                     </div>
 

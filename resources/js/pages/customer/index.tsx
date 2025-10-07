@@ -1,4 +1,5 @@
 import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
+import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { destroy, index } from '@/routes/customers';
@@ -8,7 +9,6 @@ import { useState } from 'react';
 import { createColumns } from './columns';
 import CreateCustomer from './CreateCustomer';
 import EditCustomer from './EditCustomer';
-import { usePermission } from '@/hooks/use-permission';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -79,7 +79,6 @@ export default function CustomersPage() {
     const canAdd = hasPermission('create_customers');
     const canEdit = hasPermission('edit_customers');
     const canDelete = hasPermission('delete_customers');
-
 
     const columns = createColumns(openEditDialog, openDeleteDialog, canEdit, canDelete);
 

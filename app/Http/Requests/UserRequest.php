@@ -26,6 +26,10 @@ class UserRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $this->user?->id,
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'roles' => ['sometimes', 'array'],
+            'roles.*' => ['string', 'exists:roles,name'],
+            'permissions' => ['sometimes', 'array'],
+            'permissions.*' => ['string', 'exists:permissions,name'],
         ];
 
         // Add password rules for create or when password is provided
@@ -56,6 +60,10 @@ class UserRequest extends FormRequest
             'password.confirmed' => 'The password confirmation does not match.',
             'password_confirmation.required' => 'The password confirmation is required.',
             'password_confirmation.min' => 'The password confirmation must be at least 8 characters.',
+            'roles.array' => 'Roles must be an array.',
+            'roles.*.exists' => 'One or more selected roles are invalid.',
+            'permissions.array' => 'Permissions must be an array.',
+            'permissions.*.exists' => 'One or more selected permissions are invalid.',
         ];
     }
 
@@ -71,6 +79,8 @@ class UserRequest extends FormRequest
             'email' => 'email address',
             'password' => 'password',
             'password_confirmation' => 'password confirmation',
+            'roles' => 'roles',
+            'permissions' => 'permissions',
         ];
     }
 
