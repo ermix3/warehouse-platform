@@ -21,6 +21,7 @@ export function Pagination({ links, from, to, total }: Readonly<PaginationProps>
                         dangerouslySetInnerHTML={{
                             __html: link.label,
                         }}
+                        className="cursor-pointer"
                     />
                 ))}
             </div>

@@ -33,10 +33,10 @@ export function DeleteItem({
                     <p className="mt-2 text-sm text-muted-foreground">{description}</p>
                 </div>
                 <div className="flex justify-end space-x-2">
-                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isDeleting}>
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isDeleting} className="cursor-pointer">
                         Cancel
                     </Button>
-                    <Button variant="destructive" onClick={onDelete} disabled={isDeleting}>
+                    <Button variant="destructive" onClick={onDelete} disabled={isDeleting} className="cursor-pointer">
                         {isDeleting && <span className="mr-2">⏳</span>}
                         {isDeleting ? 'Deleting...' : 'Delete'}
                     </Button>

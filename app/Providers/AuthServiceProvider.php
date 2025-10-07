@@ -27,6 +27,6 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         // Define global gates here if needed
-        Gate::before(fn(User $user, string $ability) => $user->hasRole('admin') || $user->hasPermissionTo($ability));
+        // Gate::before(fn(User $user, string $ability) => $user->hasRole('admin') || $user->can($ability));
     }
 }

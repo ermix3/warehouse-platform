@@ -28,6 +28,11 @@ export function SearchableSelect({
     const [open, setOpen] = useState(false);
 
     const selectedOption = options.find((option) => option.value === value);
+    // Debug log to help identify selection issues
+    // if (process.env.NODE_ENV === 'development') {
+    //     console.log('SearchableSelect - Current value:', value, 'Selected option:', selectedOption);
+    //     console.log('Available options:', options);
+    // }
 
     return (
         <Popover open={open} onOpenChange={setOpen}>

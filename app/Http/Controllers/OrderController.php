@@ -28,7 +28,7 @@ class OrderController extends Controller
             $query = Order::with(['customer', 'supplier', 'items.product'])
                 ->where('customer_id', $user->id);
         } else {
-            $query = Order::with(['customer', 'supplier', 'items.product']);
+            $query = Order::with(['customer', 'supplier', 'shipment', 'items.product']);
         }
 
         if ($search = $request->get('search')) {
@@ -146,23 +146,25 @@ class OrderController extends Controller
     /**
      * Display the specified order with customer and paginated/searchable order items.
      */
-    public function show(Request $request, $id): Response
+    public function show(Request $request, Order $order): Response
     {
-        $order = Order::with(['customer', 'items.product', 'shipment'])->findOrFail($id);
         $this->authorize('view', $order);
 
-        // Paginate and search order items
-        $order = Order::with(['customer', 'items.product', 'shipment'])->findOrFail($id);
+        // Load the order with its relationships
+        $order->load(['customer', 'shipment', 'supplier', 'items.product']);
 
         // Paginate and search order items
         $itemsQuery = $order->items()->with('product');
+
         if ($search = $request->get('search')) {
             $itemsQuery->whereHas('product', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%");
             });
         }
+
         $orderItems = $itemsQuery->orderByDesc('id')->paginate(10)->appends($request->query());
 
+        // Get related data for the form
         $products = Product::latest()->get();
         $customers = Customer::latest()->get(['id', 'name']);
         $suppliers = Supplier::latest()->get(['id', 'name']);

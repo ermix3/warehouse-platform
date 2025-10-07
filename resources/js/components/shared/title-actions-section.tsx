@@ -34,7 +34,11 @@ export function TitleActionsSection({
             )}
             <div className={`flex items-center gap-2`}>
                 {onBtnExportClick && (canExport == undefined || canExport) && <ExportData onExport={onBtnExportClick} />}
-                {onBtnAddClick && (canAdd == undefined || canAdd) && <Button onClick={onBtnAddClick}>{btnAddLabel}</Button>}
+                {onBtnAddClick && (canAdd == undefined || canAdd) && (
+                    <Button onClick={onBtnAddClick} className="cursor-pointer">
+                        {btnAddLabel}
+                    </Button>
+                )}
             </div>
         </div>
     );

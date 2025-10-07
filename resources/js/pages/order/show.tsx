@@ -14,7 +14,7 @@ import CreateProduct from '@/pages/product/CreateProduct';
 import { dashboard } from '@/routes';
 import { index, show } from '@/routes/orders';
 import { exportData, show as showShipment } from '@/routes/shipments';
-import { BreadcrumbItem, ShowOrderProps } from '@/types';
+import { BreadcrumbItem, OrderItemLite, ShowOrderProps } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { Info, TextSearch } from 'lucide-react';
 import { useState } from 'react';
@@ -22,6 +22,10 @@ import { useState } from 'react';
 export default function ShowOrderPage({ order, orderItems, products, customers, shipments, suppliers, flash }: Readonly<ShowOrderProps>) {
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showCreateProductDialog, setShowCreateProductDialog] = useState(false);
+
+    const getOrderSum = (orderItems: OrderItemLite[]) => {
+        return orderItems.reduce((sum, item) => sum + item.ctn * item.product.box_qtt, 0);
+    };
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -68,7 +72,10 @@ export default function ShowOrderPage({ order, orderItems, products, customers, 
                                 <b>Order Number:</b> {order.order_number}
                             </div>
                             <div>
-                                <b>Total:</b> AED {Number(order.total).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                <b>Total:</b> {getFormattedAmount(order.total)}
+                            </div>
+                            <div>
+                                <b>Sum:</b> {getOrderSum(order.items)}
                             </div>
                             <div>
                                 <b>Created At:</b> {order.created_at ? new Date(order.created_at).toLocaleString() : '-'}
@@ -187,7 +194,7 @@ export default function ShowOrderPage({ order, orderItems, products, customers, 
                                         <TableHead>Product</TableHead>
                                         <TableHead>Box/QTY</TableHead>
                                         <TableHead>CTN</TableHead>
-                                        <TableHead>Total</TableHead>
+                                        <TableHead>Sum</TableHead>
                                         <TableHead>Unit Price</TableHead>
                                         <TableHead>Total</TableHead>
                                     </TableRow>
