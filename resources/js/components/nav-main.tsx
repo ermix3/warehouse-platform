@@ -18,8 +18,10 @@ export function NavMain({ items = [], label = '' }: Readonly<NavMainProps>) {
             <SidebarMenu>
                 {items
                     .filter((item) => {
-                        const userRoles = user?.roles || [];
-                        return !item.roles || item.roles.some((role) => userRoles.includes(role));
+                        return (
+                            user.roles?.map((r: string) => r.toLowerCase())?.includes('admin') ||
+                            item?.permissions?.some((p) => user?.permissions?.includes(p))
+                        );
                     })
                     .map((item) => (
                         <SidebarMenuItem key={item.title}>

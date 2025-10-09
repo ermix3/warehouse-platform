@@ -1,4 +1,5 @@
 import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
+import { ActionsEnum, ResourcesEnum } from '@/enums';
 import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
@@ -76,10 +77,10 @@ export default function ShipmentsPage() {
     //##############// Handle Permissions //##############
     //#############//####################//###############
     const { hasPermission } = usePermission();
-    const canAdd = hasPermission('create_shipments');
-    const canEdit = hasPermission('edit_shipments');
-    const canDelete = hasPermission('delete_shipments');
-    const canView = hasPermission('view_shipments');
+    const canAdd = hasPermission(ActionsEnum.CREATE, ResourcesEnum.SHIPMENTS);
+    const canEdit = hasPermission(ActionsEnum.EDIT, ResourcesEnum.SHIPMENTS);
+    const canDelete = hasPermission(ActionsEnum.DELETE, ResourcesEnum.SHIPMENTS);
+    const canView = hasPermission(ActionsEnum.VIEW, ResourcesEnum.SHIPMENTS);
 
     const columns = createColumns(openEditDialog, openDeleteDialog, canEdit, canDelete, canView);
 

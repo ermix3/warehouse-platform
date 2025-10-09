@@ -1,3 +1,4 @@
+import { OrderStatusEnum } from '@/enums';
 import {
     BaseEntity,
     Customer,
@@ -13,11 +14,10 @@ import {
     SupplierLite,
     Timestamps,
 } from '@/types';
-import { OrderStatus } from './enums';
 
 export interface OrderRequest {
     order_number: string;
-    status: OrderStatus;
+    status: OrderStatusEnum;
     total: number;
     customer_id: string;
     shipment_id: string;
@@ -27,7 +27,7 @@ export interface OrderRequest {
 
 export interface OrderLite extends Pick<BaseEntity, 'id'> {
     order_number: string;
-    status: OrderStatus;
+    status: OrderStatusEnum;
     total: number;
 }
 

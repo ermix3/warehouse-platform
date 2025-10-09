@@ -1,6 +1,6 @@
+import { ShipmentStatusEnum } from '@/enums';
 import { BaseEntity, DataPagination, SharedData, Timestamps } from '@/types';
 import type { Customer } from './customer';
-import { ShipmentStatus } from './enums';
 import type { Order } from './order';
 import type { Product } from './product';
 import type { SupplierLite } from './supplier';
@@ -8,14 +8,14 @@ import type { SupplierLite } from './supplier';
 export interface ShipmentRequest {
     tracking_number: string;
     carrier: string;
-    status: ShipmentStatus;
+    status: ShipmentStatusEnum;
     notes: string;
 }
 
 export interface ShipmentLite extends Pick<BaseEntity, 'id'> {
     tracking_number: string | null;
     carrier: string | null;
-    status: ShipmentStatus;
+    status: ShipmentStatusEnum;
 }
 
 export interface Shipment extends ShipmentLite, Timestamps {

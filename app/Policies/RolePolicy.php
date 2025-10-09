@@ -16,7 +16,6 @@ class RolePolicy
      */
     public function viewAny(User $user): bool
     {
-        dd($user->can('view_roles'));
         return $user->hasPermissionTo('view_roles');
     }
 

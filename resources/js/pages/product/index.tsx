@@ -1,4 +1,5 @@
 import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
+import { ActionsEnum, ResourcesEnum } from '@/enums';
 import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
@@ -76,9 +77,9 @@ export default function ProductsPage() {
     //##############// Handle Permissions //#############
     //#############//####################//#############
     const { hasPermission } = usePermission();
-    const canAdd = hasPermission('create_products');
-    const canEdit = hasPermission('edit_products');
-    const canDelete = hasPermission('delete_products');
+    const canAdd = hasPermission(ActionsEnum.CREATE, ResourcesEnum.PRODUCTS);
+    const canEdit = hasPermission(ActionsEnum.EDIT, ResourcesEnum.PRODUCTS);
+    const canDelete = hasPermission(ActionsEnum.DELETE, ResourcesEnum.PRODUCTS);
 
     const columns = createColumns(openEditDialog, openDeleteDialog, canEdit, canDelete);
 

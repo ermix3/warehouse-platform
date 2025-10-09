@@ -4,11 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { ShipmentStatusEnum } from '@/enums';
 import { ShipmentStatusIcons } from '@/lib/shipment-status-helper';
 import { shipmentStatusOptions } from '@/lib/utils';
 import { update } from '@/routes/shipments';
 import { EditShipmentProps, ShipmentRequest } from '@/types';
-import { ShipmentStatus } from '@/types/enums';
 import { useForm } from '@inertiajs/react';
 import { Asterisk, CircleAlert, Clock, Loader2 } from 'lucide-react';
 import React, { useEffect, useRef } from 'react';
@@ -17,7 +17,7 @@ export default function EditShipment({ open, onOpenChange, shipment }: Readonly<
     const { data, setData, put, reset, clearErrors, errors, processing } = useForm<ShipmentRequest>({
         tracking_number: '',
         carrier: '',
-        status: ShipmentStatus.PENDING,
+        status: ShipmentStatusEnum.PENDING,
         notes: '',
     });
 
@@ -28,7 +28,7 @@ export default function EditShipment({ open, onOpenChange, shipment }: Readonly<
             setData({
                 tracking_number: shipment.tracking_number ?? '',
                 carrier: shipment.carrier ?? '',
-                status: shipment.status ?? ShipmentStatus.PENDING,
+                status: shipment.status ?? ShipmentStatusEnum.PENDING,
                 notes: shipment.notes ?? '',
             });
             prevIdRef.current = shipment.id;
@@ -65,7 +65,7 @@ export default function EditShipment({ open, onOpenChange, shipment }: Readonly<
                 <DialogHeader className="border-b px-5 py-3">
                     <DialogTitle>Edit Shipment {shipment.tracking_number ? `#${shipment.tracking_number}` : `ID: ${shipment.id}`}</DialogTitle>
                     <DialogDescription>
-                        Update the shipment details.
+                        Update the shipment details.{' '}
                         <span className="text-sm font-bold italic">
                             Fields marked with {<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />}
                             are required
@@ -103,7 +103,7 @@ export default function EditShipment({ open, onOpenChange, shipment }: Readonly<
 
                     <div className="px-5">
                         <Label htmlFor="edit-status">Status</Label>
-                        <Select value={data.status} onValueChange={(value) => setData('status', value as ShipmentStatus)}>
+                        <Select value={data.status} onValueChange={(value) => setData('status', value as ShipmentStatusEnum)}>
                             <SelectTrigger id="edit-status" className={errors.status ? 'border-red-500' : ''}>
                                 <SelectValue placeholder="Select status" />
                             </SelectTrigger>

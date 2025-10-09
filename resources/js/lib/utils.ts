@@ -1,5 +1,5 @@
+import { OrderStatusEnum, ShipmentStatusEnum } from '@/enums';
 import { Permission, RoleLite, SelectOption } from '@/types';
-import { OrderStatus, ShipmentStatus } from '@/types/enums';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -34,7 +34,7 @@ export const getFormattedAmount = (amount: number, min: number = 2, max: number 
     return `AED ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: min, maximumFractionDigits: max })}`;
 };
 
-export const shipmentStatusOptions: SelectOption<ShipmentStatus>[] = Object.values(ShipmentStatus).map((status) => ({
+export const shipmentStatusOptions: SelectOption<ShipmentStatusEnum>[] = Object.values(ShipmentStatusEnum).map((status) => ({
     value: status,
     label: status
         .split('_')
@@ -42,7 +42,7 @@ export const shipmentStatusOptions: SelectOption<ShipmentStatus>[] = Object.valu
         .join(' '),
 }));
 
-export const orderStatusOptions: SelectOption<OrderStatus>[] = Object.values(OrderStatus).map((status) => ({
+export const orderStatusOptions: SelectOption<OrderStatusEnum>[] = Object.values(OrderStatusEnum).map((status) => ({
     value: status,
     label: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase().replace('_', ' '),
 }));

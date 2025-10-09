@@ -4,11 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { ShipmentStatusEnum } from '@/enums';
 import { ShipmentStatusIcons } from '@/lib/shipment-status-helper';
 import { shipmentStatusOptions } from '@/lib/utils';
 import { store } from '@/routes/shipments';
 import { CreateShipmentProps, ShipmentRequest } from '@/types';
-import { ShipmentStatus } from '@/types/enums';
 import { useForm } from '@inertiajs/react';
 import { Asterisk, Clock, Loader2 } from 'lucide-react';
 import React from 'react';
@@ -17,7 +17,7 @@ export default function CreateShipment({ open, onOpenChange }: Readonly<CreateSh
     const { data, setData, post, reset, clearErrors, errors, processing } = useForm<ShipmentRequest>({
         tracking_number: '',
         carrier: '',
-        status: ShipmentStatus.PENDING,
+        status: ShipmentStatusEnum.PENDING,
         notes: '',
     });
 
@@ -49,7 +49,7 @@ export default function CreateShipment({ open, onOpenChange }: Readonly<CreateSh
                 <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Create Shipment</DialogTitle>
                     <DialogDescription>
-                        Fill in the shipment details.
+                        Fill in the shipment details.{' '}
                         <span className="text-sm font-bold italic">
                             Fields marked with {<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />}
                             are required
@@ -87,7 +87,7 @@ export default function CreateShipment({ open, onOpenChange }: Readonly<CreateSh
 
                     <div className="px-5">
                         <Label htmlFor="create-status">Status</Label>
-                        <Select value={data.status} onValueChange={(value) => setData('status', value as ShipmentStatus)}>
+                        <Select value={data.status} onValueChange={(value) => setData('status', value as ShipmentStatusEnum)}>
                             <SelectTrigger id="create-status" className={errors.status ? 'border-red-500' : ''}>
                                 <SelectValue placeholder="Select status" />
                             </SelectTrigger>

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { ActionsEnum, ResourcesEnum } from '@/enums';
 import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
 import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
@@ -108,12 +109,12 @@ export default function ShipmentShowPage() {
     //##############// Handle Permissions //#############
     //#############//####################//#############
     const { hasPermission } = usePermission();
-    const canAddCustomer = hasPermission('create_customers');
-    const canAddOrder = hasPermission('create_orders');
-    const canDeleteOrder = hasPermission('delete_orders');
-    const canViewOrder = hasPermission('view_orders');
-    const canEditShipments = hasPermission('edit_shipments');
-    const canExportShipments = hasPermission('export_shipments');
+    const canAddCustomer = hasPermission(ActionsEnum.CREATE, ResourcesEnum.CUSTOMERS);
+    const canAddOrder = hasPermission(ActionsEnum.CREATE, ResourcesEnum.ORDERS);
+    const canDeleteOrder = hasPermission(ActionsEnum.DELETE, ResourcesEnum.ORDERS);
+    const canViewOrder = hasPermission(ActionsEnum.VIEW, ResourcesEnum.ORDERS);
+    const canEditShipments = hasPermission(ActionsEnum.EDIT, ResourcesEnum.SHIPMENTS);
+    const canExportShipments = hasPermission(ActionsEnum.EXPORT, ResourcesEnum.SHIPMENTS);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} flash={flash}>

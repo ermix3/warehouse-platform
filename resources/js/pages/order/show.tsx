@@ -4,6 +4,7 @@ import { Pagination } from '@/components/shared/pagination';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ActionsEnum, ResourcesEnum } from '@/enums';
 import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
 import { OrderStatusBadge } from '@/lib/order-status-helper';
@@ -19,7 +20,7 @@ import { Head, router } from '@inertiajs/react';
 import { Info, TextSearch } from 'lucide-react';
 import { useState } from 'react';
 
-export default function ShowOrderPage({ order, orderItems, products, customers, shipments, suppliers, flash }: Readonly<ShowOrderProps>) {
+export function ShowOrderPage({ order, orderItems, products, customers, shipments, suppliers, flash }: Readonly<ShowOrderProps>) {
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showCreateProductDialog, setShowCreateProductDialog] = useState(false);
 
@@ -50,10 +51,10 @@ export default function ShowOrderPage({ order, orderItems, products, customers, 
     //##############// Handle Permissions //#############
     //#############//####################//#############
     const { hasPermission } = usePermission();
-    const canAddProduct = hasPermission('create_products');
-    const canEditOrder = hasPermission('edit_orders');
-    const canExportShipments = hasPermission('export_shipments');
-    const canViewShipments = hasPermission('view_shipments');
+    const canAddProduct = hasPermission(ActionsEnum.CREATE, ResourcesEnum.PRODUCTS);
+    const canEditOrder = hasPermission(ActionsEnum.EDIT, ResourcesEnum.ORDERS);
+    const canExportShipments = hasPermission(ActionsEnum.EXPORT, ResourcesEnum.SHIPMENTS);
+    const canViewShipments = hasPermission(ActionsEnum.VIEW, ResourcesEnum.SHIPMENTS);
 
     return (
         <AppLayout flash={flash} breadcrumbs={breadcrumbs}>

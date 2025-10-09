@@ -5,11 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { OrderStatusEnum } from '@/enums';
 import { OrderStatusIcons } from '@/lib/order-status-helper';
 import { orderStatusOptions } from '@/lib/utils';
 import { store } from '@/routes/orders';
 import { CreateOrderProps, OrderRequest, SelectOption } from '@/types';
-import { OrderStatus } from '@/types/enums';
 import { useForm } from '@inertiajs/react';
 import { Asterisk, CirclePlus, Clock, Loader2, Minus, Plus, Trash2 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -26,7 +26,7 @@ export default function CreateOrder({
 }: Readonly<CreateOrderProps>) {
     const { data, setData, setError, post, reset, clearErrors, processing, errors } = useForm<OrderRequest>({
         order_number: '',
-        status: OrderStatus.DRAFT,
+        status: OrderStatusEnum.DRAFT,
         total: 0,
         customer_id: '',
         shipment_id: '',
@@ -114,21 +114,21 @@ export default function CreateOrder({
     // Per-row handlers for adjusting CTN on existing items
     const setRowCtn = (idx: number, value: string) => {
         const next = [...data.order_items];
-        const parsed = Math.max(1, parseInt(value || '1') || 1);
+        const parsed = Math.max(1, Number.parseInt(value || '1') || 1);
         next[idx] = { ...next[idx], ctn: parsed.toString() };
         setData('order_items', next);
     };
 
     const incRowCtn = (idx: number) => {
         const next = [...data.order_items];
-        const curr = parseInt(next[idx]?.ctn || '0') || 0;
+        const curr = Number.parseInt(next[idx]?.ctn || '0') || 0;
         next[idx] = { ...next[idx], ctn: Math.max(1, curr + 1).toString() };
         setData('order_items', next);
     };
 
     const decRowCtn = (idx: number) => {
         const next = [...data.order_items];
-        const curr = parseInt(next[idx]?.ctn || '0') || 0;
+        const curr = Number.parseInt(next[idx]?.ctn || '0') || 0;
         next[idx] = { ...next[idx], ctn: Math.max(1, curr - 1).toString() };
         setData('order_items', next);
     };
@@ -139,7 +139,7 @@ export default function CreateOrder({
                 <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Create Order</DialogTitle>
                     <DialogDescription>
-                        Fill in the supplier details.
+                        Fill in the supplier details.{' '}
                         <span className="text-sm font-bold italic">
                             Fields marked with {<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />}
                             are required
@@ -165,7 +165,7 @@ export default function CreateOrder({
 
                         <div>
                             <Label htmlFor="create-status">Status</Label>
-                            <Select value={data.status} onValueChange={(value) => setData('status', value as OrderStatus)}>
+                            <Select value={data.status} onValueChange={(value) => setData('status', value as OrderStatusEnum)}>
                                 <SelectTrigger id="create-status" className={errors.status ? 'border-red-500' : ''}>
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
@@ -278,7 +278,7 @@ export default function CreateOrder({
                             ) : (
                                 <div className="max-h-[200px] divide-y overflow-y-auto px-2">
                                     {data.order_items.map((it, idx) => (
-                                        <div key={idx} className="grid grid-cols-12 items-center gap-2 p-2">
+                                        <div key={idx + it.product_id} className="grid grid-cols-12 items-center gap-2 p-2">
                                             <div className="col-span-6">
                                                 {productOptions.find((o) => o.value === it.product_id)?.label || 'Product #' + it.product_id}
                                             </div>
@@ -289,7 +289,7 @@ export default function CreateOrder({
                                                         variant="outline"
                                                         size="icon"
                                                         onClick={() => decRowCtn(idx)}
-                                                        disabled={processing || (parseInt(it.ctn || '1') || 1) <= 1}
+                                                        disabled={processing || (Number.parseInt(it.ctn || '1') || 1) <= 1}
                                                         className="h-6 w-6 border-0"
                                                     >
                                                         <Minus className="h-4 w-4" />

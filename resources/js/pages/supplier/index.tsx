@@ -1,4 +1,5 @@
 import { DataTable, DeleteItem, Pagination, TitleActionsSection } from '@/components/shared';
+import { ActionsEnum, ResourcesEnum } from '@/enums';
 import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
@@ -25,7 +26,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Index() {
+export default function SuppliersPage() {
     const { suppliers, filters, flash } = usePage<PageSupplierProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -76,9 +77,9 @@ export default function Index() {
     //##############// Handle Permissions //##############
     //#############//####################//###############
     const { hasPermission } = usePermission();
-    const canAdd = hasPermission('create_suppliers');
-    const canEdit = hasPermission('edit_suppliers');
-    const canDelete = hasPermission('delete_suppliers');
+    const canAdd = hasPermission(ActionsEnum.DELETE, ResourcesEnum.SUPPLIERS);
+    const canEdit = hasPermission(ActionsEnum.DELETE, ResourcesEnum.SUPPLIERS);
+    const canDelete = hasPermission(ActionsEnum.DELETE, ResourcesEnum.SUPPLIERS);
 
     const columns = createColumns(openEditDialog, openDeleteDialog, canEdit, canDelete);
 

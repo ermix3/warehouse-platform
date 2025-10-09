@@ -1,6 +1,7 @@
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { ActionsEnum, ResourcesEnum } from '@/enums';
 import { dashboard } from '@/routes';
 import customers from '@/routes/customers';
 import orders from '@/routes/orders';
@@ -10,7 +11,6 @@ import shipments from '@/routes/shipments';
 import suppliers from '@/routes/suppliers';
 import users from '@/routes/users';
 import type { NavItem } from '@/types';
-import { RolesEnum } from '@/types/enums';
 import { Link } from '@inertiajs/react';
 import { Cog, Handshake, LayoutGrid, Ship, ShoppingBag, ShoppingCart, UserRoundCog, UsersRound } from 'lucide-react';
 import AppLogo from './app-logo';
@@ -20,31 +20,51 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
-        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT, RolesEnum.CUSTOMER],
     },
     {
         title: 'Products',
         href: products.index(),
         icon: ShoppingBag,
-        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT],
+        permissions: [
+            `${ActionsEnum.VIEW}_${ResourcesEnum.PRODUCTS}`,
+            `${ActionsEnum.CREATE}_${ResourcesEnum.PRODUCTS}`,
+            `${ActionsEnum.EDIT}_${ResourcesEnum.PRODUCTS}`,
+            `${ActionsEnum.DELETE}_${ResourcesEnum.PRODUCTS}`,
+        ],
     },
     {
         title: 'Orders',
         href: orders.index(),
         icon: ShoppingCart,
-        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT, RolesEnum.CUSTOMER],
+        permissions: [
+            `${ActionsEnum.VIEW}_${ResourcesEnum.ORDERS}`,
+            `${ActionsEnum.VIEW_OWN}_${ResourcesEnum.ORDERS}`,
+            `${ActionsEnum.CREATE}_${ResourcesEnum.ORDERS}`,
+            `${ActionsEnum.EDIT}_${ResourcesEnum.ORDERS}`,
+            `${ActionsEnum.DELETE}_${ResourcesEnum.ORDERS}`,
+        ],
     },
     {
         title: 'Suppliers',
         href: suppliers.index(),
         icon: Handshake,
-        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT],
+        permissions: [
+            `${ActionsEnum.VIEW}_${ResourcesEnum.SUPPLIERS}`,
+            `${ActionsEnum.CREATE}_${ResourcesEnum.SUPPLIERS}`,
+            `${ActionsEnum.EDIT}_${ResourcesEnum.SUPPLIERS}`,
+            `${ActionsEnum.DELETE}_${ResourcesEnum.SUPPLIERS}`,
+        ],
     },
     {
         title: 'Customers',
         href: customers.index(),
         icon: UsersRound,
-        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT],
+        permissions: [
+            `${ActionsEnum.VIEW}_${ResourcesEnum.CUSTOMERS}`,
+            `${ActionsEnum.CREATE}_${ResourcesEnum.CUSTOMERS}`,
+            `${ActionsEnum.EDIT}_${ResourcesEnum.CUSTOMERS}`,
+            `${ActionsEnum.DELETE}_${ResourcesEnum.CUSTOMERS}`,
+        ],
     },
 ];
 
@@ -53,19 +73,36 @@ const footerNavItems: NavItem[] = [
         title: 'Shipments',
         href: shipments.index(),
         icon: Ship,
-        roles: [RolesEnum.ADMIN, RolesEnum.STAFF, RolesEnum.ACCOUNTANT, RolesEnum.CUSTOMER],
+        permissions: [
+            `${ActionsEnum.VIEW}_${ResourcesEnum.SHIPMENTS}`,
+            `${ActionsEnum.VIEW_OWN}_${ResourcesEnum.SHIPMENTS}`,
+            `${ActionsEnum.CREATE}_${ResourcesEnum.SHIPMENTS}`,
+            `${ActionsEnum.EDIT}_${ResourcesEnum.SHIPMENTS}`,
+            `${ActionsEnum.DELETE}_${ResourcesEnum.SHIPMENTS}`,
+            `${ActionsEnum.TRACK_OWN}_${ResourcesEnum.SHIPMENTS}`,
+        ],
     },
     {
         title: 'Users',
         href: users.index(),
         icon: UserRoundCog,
-        roles: [RolesEnum.ADMIN],
+        permissions: [
+            `${ActionsEnum.VIEW}_${ResourcesEnum.USERS}`,
+            `${ActionsEnum.CREATE}_${ResourcesEnum.USERS}`,
+            `${ActionsEnum.EDIT}_${ResourcesEnum.USERS}`,
+            `${ActionsEnum.DELETE}_${ResourcesEnum.USERS}`,
+        ],
     },
     {
         title: 'Roles',
         href: roles.index(),
         icon: Cog,
-        roles: [RolesEnum.ADMIN],
+        permissions: [
+            `${ActionsEnum.VIEW}_${ResourcesEnum.ROLES}`,
+            `${ActionsEnum.CREATE}_${ResourcesEnum.ROLES}`,
+            `${ActionsEnum.EDIT}_${ResourcesEnum.ROLES}`,
+            `${ActionsEnum.DELETE}_${ResourcesEnum.ROLES}`,
+        ],
     },
 ];
 
