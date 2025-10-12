@@ -1,14 +1,14 @@
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { UserInfo } from '@/components/user-info';
+import { Appearance, useAppearance } from '@/hooks/use-appearance';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
+import { cn } from '@/lib/utils';
 import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import { type User } from '@/types';
 import { Link, router } from '@inertiajs/react';
-import { LogOut, Settings, Sun, Moon, Monitor, Palette } from 'lucide-react';
-import { Appearance, useAppearance } from '@/hooks/use-appearance';
-import { cn } from '@/lib/utils';
+import { LogOut, Monitor, Moon, Palette, Settings, Sun } from 'lucide-react';
 
 interface UserMenuContentProps {
     user: User;
@@ -55,7 +55,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
                                                 'flex h-7 w-7 items-center justify-center rounded-md transition-colors',
                                                 appearance === value
                                                     ? 'bg-neutral-100 dark:bg-neutral-700'
-                                                    : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                                                    : 'hover:bg-neutral-100 dark:hover:bg-neutral-800',
                                             )}
                                         >
                                             <Icon className="h-4 w-4" />
