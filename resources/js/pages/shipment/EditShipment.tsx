@@ -146,10 +146,10 @@ export default function EditShipment({ open, onOpenChange, shipment }: Readonly<
                     )}
 
                     <DialogFooter className="sticky bottom-0 border-t bg-background px-5 py-3">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={processing}>
+                        <Button type="button" variant="outline" className="cursor-pointer" onClick={() => onOpenChange(false)} disabled={processing}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={processing} className={'px-6'}>
+                        <Button type="submit" disabled={processing} className={'cursor-pointer px-6'}>
                             <span
                                 className={
                                     processing ? 'absolute opacity-0 transition-opacity duration-300' : 'opacity-100 transition-opacity duration-300'

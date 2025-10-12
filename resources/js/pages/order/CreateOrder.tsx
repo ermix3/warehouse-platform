@@ -341,7 +341,7 @@ export default function CreateOrder({
                                 disabled
                             />
                         </div>
-                        <Button type="submit" disabled={processing} className={'ml-auto px-6'}>
+                        <Button type="submit" disabled={processing} className={'ml-auto cursor-pointer px-6'}>
                             <span
                                 className={
                                     processing ? 'absolute opacity-0 transition-opacity duration-300' : 'opacity-100 transition-opacity duration-300'

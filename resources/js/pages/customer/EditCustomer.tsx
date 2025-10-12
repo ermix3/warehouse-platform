@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -172,11 +172,11 @@ export default function EditCustomer({ open, onOpenChange, customer }: Readonly<
                         {errors.notes && <div className="mt-1 text-sm text-red-600">{errors.notes}</div>}
                     </div>
 
-                    <div className="flex justify-end space-x-2">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                    <DialogFooter className="sticky bottom-0 border-t bg-background px-6 py-3">
+                        <Button type="button" variant="outline" className="cursor-pointer" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={processing} className={'px-6'}>
+                        <Button type="submit" disabled={processing} className={'cursor-pointer px-6'}>
                             <span
                                 className={
                                     processing ? 'absolute opacity-0 transition-opacity duration-300' : 'opacity-100 transition-opacity duration-300'
@@ -192,7 +192,7 @@ export default function EditCustomer({ open, onOpenChange, customer }: Readonly<
                                 <Loader2 className="h-4 w-4 animate-spin" />
                             </span>
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>

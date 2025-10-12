@@ -174,10 +174,10 @@ export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCu
                     </div>
 
                     <DialogFooter className="sticky bottom-0 border-t bg-background px-6 py-3">
-                        <Button type="button" variant="outline" onClick={() => handleDialogChange(false)}>
+                        <Button type="button" variant="outline" className="cursor-pointer" onClick={() => handleDialogChange(false)}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={processing} className={'px-6'}>
+                        <Button type="submit" disabled={processing} className={'cursor-pointer px-6'}>
                             <span
                                 className={
                                     processing ? 'absolute opacity-0 transition-opacity duration-300' : 'opacity-100 transition-opacity duration-300'

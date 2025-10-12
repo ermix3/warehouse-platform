@@ -121,17 +121,17 @@ export default function CreateShipment({ open, onOpenChange }: Readonly<CreateSh
                     </div>
 
                     <DialogFooter className="sticky bottom-0 border-t bg-background px-5 py-3">
-                        <Button type="button" variant="outline" onClick={() => handleDialogChange(false)} disabled={processing}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="cursor-pointer"
+                            onClick={() => handleDialogChange(false)}
+                            disabled={processing}
+                        >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={processing} className={'px-6'}>
-                            <span
-                                className={
-                                    processing ? 'absolute opacity-0 transition-opacity duration-300' : 'opacity-100 transition-opacity duration-300'
-                                }
-                            >
-                                Create
-                            </span>
+                        <Button type="submit" disabled={processing} className={'cursor-pointer px-6'}>
+                            <span className={`${processing ? 'absolute opacity-0' : 'opacity-100'} transition-opacity duration-300`}>Create</span>
                             <span
                                 className={
                                     processing ? 'opacity-100 transition-opacity duration-300' : 'absolute opacity-0 transition-opacity duration-300'

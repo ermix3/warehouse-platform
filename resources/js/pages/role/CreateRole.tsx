@@ -84,12 +84,18 @@ export default function CreateRole({ open, onOpenChange, permissions }: Readonly
                     </div>
 
                     <DialogFooter className="sticky bottom-0 border-t bg-background px-6 py-3">
-                        <Button type="button" variant="outline" onClick={() => handleDialogChange(false)} disabled={processing}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="cursor-pointer"
+                            onClick={() => handleDialogChange(false)}
+                            disabled={processing}
+                        >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={processing}>
+                        <Button type="submit" disabled={processing} className={'cursor-pointer px-6'}>
                             {processing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            {processing ? 'Creating...' : 'Create Role'}
+                            {processing ? 'Creating...' : 'Create'}
                         </Button>
                     </DialogFooter>
                 </form>

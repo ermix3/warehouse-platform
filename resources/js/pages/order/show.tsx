@@ -20,7 +20,7 @@ import { Head, router } from '@inertiajs/react';
 import { Info, TextSearch } from 'lucide-react';
 import { useState } from 'react';
 
-export function ShowOrderPage({ order, orderItems, products, customers, shipments, suppliers, flash }: Readonly<ShowOrderProps>) {
+export default function ShowOrder({ order, orderItems, products, customers, shipments, suppliers, flash }: Readonly<ShowOrderProps>) {
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showCreateProductDialog, setShowCreateProductDialog] = useState(false);
 
