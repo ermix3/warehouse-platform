@@ -107,16 +107,13 @@ export default function CreateProduct({ open, onOpenChange }: Readonly<CreatePro
                         </div>
 
                         <div>
-                            <Label htmlFor="create-hs_code">
-                                HS Code <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
-                            </Label>
+                            <Label htmlFor="create-hs_code">HS Code</Label>
                             <Input
                                 id="create-hs_code"
                                 type="text"
                                 placeholder="e.g., 9403.20"
                                 value={data.hs_code}
                                 onChange={(e) => setData('hs_code', e.target.value)}
-                                required
                             />
                             {errors.hs_code && <div className="mt-1 text-sm text-red-600">{errors.hs_code}</div>}
                         </div>

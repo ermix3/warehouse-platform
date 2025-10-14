@@ -32,6 +32,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::apiResource('orders', OrderController::class);
 
     Route::apiResource('roles', RoleController::class)->except('show');
+    Route::prefix('orders')
+        ->name('orders.')
+        ->group(function () {
+            Route::post('{order}/order-items', [OrderController::class, 'attachProduct'])->name('attachProduct');
+            Route::delete('{order}/order-items/{orderItem}', [OrderController::class, 'detachProduct'])->name('detachProduct');
+        });
 });
 
 require __DIR__ . '/settings.php';

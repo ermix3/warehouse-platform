@@ -39,11 +39,6 @@ export interface EditShipmentProps extends CreateShipmentProps {
     shipment: Shipment | null;
 }
 
-interface ShowShipmentFilters {
-    orders_search?: string;
-    customers_search?: string;
-}
-
 export interface ShowShipmentProps extends Pick<SharedData, 'flash'> {
     shipment: Shipment;
     orders: DataPagination<Order>;
@@ -52,6 +47,5 @@ export interface ShowShipmentProps extends Pick<SharedData, 'flash'> {
     shipments: ShipmentLite[];
     products: Product[];
     suppliers: SupplierLite[];
-    filters: ShowShipmentFilters;
     [key: string]: unknown;
 }

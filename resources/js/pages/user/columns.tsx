@@ -2,7 +2,6 @@ import { ActionsCell } from '@/components/shared';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User } from '@/types';
 import { ColumnDef, Row } from '@tanstack/react-table';
-import { CheckCircle, XCircle } from 'lucide-react';
 
 export const createColumns = (
     onEdit: (user: User) => void,
@@ -40,18 +39,19 @@ export const createColumns = (
     {
         accessorKey: 'email',
         header: 'Email',
+        enableSorting: false,
         cell: ({ row }) => row.original.email || '-',
     },
-    {
-        accessorKey: 'email_verified_at',
-        header: 'Verified',
-        enableSorting: false,
-        cell: ({ row }) => (
-            <div className="flex items-center justify-center">
-                {row.original.email_verified_at ? <CheckCircle className="h-5 w-5 text-green-600" /> : <XCircle className="h-5 w-5 text-red-600" />}
-            </div>
-        ),
-    },
+    // {
+    //     accessorKey: 'email_verified_at',
+    //     header: 'Verified',
+    //     enableSorting: false,
+    //     cell: ({ row }) => (
+    //         <div className="flex items-center justify-center">
+    //             {row.original.email_verified_at ? <CheckCircle className="h-5 w-5 text-green-600" /> : <XCircle className="h-5 w-5 text-red-600" />}
+    //         </div>
+    //     ),
+    // },
     {
         accessorKey: 'created_at',
         header: 'Created',

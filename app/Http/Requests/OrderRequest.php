@@ -24,15 +24,19 @@ class OrderRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'fromShipmentDetails' => 'nullable|bool',
             'order_number' => 'required|string|max:255|unique:orders,order_number,' . $this->order?->id,
             'status' => 'required|string|in:' . implode(',', OrderStatus::values()),
             'total' => 'required|numeric|min:0',
             'customer_id' => 'required|exists:customers,id',
             'supplier_id' => 'nullable|exists:suppliers,id',
             'shipment_id' => 'nullable|exists:shipments,id',
-            'order_items' => 'required|array|min:1',
-            'order_items.*.product_id' => 'required|exists:products,id',
-            'order_items.*.ctn' => 'required|integer|min:1',
+            'order_items' => [
+                'array',
+                'required_if:fromShipmentDetails,false',
+            ],
+            'order_items.*.product_id' => 'required_with:order_items|exists:products,id',
+            'order_items.*.ctn' => 'required_with:order_items|integer|min:1',
         ];
     }
 
@@ -56,7 +60,7 @@ class OrderRequest extends FormRequest
             'customer_id.exists' => 'The selected customer does not exist.',
             'supplier_id.exists' => 'The selected supplier is invalid.',
             'shipment_id.exists' => 'The selected shipment does not exist.',
-            'order_items.required' => 'At least one order item is required.',
+            'order_items.required_if' => 'At least one order item is required.',
             'order_items.array' => 'Order items must be provided as an array.',
             'order_items.min' => 'At least one order item is required.',
             'order_items.*.product_id.required' => 'Please select a product for each order item.',
@@ -93,6 +97,7 @@ class OrderRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
+            'fromShipmentDetails' => (bool)$this->fromShipmentDetails,
             'order_number' => trim($this->order_number ?? ''),
             'status' => $this->status ?? OrderStatus::DRAFT->value,
             'total' => $this->total ?? 0,

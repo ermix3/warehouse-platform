@@ -55,7 +55,14 @@ export default function CreateOrder({
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setData('total', +itemsTotal.toFixed(2));
-        post(store.url(), {
+        const storeOrderUrl = customer_id
+            ? store.url({
+                  query: {
+                      fromShipmentDetails: true,
+                  },
+              })
+            : store.url();
+        post(storeOrderUrl, {
             onSuccess: () => {
                 onOpenChange(false);
                 reset();
@@ -147,7 +154,7 @@ export default function CreateOrder({
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 gap-4 px-5 md:grid-cols-2">
+                    <div className="mb-2 grid grid-cols-1 gap-4 px-5 md:grid-cols-2">
                         <div>
                             <Label htmlFor="create-order_number">
                                 Order Number <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
@@ -229,7 +236,7 @@ export default function CreateOrder({
                         </div>
                     </div>
 
-                    <div className="px-5">
+                    <div className={`px-5 ${customer_id ? 'hidden' : ''}`}>
                         <div>
                             <MyDivider label="Items" />
                             <div className="grid grid-cols-12 gap-2">
@@ -326,7 +333,7 @@ export default function CreateOrder({
                     </div>
 
                     <DialogFooter className="sticky bottom-0 border-t bg-background px-5 py-3">
-                        <div className={'flex items-center gap-0'}>
+                        <div className={`flex items-center gap-0 ${customer_id ? 'hidden' : ''}`}>
                             <Label htmlFor="create-total" className={'font-bolder mb-0 flex-1'}>
                                 Total Amount (auto) : AED {itemsTotal.toFixed(2)}
                             </Label>

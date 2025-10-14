@@ -136,16 +136,13 @@ export default function EditProduct({ open, onOpenChange, product }: Readonly<Ed
                         </div>
 
                         <div>
-                            <Label htmlFor="edit-hs_code">
-                                HS Code <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
-                            </Label>
+                            <Label htmlFor="edit-hs_code">HS Code</Label>
                             <Input
                                 id="edit-hs_code"
                                 type="text"
                                 placeholder="e.g., 9403.20"
                                 value={data.hs_code}
                                 onChange={(e) => setData('hs_code', e.target.value)}
-                                required
                             />
                             {errors.hs_code && <div className="mt-1 text-sm text-red-600">{errors.hs_code}</div>}
                         </div>

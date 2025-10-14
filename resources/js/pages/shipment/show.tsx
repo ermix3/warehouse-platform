@@ -2,7 +2,6 @@ import { DeleteItem, ExportData, Pagination } from '@/components/shared';
 import MyTooltip from '@/components/shared/my-tooltip';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { ActionsEnum, ResourcesEnum } from '@/enums';
@@ -22,10 +21,8 @@ import CreateCustomer from '../customer/CreateCustomer';
 import CreateOrder from '../order/CreateOrder';
 
 export default function ShipmentShowPage() {
-    const { shipment, orders, customers, allCustomers, products, shipments, suppliers, filters, flash } = usePage<ShowShipmentProps>().props;
+    const { shipment, orders, customers, allCustomers, products, shipments, suppliers, flash } = usePage<ShowShipmentProps>().props;
 
-    const [ordersSearch, setOrdersSearch] = useState(filters.orders_search ?? '');
-    const [customersSearch, setCustomersSearch] = useState(filters.customers_search ?? '');
     const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
     const [selectedCustomerIdToAttachOrder, setSelectedCustomerIdToAttachOrder] = useState<string>('');
     const [showCreateCustomerDialog, setShowCreateCustomerDialog] = useState(false);
@@ -39,16 +36,6 @@ export default function ShipmentShowPage() {
     const openCreateOrderDialog = (customerId: string) => {
         setShowCreateOrderDialog(true);
         setSelectedCustomerId(customerId);
-    };
-
-    const searchOrders = (e: React.FormEvent) => {
-        e.preventDefault();
-        router.get(show.url(shipment.id), { ...filters, orders_search: ordersSearch }, { preserveScroll: true });
-    };
-
-    const searchCustomers = (e: React.FormEvent) => {
-        e.preventDefault();
-        router.get(show.url(shipment.id), { ...filters, customers_search: customersSearch }, { preserveScroll: true });
     };
 
     const customerOptions: SelectOption[] = allCustomers.map((c) => ({
@@ -179,10 +166,6 @@ export default function ShipmentShowPage() {
                 <Card>
                     <CardHeader className="flex flex-col gap-2">
                         <CardTitle>Customers</CardTitle>
-                        <form onSubmit={searchCustomers} className="flex gap-2">
-                            <Input value={customersSearch} onChange={(e) => setCustomersSearch(e.target.value)} placeholder="Search customers..." />
-                            <Button type="submit">Search</Button>
-                        </form>
                     </CardHeader>
                     <CardContent>
                         {(canAddOrder || canAddCustomer) && (
@@ -291,10 +274,6 @@ export default function ShipmentShowPage() {
                 <Card>
                     <CardHeader className="flex flex-col gap-2">
                         <CardTitle>Orders</CardTitle>
-                        <form onSubmit={searchOrders} className="flex gap-2">
-                            <Input value={ordersSearch} onChange={(e) => setOrdersSearch(e.target.value)} placeholder="Search orders..." />
-                            <Button type="submit">Search</Button>
-                        </form>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto">

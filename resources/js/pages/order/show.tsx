@@ -1,8 +1,11 @@
-import { ExportData } from '@/components/shared';
+import { DeleteItem, ExportData } from '@/components/shared';
 import MyTooltip from '@/components/shared/my-tooltip';
 import { Pagination } from '@/components/shared/pagination';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ActionsEnum, ResourcesEnum } from '@/enums';
 import { usePermission } from '@/hooks/use-permission';
@@ -10,22 +13,67 @@ import AppLayout from '@/layouts/app-layout';
 import { OrderStatusBadge } from '@/lib/order-status-helper';
 import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
 import { getFormattedAmount } from '@/lib/utils';
-import EditOrder from '@/pages/order/EditOrder';
 import CreateProduct from '@/pages/product/CreateProduct';
 import { dashboard } from '@/routes';
-import { index, show } from '@/routes/orders';
+import { attachProduct, detachProduct, index, show } from '@/routes/orders';
 import { exportData, show as showShipment } from '@/routes/shipments';
-import { BreadcrumbItem, OrderItemLite, ShowOrderProps } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { Info, TextSearch } from 'lucide-react';
-import { useState } from 'react';
+import { BreadcrumbItem, OrderItemLite, SelectOption, ShowOrderProps } from '@/types';
+import { Head, router, useForm } from '@inertiajs/react';
+import { Asterisk, Info, TextSearch, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
 
-export default function ShowOrder({ order, orderItems, products, customers, shipments, suppliers, flash }: Readonly<ShowOrderProps>) {
-    const [showEditDialog, setShowEditDialog] = useState(false);
+export default function ShowOrder({ order, orderItems, products, flash }: Readonly<ShowOrderProps>) {
     const [showCreateProductDialog, setShowCreateProductDialog] = useState(false);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [deleteOrderItem, setDeleteOrderItem] = useState<OrderItemLite | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const { data, setData, post, processing, errors, reset, isDirty } = useForm({
+        product_id: '',
+        ctn: 1,
+    });
+
+    const productOptions: SelectOption[] = products.map((p) => ({ value: p.id.toString(), label: `${p.barcode} - ${p.name}` }));
+
+    const handleAttach = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(attachProduct.url(order.id), {
+            preserveScroll: true,
+            onSuccess: () => reset(),
+        });
+    };
+
+    const handleDelete = () => {
+        if (!deleteOrderItem) return;
+
+        setIsDeleting(true);
+        router.delete(detachProduct.url({ order: order.id, orderItem: deleteOrderItem.id }), {
+            onSuccess: () => {
+                setShowDeleteDialog(false);
+                setDeleteOrderItem(null);
+            },
+            onError: (error) => {
+                console.error('Failed to detach product: ', error);
+            },
+            onFinish: () => {
+                setIsDeleting(false);
+            },
+        });
+    };
+
+    const openDeleteDialog = (orderItem: OrderItemLite) => {
+        setDeleteOrderItem(orderItem);
+        setShowDeleteDialog(true);
+    };
+
+    const closeDeleteDialog = () => {
+        if (!isDeleting) {
+            setShowDeleteDialog(false);
+            setDeleteOrderItem(null);
+        }
+    };
 
     const getOrderSum = (orderItems: OrderItemLite[]) => {
-        return orderItems.reduce((sum, item) => sum + item.ctn * item.product.box_qtt, 0);
+        return orderItems.reduce((sum, item) => sum + item.ctn, 0);
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -52,7 +100,6 @@ export default function ShowOrder({ order, orderItems, products, customers, ship
     //#############//####################//#############
     const { hasPermission } = usePermission();
     const canAddProduct = hasPermission(ActionsEnum.CREATE, ResourcesEnum.PRODUCTS);
-    const canEditOrder = hasPermission(ActionsEnum.EDIT, ResourcesEnum.ORDERS);
     const canExportShipments = hasPermission(ActionsEnum.EXPORT, ResourcesEnum.SHIPMENTS);
     const canViewShipments = hasPermission(ActionsEnum.VIEW, ResourcesEnum.SHIPMENTS);
 
@@ -76,7 +123,10 @@ export default function ShowOrder({ order, orderItems, products, customers, ship
                                 <b>Total:</b> {getFormattedAmount(order.total)}
                             </div>
                             <div>
-                                <b>Sum:</b> {getOrderSum(order.items)}
+                                <b>Total CTN:</b> {getOrderSum(order.items)}
+                            </div>
+                            <div>
+                                <b>Supplier:</b> {order.supplier?.name || '-'}
                             </div>
                             <div>
                                 <b>Created At:</b> {order.created_at ? new Date(order.created_at).toLocaleString() : '-'}
@@ -162,28 +212,70 @@ export default function ShowOrder({ order, orderItems, products, customers, ship
                     </Card>
                 </div>
 
-                {/* Attach Products Card */}
-                {(canAddProduct || canEditOrder) && (
-                    <details className="mb-4 rounded border p-3" open>
-                        <summary className="cursor-pointer font-medium">Attach Products</summary>
-                        <div className="flex items-center justify-center gap-4">
-                            {canAddProduct && (
-                                <Button type="button" className="hover:cursor-pointer" onClick={() => setShowCreateProductDialog(true)}>
-                                    No product found
+                {/* Attach Product Card */}
+                <div className="mb-4">
+                    <details className="rounded border p-3" open>
+                        <summary className="cursor-pointer font-medium">Attach Product</summary>
+                        <form onSubmit={handleAttach} className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-4">
+                            <div>
+                                <Label htmlFor="product">
+                                    Product <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                                </Label>
+                                <SearchableSelect
+                                    options={productOptions}
+                                    value={data.product_id}
+                                    onValueChange={(value) => setData('product_id', value)}
+                                    placeholder="Search and select product..."
+                                />
+                                {errors.product_id && <div className="mt-1 text-sm text-red-500">{errors.product_id}</div>}
+                            </div>
+                            <div>
+                                <Label htmlFor="ctn">
+                                    Cartons (CTN) <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                                </Label>
+                                <Input
+                                    id="ctn"
+                                    type="number"
+                                    min={1}
+                                    value={data.ctn}
+                                    onChange={(e) => setData('ctn', Number.parseInt(e.target.value) || 1)}
+                                    className=""
+                                />
+                                {errors.ctn && <div className="mt-1 text-sm text-red-500">{errors.ctn}</div>}
+                            </div>
+                            <div className="flex items-end space-x-2">
+                                <Button type="submit" className="hover:cursor-pointer" disabled={processing || !isDirty}>
+                                    {processing ? 'Creating...' : 'Attach'}
                                 </Button>
-                            )}
-                            {canEditOrder && (
-                                <Button variant="outline" className="hover:cursor-pointer" onClick={() => setShowEditDialog(true)}>
-                                    Attach products
-                                </Button>
-                            )}
-                        </div>
+                                {isDirty && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="hover:cursor-pointer"
+                                        onClick={() => reset()}
+                                        disabled={processing}
+                                    >
+                                        Cancel
+                                    </Button>
+                                )}
+                                {!isDirty && canAddProduct && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="ring-1 ring-gray-300 ring-inset hover:cursor-pointer hover:ring-gray-400"
+                                        onClick={() => setShowCreateProductDialog(true)}
+                                    >
+                                        No product found
+                                    </Button>
+                                )}
+                            </div>
+                        </form>
                     </details>
-                )}
+                </div>
 
                 {/* Order Items Table */}
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="border-b-1 border-b-gray-100">
                         <CardTitle>Order Items</CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -198,6 +290,7 @@ export default function ShowOrder({ order, orderItems, products, customers, ship
                                         <TableHead>Sum</TableHead>
                                         <TableHead>Unit Price</TableHead>
                                         <TableHead>Total</TableHead>
+                                        <TableHead>Action</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -212,7 +305,7 @@ export default function ShowOrder({ order, orderItems, products, customers, ship
                                             .toSorted((a, b) => a.id - b.id)
                                             .map(({ id, ctn, product }, index) => (
                                                 <TableRow key={id}>
-                                                    <TableCell>{index + 1}</TableCell>
+                                                    <TableCell>{`${order.customer.code}-${order?.supplier?.code}-${order.order_number}-${index}`}</TableCell>
                                                     <TableCell>{product.barcode + ' - ' + product.name}</TableCell>
                                                     <TableCell>{product.box_qtt || '-'}</TableCell>
                                                     <TableCell>{ctn}</TableCell>
@@ -220,6 +313,17 @@ export default function ShowOrder({ order, orderItems, products, customers, ship
                                                     <TableCell>{getFormattedAmount(product.unit_price ?? 0)}</TableCell>
                                                     <TableCell>
                                                         {getFormattedAmount(Number(product.unit_price) * (product.box_qtt ?? 0) * (ctn || 0))}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Button
+                                                            type="button"
+                                                            variant="destructive"
+                                                            size="sm"
+                                                            className="hover:cursor-pointer"
+                                                            onClick={() => openDeleteDialog({ id, ctn, product })}
+                                                        >
+                                                            <Trash2 color={'white'} />
+                                                        </Button>
                                                     </TableCell>
                                                 </TableRow>
                                             ))
@@ -232,19 +336,19 @@ export default function ShowOrder({ order, orderItems, products, customers, ship
                 </Card>
             </div>
 
-            {/* Edit current order */}
-            <EditOrder
-                open={showEditDialog}
-                onOpenChange={setShowEditDialog}
-                order={order}
-                customers={customers}
-                suppliers={suppliers}
-                shipments={shipments}
-                products={products}
-            />
-
             {/* Add product */}
             <CreateProduct open={showCreateProductDialog} onOpenChange={setShowCreateProductDialog} />
+
+            {/* Delete OrderItem */}
+            <DeleteItem
+                open={showDeleteDialog}
+                onOpenChange={closeDeleteDialog}
+                title="Detach Product"
+                itemName={deleteOrderItem?.product.barcode + ' - ' + deleteOrderItem?.product.name}
+                description="Are you sure you want to detach product? This action cannot be undone."
+                isDeleting={isDeleting}
+                onDelete={handleDelete}
+            />
         </AppLayout>
     );
 }

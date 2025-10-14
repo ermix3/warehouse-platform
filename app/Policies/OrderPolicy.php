@@ -27,12 +27,12 @@ class OrderPolicy
         if ($user->hasPermissionTo('view_orders')) {
             return true;
         }
-        
+
         // Or if they're the customer and can view their own orders
         if ($user->hasPermissionTo('view_own_orders') && $order->customer_id === $user->id) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -50,7 +50,7 @@ class OrderPolicy
     public function update(User $user, Order $order): bool
     {
         // Only allow updates if the order is not yet processed
-        return $user->hasPermissionTo('edit_orders') && !$order->isProcessed();
+        return $user->hasPermissionTo('edit_orders');
     }
 
     /**
@@ -59,7 +59,7 @@ class OrderPolicy
     public function delete(User $user, Order $order): bool
     {
         // Only allow deletion if the order is not yet processed
-        return $user->hasPermissionTo('delete_orders') && !$order->isProcessed();
+        return $user->hasPermissionTo('delete_orders');
     }
 
     /**
@@ -67,6 +67,6 @@ class OrderPolicy
      */
     public function process(User $user, Order $order): bool
     {
-        return $user->hasPermissionTo('process_orders') && !$order->isProcessed();
+        return $user->hasPermissionTo('process_orders');
     }
 }

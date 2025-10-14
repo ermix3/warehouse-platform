@@ -5,7 +5,7 @@ export interface ProductRequest {
     name: string;
     description: string;
     origin: string;
-    hs_code: string;
+    hs_code?: string;
     unit_price: number;
     box_qtt: number;
     height: number;

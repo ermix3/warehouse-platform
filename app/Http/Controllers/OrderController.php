@@ -6,6 +6,7 @@ use App\Enums\RolesEnum;
 use App\Http\Requests\OrderRequest;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Shipment;
 use App\Models\Supplier;
@@ -70,21 +71,24 @@ class OrderController extends Controller
      */
     public function store(OrderRequest $request)
     {
+        $isFromShipmentDetails = $request->fromShipmentDetails;
         $this->authorize('create', Order::class);
 
         DB::beginTransaction();
         try {
             $validated = $request->validated();
+            unset($validated['fromShipmentDetails']);
             $order = Order::create($validated);
+            if (!$isFromShipmentDetails) {
+                // Save order items
+                $order->items()->createMany($request->order_items);
 
-            // Save order items
-            $order->items()->createMany($request->order_items);
+                // Recalculate order total based on items and products
+                $order->recalculateTotal();
 
-            // Recalculate order total based on items and products
-            $order->recalculateTotal();
-
-            // Update shipment total if applicable
-            $order->refreshShipmentTotal();
+                // Update shipment total if applicable
+                $order->refreshShipmentTotal();
+            }
 
             DB::commit();
             return back()->with('success', 'Order created successfully.');
@@ -178,5 +182,41 @@ class OrderController extends Controller
             'suppliers' => $suppliers,
             'shipments' => $shipments,
         ]);
+    }
+
+
+    /**
+     * Attach a product to the order (add an order item).
+     */
+    public function attachProduct(Request $request, Order $order)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'ctn' => 'required|integer|min:1',
+        ]);
+        $order->items()->create([
+            'product_id' => $request->input('product_id'),
+            'ctn' => $request->input('ctn'),
+        ]);
+        $order->recalculateTotal();
+        $order->refreshShipmentTotal();
+        return redirect()->route('orders.show', $order->id)->with('success', 'Product attached to order.');
+    }
+
+    /**
+     * Detach a product from the order (remove an order item).
+     */
+    public function detachProduct(Order $order, OrderItem $orderItem)
+    {
+        $this->authorize('update', $order);
+
+        // To check if the order item exist in the order
+        $order->items()->findOrFail($orderItem->id);
+        $orderItem->delete();
+
+        $order->recalculateTotal();
+        $order->refreshShipmentTotal();
+
+        return redirect()->route('orders.show', $order->id)->with('success', 'Product detached from order.');
     }
 }

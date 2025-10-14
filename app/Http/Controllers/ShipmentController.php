@@ -146,19 +146,14 @@ class ShipmentController extends Controller
     public function show(Request $request, Shipment $shipment): Response
     {
         $this->authorize('view', $shipment);
+
         // Orders for this shipment with pagination
-        $ordersQuery = $shipment->orders()
+        $orders = $shipment->orders()
             ->with('customer')
             ->withCount('items')
-            ->orderBy('id', 'desc');
-        if ($search = $request->get('orders_search')) {
-            $ordersQuery->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%$search%")
-                    ->orWhere('status', 'like', "%$search%")
-                    ->orWhere('total', 'like', "%$search%");
-            });
-        }
-        $orders = $ordersQuery->paginate(10, ['*'], 'orders_page')->appends($request->query());
+            ->orderBy('id', 'desc')
+            ->paginate(10, ['*'], 'orders_page')
+            ->appends($request->query());
 
         // Customers that have orders in this shipment (distinct) with pagination
         $customersQuery = $shipment->orders()
@@ -170,14 +165,9 @@ class ShipmentController extends Controller
         // To paginate distinct customers, fetch IDs then query customers
         $customerIds = $customersQuery->pluck('customer_id')->toArray();
         $customersPaginator = Customer::whereIn('id', $customerIds)->latest();
-        if ($search = $request->get('customers_search')) {
-            $customersPaginator->where(function ($q) use ($search) {
-                $q->where('code', 'like', "%$search%")
-                    ->orWhere('name', 'like', "%$search%")
-                    ->orWhere('phone', 'like', "%$search%");
-            });
-        }
-        $customers = $customersPaginator->paginate(10, ['*'], 'customers_page')->appends($request->query());
+        $customers = $customersPaginator
+            ->paginate(10, ['*'], 'customers_page')
+            ->appends($request->query());
 
         $allCustomers = Customer::latest()->get(['id', 'code', 'name']);
         $products = Product::latest()->get();
@@ -192,11 +182,6 @@ class ShipmentController extends Controller
             'products' => $products,
             'suppliers' => $suppliers,
             'shipments' => $shipments,
-            'filters' => [
-                'orders_search' => $request->get('orders_search', ''),
-                'customers_search' => $request->get('customers_search', ''),
-                'all_customers_search' => $request->get('all_customers_search', ''),
-            ],
         ]);
     }
 
