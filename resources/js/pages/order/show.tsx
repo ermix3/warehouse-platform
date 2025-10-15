@@ -216,8 +216,8 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                 <div className="mb-4">
                     <details className="rounded border p-3" open>
                         <summary className="cursor-pointer font-medium">Attach Product</summary>
-                        <form onSubmit={handleAttach} className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-4">
-                            <div>
+                        <form onSubmit={handleAttach} className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-12">
+                            <div className='md:col-span-8'>
                                 <Label htmlFor="product">
                                     Product <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                                 </Label>
@@ -229,9 +229,9 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                                 />
                                 {errors.product_id && <div className="mt-1 text-sm text-red-500">{errors.product_id}</div>}
                             </div>
-                            <div>
+                            <div className='md:col-span-1'>
                                 <Label htmlFor="ctn">
-                                    Cartons (CTN) <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                                    CTN<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                                 </Label>
                                 <Input
                                     id="ctn"
@@ -243,7 +243,7 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                                 />
                                 {errors.ctn && <div className="mt-1 text-sm text-red-500">{errors.ctn}</div>}
                             </div>
-                            <div className="flex items-end space-x-2">
+                            <div className="flex items-end space-x-2 md:col-span-3">
                                 <Button type="submit" className="hover:cursor-pointer" disabled={processing || !isDirty}>
                                     {processing ? 'Creating...' : 'Attach'}
                                 </Button>
@@ -305,7 +305,7 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                                             .toSorted((a, b) => a.id - b.id)
                                             .map(({ id, ctn, product }, index) => (
                                                 <TableRow key={id}>
-                                                    <TableCell>{`${order.customer.code}-${order?.supplier?.code}-${order.order_number}-${index}`}</TableCell>
+                                                    <TableCell>{`${order.customer.code}-${order?.supplier?.code}-${order.order_number}-${index+1}`}</TableCell>
                                                     <TableCell>{product.barcode + ' - ' + product.name}</TableCell>
                                                     <TableCell>{product.box_qtt || '-'}</TableCell>
                                                     <TableCell>{ctn}</TableCell>
