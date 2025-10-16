@@ -25,6 +25,9 @@ class OrderItemRequest extends FormRequest
     {
         return [
             'ctn' => 'integer|min:1',
+            'sum' => 'integer|min:0',
+            'unit_price' => 'numeric|min:0',
+            'box_qtt' => 'integer|min:1',
         ];
     }
 
@@ -38,6 +41,12 @@ class OrderItemRequest extends FormRequest
         return [
             'ctn.integer' => 'The carton quantity must be a whole number.',
             'ctn.min' => 'The carton quantity must be at least 1.',
+            'sum.integer' => 'The total quantity must be a whole number.',
+            'sum.min' => 'The total quantity cannot be negative.',
+            'unit_price.numeric' => 'The unit price must be a number.',
+            'unit_price.min' => 'The unit price cannot be negative.',
+            'box_qtt.integer' => 'The box quantity must be a whole number.',
+            'box_qtt.min' => 'The box quantity must be at least 1.',
         ];
     }
 
@@ -50,6 +59,9 @@ class OrderItemRequest extends FormRequest
     {
         return [
             'ctn' => 'carton quantity',
+            'sum' => 'total quantity',
+            'unit_price' => 'unit price',
+            'box_qtt' => 'box quantity',
         ];
     }
 }

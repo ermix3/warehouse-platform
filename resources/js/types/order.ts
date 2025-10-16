@@ -4,7 +4,7 @@ import {
     Customer,
     CustomerLite,
     DataPagination,
-    OrderItem,
+    OrderItemUpdate,
     OrderItemLite,
     OrderItemRequest,
     ProductLite,
@@ -59,9 +59,10 @@ export interface EditOrderProps extends RelatedItems {
 export interface CreateOrderProps extends Omit<EditOrderProps, 'order'> {
     customer_id?: string;
     shipment_id?: string;
+    setSelectedCustomerId?: (id: string) => void;
 }
 
 export interface ShowOrderProps extends Pick<SharedData, 'flash'>, RelatedItems {
-    orderItems: DataPagination<OrderItem>;
+    orderItems: DataPagination<OrderItemUpdate>;
     order: Order;
 }

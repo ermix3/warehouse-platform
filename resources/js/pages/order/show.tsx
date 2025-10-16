@@ -15,9 +15,9 @@ import { ShipmentStatusBadge } from '@/lib/shipment-status-helper';
 import { getFormattedAmount } from '@/lib/utils';
 import CreateProduct from '@/pages/product/CreateProduct';
 import { dashboard } from '@/routes';
-import { attachProduct, detachProduct, index, show } from '@/routes/orders';
+import { attachProduct, detachProduct, index, show, updateOrderItem } from '@/routes/orders';
 import { exportData, show as showShipment } from '@/routes/shipments';
-import { BreadcrumbItem, OrderItemLite, SelectOption, ShowOrderProps } from '@/types';
+import { BreadcrumbItem, OrderItemLite, OrderItemUpdateRequest, SelectOption, ShowOrderProps } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { Asterisk, Info, Pencil, TextSearch, Trash2 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
@@ -56,9 +56,25 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
         }
 
         try {
-            // Only CTN is editable for now
-            if (editingItem.field === 'ctn') {
-                await router.patch(`/orders/${order.id}/order-items/${item.id}`, { ctn: parseInt(editValue) || 1 }, { preserveScroll: true });
+            const data: OrderItemUpdateRequest = {};
+
+            switch (editingItem.field) {
+                case 'ctn':
+                    data.ctn = Number.parseInt(editValue) || 1;
+                    break;
+                case 'box_qtt':
+                    data.box_qtt = Number.parseInt(editValue) || 1;
+                    break;
+                case 'sum':
+                    data.sum = Number.parseInt(editValue) || 0;
+                    break;
+                case 'unit_price':
+                    data.unit_price = Number.parseFloat(editValue) || 0;
+                    break;
+            }
+
+            if (Object.keys(data).length > 0) {
+                router.patch(updateOrderItem.url({ order: order.id, orderItem: item.id }), data, { preserveScroll: true });
                 setEditingItem({ id: null, field: '' });
             }
         } catch (error) {
@@ -148,7 +164,7 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
     return (
         <AppLayout flash={flash} breadcrumbs={breadcrumbs}>
             <Head title={`Order #${order.id}`} />
-            <div className="container mt-5 space-y-6 px-5">
+            <div className="container mt-5 space-y-6 px-5 pb-5">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                     {/* Order Info */}
                     <Card>
@@ -255,9 +271,9 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                 </div>
 
                 {/* Attach Product Card */}
-                <div className="mb-4">
-                    <details className="rounded border p-3" open>
-                        <summary className="cursor-pointer font-medium">Attach Product</summary>
+                <div className="mb-6">
+                    <details className="rounded-lg border p-4">
+                        <summary className="cursor-pointer font-medium hover:text-primary">Attach Product</summary>
                         <form onSubmit={handleAttach} className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-12">
                             <div className="md:col-span-8">
                                 <Label htmlFor="product">
@@ -320,9 +336,11 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                 <Card>
                     <CardHeader className="border-b-1 border-b-gray-100">
                         <CardTitle>Order Items</CardTitle>
-                        <CardDescription className="mb-1 w-fit rounded-xl bg-orange-100 px-2 py-1 text-sm text-black">
-                            <Info size={18} className={'mr-2 inline-flex text-orange-500'} />
-                            The columns with <Asterisk color={'blue'} size={12} className={'inline-flex align-super'} /> mean's they are editable
+                        <CardDescription className="mb-1 w-fit rounded-xl bg-orange-100/50 px-2 py-1 text-sm text-black">
+                            <Info size={18} className={'mr-2 mb-2 inline-flex text-orange-500'} />
+                            The columns with <Asterisk size={12} className={'inline-flex align-super text-blue-500'} /> mean's they are editable, when
+                            finished editing press <b className="font-bold text-blue-500 underline decoration-wavy underline-offset-4">enter</b> to
+                            save or <b className="font-bold text-blue-500 underline decoration-wavy underline-offset-4"> escape </b> to cancel
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -332,12 +350,18 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                                     <TableRow>
                                         <TableHead>ID</TableHead>
                                         <TableHead>Product</TableHead>
-                                        <TableHead>Box/QTY</TableHead>
                                         <TableHead>
-                                            CTN <Asterisk color={'blue'} size={12} className={'inline-flex align-super'} />
+                                            Box/QTY <Asterisk size={12} className={'inline-flex align-super text-blue-500'} />
                                         </TableHead>
-                                        <TableHead>Sum</TableHead>
-                                        <TableHead>Unit Price</TableHead>
+                                        <TableHead>
+                                            CTN <Asterisk size={12} className={'inline-flex align-super text-blue-500'} />
+                                        </TableHead>
+                                        <TableHead>
+                                            Sum <Asterisk size={12} className={'inline-flex align-super text-blue-500'} />
+                                        </TableHead>
+                                        <TableHead>
+                                            Unit Price <Asterisk size={12} className={'inline-flex align-super text-blue-500'} />
+                                        </TableHead>
                                         <TableHead>Total</TableHead>
                                         <TableHead>Action</TableHead>
                                     </TableRow>
@@ -352,11 +376,36 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                                     ) : (
                                         orderItems.data
                                             .toSorted((a, b) => a.id - b.id)
-                                            .map(({ id, ctn, product }, index) => (
+                                            .map(({ id, ctn, product, box_qtt, sum, unit_price }, index) => (
                                                 <TableRow key={id}>
                                                     <TableCell>{`${order.customer.code}-${order?.supplier?.code}-${order.order_number}-${index + 1}`}</TableCell>
                                                     <TableCell>{product.barcode + ' - ' + product.name}</TableCell>
-                                                    <TableCell>{product.box_qtt || '-'}</TableCell>
+                                                    <TableCell>
+                                                        {editingItem.id === id && editingItem.field === 'box_qtt' ? (
+                                                            <Input
+                                                                ref={inputRef}
+                                                                type="number"
+                                                                min="1"
+                                                                value={editValue}
+                                                                onChange={(e) => setEditValue(e.target.value)}
+                                                                onBlur={() => handleSaveEdit({ id, ctn, product })}
+                                                                onKeyDown={(e) => handleKeyDown(e, { id, ctn, product })}
+                                                                className="h-8 w-20"
+                                                            />
+                                                        ) : (
+                                                            <div
+                                                                className="group relative min-w-[60px] cursor-pointer rounded-md border border-transparent p-1.5 text-center transition-all hover:border-blue-200 hover:bg-blue-50"
+                                                                onClick={() => handleStartEdit({ id, ctn, product }, 'box_qtt', box_qtt)}
+                                                            >
+                                                                <span className="flex items-center justify-between">
+                                                                    <span className="flex-1">{box_qtt || '-'}</span>
+                                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                                                                        <Pencil className="h-4 w-4" />
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </TableCell>
                                                     <TableCell>
                                                         {editingItem.id === id && editingItem.field === 'ctn' ? (
                                                             <Input
@@ -380,15 +429,63 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                                                                         <Pencil className="h-4 w-4" />
                                                                     </span>
                                                                 </span>
-                                                                <span className="absolute right-0 -bottom-1 left-0 mx-auto h-0.5 w-0 bg-blue-400 transition-all duration-200 group-hover:w-4/5"></span>
                                                             </div>
                                                         )}
                                                     </TableCell>
-                                                    <TableCell>{ctn * (product.box_qtt || 0)}</TableCell>
-                                                    <TableCell>{getFormattedAmount(product.unit_price ?? 0)}</TableCell>
                                                     <TableCell>
-                                                        {getFormattedAmount(Number(product.unit_price) * (product.box_qtt ?? 0) * (ctn || 0))}
+                                                        {editingItem.id === id && editingItem.field === 'sum' ? (
+                                                            <Input
+                                                                ref={inputRef}
+                                                                type="number"
+                                                                min="0"
+                                                                value={editValue}
+                                                                onChange={(e) => setEditValue(e.target.value)}
+                                                                onBlur={() => handleSaveEdit({ id, ctn, product })}
+                                                                onKeyDown={(e) => handleKeyDown(e, { id, ctn, product })}
+                                                                className="h-8 w-20"
+                                                            />
+                                                        ) : (
+                                                            <div
+                                                                className="group relative min-w-[60px] cursor-pointer rounded-md border border-transparent p-1.5 text-center transition-all hover:border-blue-200 hover:bg-blue-50"
+                                                                onClick={() => handleStartEdit({ id, ctn, product }, 'sum', sum)}
+                                                            >
+                                                                <span className="flex items-center justify-between">
+                                                                    <span className="flex-1">{sum}</span>
+                                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                                                                        <Pencil className="h-4 w-4" />
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        )}
                                                     </TableCell>
+                                                    <TableCell>
+                                                        {editingItem.id === id && editingItem.field === 'unit_price' ? (
+                                                            <Input
+                                                                ref={inputRef}
+                                                                type="number"
+                                                                min="0"
+                                                                step="0.01"
+                                                                value={editValue}
+                                                                onChange={(e) => setEditValue(e.target.value)}
+                                                                onBlur={() => handleSaveEdit({ id, ctn, product })}
+                                                                onKeyDown={(e) => handleKeyDown(e, { id, ctn, product })}
+                                                                className="h-8 w-24"
+                                                            />
+                                                        ) : (
+                                                            <div
+                                                                className="group relative min-w-[80px] cursor-pointer rounded-md border border-transparent p-1.5 text-right transition-all hover:border-blue-200 hover:bg-blue-50"
+                                                                onClick={() => handleStartEdit({ id, ctn, product }, 'unit_price', unit_price)}
+                                                            >
+                                                                <span className="flex items-center justify-between">
+                                                                    <span className="flex-1 text-right">{getFormattedAmount(unit_price ?? 0)}</span>
+                                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                                                                        <Pencil className="h-4 w-4" />
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell>{getFormattedAmount(Number(unit_price) * sum)}</TableCell>
                                                     <TableCell>
                                                         <Button
                                                             type="button"

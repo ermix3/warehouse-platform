@@ -136,7 +136,7 @@ export default function EditOrder({ open, onOpenChange, order, customers, shipme
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[85vh] w-full overflow-hidden p-0 sm:max-w-xl">
+            <DialogContent className="max-h-[95vh] w-full overflow-hidden p-0 sm:max-w-xl">
                 <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Edit Order</DialogTitle>
                     <DialogDescription>

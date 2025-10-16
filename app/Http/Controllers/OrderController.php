@@ -82,7 +82,16 @@ class OrderController extends Controller
             $order = Order::create($validated);
             if (!$isFromShipmentDetails) {
                 // Save order items
-                $order->items()->createMany($request->order_items);
+                foreach ($request->order_items as $item) {
+                    $product = Product::find($item['product_id']);
+                    $order->items()->create([
+                        'product_id' => $item['product_id'],
+                        'ctn' => $item['ctn'],
+                        'unit_price' => $product->unit_price,
+                        'box_qtt' => $product->box_qtt,
+                        'sum' => $item['ctn'] * $product->box_qtt,
+                    ]);
+                }
 
                 // Recalculate order total based on items and products
                 $order->recalculateTotal();
@@ -195,9 +204,13 @@ class OrderController extends Controller
             'product_id' => 'required|exists:products,id',
             'ctn' => 'required|integer|min:1',
         ]);
+        $product=Product::find($request->product_id);
         $order->items()->create([
             'product_id' => $request->input('product_id'),
-            'ctn' => $request->input('ctn'),
+            'ctn' => $request->ctn,
+            'unit_price' => $product->unit_price,
+            'box_qtt' => $product->box_qtt,
+            'sum' => $request->ctn * $product->box_qtt,
         ]);
         $order->recalculateTotal();
         $order->refreshShipmentTotal();
@@ -225,15 +238,25 @@ class OrderController extends Controller
      * Patch a item in the order
      *
      */
-    public function updateOrderItem(Order $order, OrderItem $orderItem, OrderItemRequest $request){
+    public function updateOrderItem(Order $order, OrderItem $orderItem, OrderItemRequest $request)
+    {
         // $this->authorize('update', $order);
+        $data = $request->validated();
 
-        $orderItem->update($request->validated());
+        $ctn = $data['ctn'] ?? $orderItem->ctn;
+        $unit_price = $data['unit_price'] ?? $orderItem->unit_price;
+        $box_qtt = $data['box_qtt'] ?? $orderItem->box_qtt;
+        $sum = $data['sum'] ?? ($ctn * $box_qtt);
+        $orderItem->update([
+            'ctn' => $ctn,
+            'unit_price' => $unit_price,
+            'box_qtt' => $box_qtt,
+            'sum' => $sum,
+        ]);
 
         $order->recalculateTotal();
         $order->refreshShipmentTotal();
 
         return redirect()->route('orders.show', $order->id)->with('success', 'Product updated in order.');
     }
-
 }

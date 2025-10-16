@@ -146,7 +146,7 @@ export default function CreateOrder({
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent className="max-h-[85vh] w-full overflow-hidden p-0 sm:max-w-xl">
+            <DialogContent className="max-h-[95vh] w-full overflow-hidden p-0 sm:max-w-xl">
                 <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Create Order</DialogTitle>
                     <DialogDescription>
@@ -176,15 +176,15 @@ export default function CreateOrder({
 
                         <div>
                             <Label htmlFor="create-status">Status</Label>
-                            <Select value={data.status} onValueChange={(value) => setData('status', value as OrderStatusEnum)}>
-                                <SelectTrigger id="create-status" className={errors.status ? 'border-red-500' : ''}>
+                            <Select value={data.status} onValueChange={(value) => setData('status', value as OrderStatusEnum)}  >
+                                <SelectTrigger id="create-status" className={`hover:cursor-pointer ${errors.status ? 'border-red-500' : ''}`}>
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent >
                                     {orderStatusOptions.map(({ value, label }) => {
                                         const Icon = OrderStatusIcons[value] || Clock;
                                         return (
-                                            <SelectItem key={value} value={value}>
+                                            <SelectItem key={value} value={value} className="hover:bg-accent hover:text-accent-foreground hover:border-accent hover:cursor-pointer">
                                                 <div className="flex items-center gap-2">
                                                     <Icon className="h-4 w-4" />
                                                     <span>{label}</span>
@@ -198,7 +198,7 @@ export default function CreateOrder({
 
                         <div>
                             <Label htmlFor="create-customer_id">
-                                Customer <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                                Customer <Asterisk size={12} className={`inline-flex align-super ${customer_id ? 'text-white' : 'text-red-600'}`} />
                             </Label>
                             <SearchableSelect
                                 options={customerOptions}
