@@ -32,11 +32,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::apiResource('orders', OrderController::class);
 
     Route::apiResource('roles', RoleController::class)->except('show');
-    Route::prefix('orders')
+    Route::prefix('orders/{order}/order-items')
         ->name('orders.')
         ->group(function () {
-            Route::post('{order}/order-items', [OrderController::class, 'attachProduct'])->name('attachProduct');
-            Route::delete('{order}/order-items/{orderItem}', [OrderController::class, 'detachProduct'])->name('detachProduct');
+            Route::post('', [OrderController::class, 'attachOrderItem'])->name('attachProduct');
+            Route::delete('{orderItem}', [OrderController::class, 'detachOrderItem'])->name('detachProduct');
+            Route::patch('{orderItem}', [OrderController::class, 'updateOrderItem'])->name('updateOrderItem');
         });
 });
 

@@ -2,7 +2,7 @@ import { DeleteItem, ExportData } from '@/components/shared';
 import MyTooltip from '@/components/shared/my-tooltip';
 import { Pagination } from '@/components/shared/pagination';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
@@ -19,18 +19,60 @@ import { attachProduct, detachProduct, index, show } from '@/routes/orders';
 import { exportData, show as showShipment } from '@/routes/shipments';
 import { BreadcrumbItem, OrderItemLite, SelectOption, ShowOrderProps } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Asterisk, Info, TextSearch, Trash2 } from 'lucide-react';
-import React, { useState } from 'react';
+import { Asterisk, Info, Pencil, TextSearch, Trash2 } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function ShowOrder({ order, orderItems, products, flash }: Readonly<ShowOrderProps>) {
     const [showCreateProductDialog, setShowCreateProductDialog] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [deleteOrderItem, setDeleteOrderItem] = useState<OrderItemLite | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [editingItem, setEditingItem] = useState<{ id: number | null; field: string; originalValue?: string }>({ id: null, field: '' });
+    const [editValue, setEditValue] = useState<string>('');
+    const inputRef = useRef<HTMLInputElement>(null);
+
     const { data, setData, post, processing, errors, reset, isDirty } = useForm({
         product_id: '',
         ctn: 1,
     });
+
+    // Focus the input when editing starts
+    useEffect(() => {
+        if (editingItem.id && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [editingItem]);
+
+    const handleStartEdit = (item: OrderItemLite, field: string, value: string | number) => {
+        setEditingItem({ id: item.id, field, originalValue: String(value) });
+        setEditValue(String(value));
+    };
+
+    const handleSaveEdit = async (item: OrderItemLite) => {
+        // Don't save if value hasn't changed or is invalid
+        if (editingItem.originalValue === editValue || !editValue.trim()) {
+            setEditingItem({ id: null, field: '' });
+            return;
+        }
+
+        try {
+            // Only CTN is editable for now
+            if (editingItem.field === 'ctn') {
+                await router.patch(`/orders/${order.id}/order-items/${item.id}`, { ctn: parseInt(editValue) || 1 }, { preserveScroll: true });
+                setEditingItem({ id: null, field: '' });
+            }
+        } catch (error) {
+            console.error('Failed to update order item:', error);
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent, item: OrderItemLite) => {
+        if (e.key === 'Enter') {
+            handleSaveEdit(item);
+        } else if (e.key === 'Escape') {
+            setEditingItem({ id: null, field: '' });
+        }
+    };
 
     const productOptions: SelectOption[] = products.map((p) => ({ value: p.id.toString(), label: `${p.barcode} - ${p.name}` }));
 
@@ -217,7 +259,7 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                     <details className="rounded border p-3" open>
                         <summary className="cursor-pointer font-medium">Attach Product</summary>
                         <form onSubmit={handleAttach} className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-12">
-                            <div className='md:col-span-8'>
+                            <div className="md:col-span-8">
                                 <Label htmlFor="product">
                                     Product <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                                 </Label>
@@ -229,9 +271,10 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                                 />
                                 {errors.product_id && <div className="mt-1 text-sm text-red-500">{errors.product_id}</div>}
                             </div>
-                            <div className='md:col-span-1'>
+                            <div className="md:col-span-1">
                                 <Label htmlFor="ctn">
-                                    CTN<Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                                    CTN
+                                    <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                                 </Label>
                                 <Input
                                     id="ctn"
@@ -277,6 +320,10 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                 <Card>
                     <CardHeader className="border-b-1 border-b-gray-100">
                         <CardTitle>Order Items</CardTitle>
+                        <CardDescription className="mb-1 w-fit rounded-xl bg-orange-100 px-2 py-1 text-sm text-black">
+                            <Info size={18} className={'mr-2 inline-flex text-orange-500'} />
+                            The columns with <Asterisk color={'blue'} size={12} className={'inline-flex align-super'} /> mean's they are editable
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto">
@@ -286,7 +333,9 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                                         <TableHead>ID</TableHead>
                                         <TableHead>Product</TableHead>
                                         <TableHead>Box/QTY</TableHead>
-                                        <TableHead>CTN</TableHead>
+                                        <TableHead>
+                                            CTN <Asterisk color={'blue'} size={12} className={'inline-flex align-super'} />
+                                        </TableHead>
                                         <TableHead>Sum</TableHead>
                                         <TableHead>Unit Price</TableHead>
                                         <TableHead>Total</TableHead>
@@ -305,10 +354,36 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                                             .toSorted((a, b) => a.id - b.id)
                                             .map(({ id, ctn, product }, index) => (
                                                 <TableRow key={id}>
-                                                    <TableCell>{`${order.customer.code}-${order?.supplier?.code}-${order.order_number}-${index+1}`}</TableCell>
+                                                    <TableCell>{`${order.customer.code}-${order?.supplier?.code}-${order.order_number}-${index + 1}`}</TableCell>
                                                     <TableCell>{product.barcode + ' - ' + product.name}</TableCell>
                                                     <TableCell>{product.box_qtt || '-'}</TableCell>
-                                                    <TableCell>{ctn}</TableCell>
+                                                    <TableCell>
+                                                        {editingItem.id === id && editingItem.field === 'ctn' ? (
+                                                            <Input
+                                                                ref={inputRef}
+                                                                type="number"
+                                                                min="1"
+                                                                value={editValue}
+                                                                onChange={(e) => setEditValue(e.target.value)}
+                                                                onBlur={() => handleSaveEdit({ id, ctn, product })}
+                                                                onKeyDown={(e) => handleKeyDown(e, { id, ctn, product })}
+                                                                className="h-8 w-20"
+                                                            />
+                                                        ) : (
+                                                            <div
+                                                                className="group relative min-w-[60px] cursor-pointer rounded-md border border-transparent p-1.5 text-center transition-all hover:border-blue-200 hover:bg-blue-50"
+                                                                onClick={() => handleStartEdit({ id, ctn, product }, 'ctn', ctn)}
+                                                            >
+                                                                <span className="flex items-center justify-between">
+                                                                    <span className="flex-1">{ctn}</span>
+                                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                                                                        <Pencil className="h-4 w-4" />
+                                                                    </span>
+                                                                </span>
+                                                                <span className="absolute right-0 -bottom-1 left-0 mx-auto h-0.5 w-0 bg-blue-400 transition-all duration-200 group-hover:w-4/5"></span>
+                                                            </div>
+                                                        )}
+                                                    </TableCell>
                                                     <TableCell>{ctn * (product.box_qtt || 0)}</TableCell>
                                                     <TableCell>{getFormattedAmount(product.unit_price ?? 0)}</TableCell>
                                                     <TableCell>

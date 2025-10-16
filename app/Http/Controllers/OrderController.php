@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\RolesEnum;
+use App\Http\Requests\OrderItemRequest;
 use App\Http\Requests\OrderRequest;
 use App\Models\Customer;
 use App\Models\Order;
@@ -188,7 +189,7 @@ class OrderController extends Controller
     /**
      * Attach a product to the order (add an order item).
      */
-    public function attachProduct(Request $request, Order $order)
+    public function attachOrderItem(Request $request, Order $order)
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
@@ -206,7 +207,7 @@ class OrderController extends Controller
     /**
      * Detach a product from the order (remove an order item).
      */
-    public function detachProduct(Order $order, OrderItem $orderItem)
+    public function detachOrderItem(Order $order, OrderItem $orderItem)
     {
         $this->authorize('update', $order);
 
@@ -219,4 +220,20 @@ class OrderController extends Controller
 
         return redirect()->route('orders.show', $order->id)->with('success', 'Product detached from order.');
     }
+
+    /**
+     * Patch a item in the order
+     *
+     */
+    public function updateOrderItem(Order $order, OrderItem $orderItem, OrderItemRequest $request){
+        // $this->authorize('update', $order);
+
+        $orderItem->update($request->validated());
+
+        $order->recalculateTotal();
+        $order->refreshShipmentTotal();
+
+        return redirect()->route('orders.show', $order->id)->with('success', 'Product updated in order.');
+    }
+
 }
