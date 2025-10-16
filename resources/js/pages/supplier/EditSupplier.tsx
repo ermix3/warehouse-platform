@@ -58,7 +58,7 @@ export default function EditSupplier({ open, onOpenChange, supplier }: Readonly<
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[60vh] w-full overflow-hidden p-0 sm:max-w-2xl">
+            <DialogContent className="max-h-[72vh] w-full overflow-hidden p-0 sm:max-w-2xl">
                 <DialogHeader className="border-b px-5 py-3">
                     <DialogTitle>Edit Supplier</DialogTitle>
                     <DialogDescription>

@@ -49,7 +49,7 @@ export default function CreateSupplier({ open, onOpenChange }: Readonly<CreateSu
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent className="max-h-[60vh] w-full overflow-hidden p-0 sm:max-w-2xl">
+            <DialogContent className="max-h-[72vh] w-full overflow-hidden p-0 sm:max-w-2xl">
                 <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Create Supplier</DialogTitle>
                     <DialogDescription>

@@ -53,7 +53,7 @@ export default function EditCustomer({ open, onOpenChange, customer }: Readonly<
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[70vh] w-full overflow-hidden p-0 sm:max-w-2xl">
+            <DialogContent className="max-h-[82vh] w-full overflow-hidden p-0 sm:max-w-2xl">
                 <DialogHeader className="border-b px-5 py-3">
                     <DialogTitle>Edit Customer</DialogTitle>
                     <DialogDescription>

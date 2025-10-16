@@ -44,7 +44,7 @@ export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCu
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent className="max-h-[70vh] w-full overflow-hidden p-0 sm:max-w-2xl">
+            <DialogContent className="max-h-[82vh] w-full overflow-hidden p-0 sm:max-w-2xl">
                 <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Create Customer</DialogTitle>
                     <DialogDescription>

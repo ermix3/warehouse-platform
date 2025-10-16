@@ -44,7 +44,7 @@ export function SearchableSelect({
                     aria-label={selectedOption ? selectedOption.label : placeholder}
                     disabled={disabled}
                     className={cn(
-                        "w-full justify-between",
+                        "w-full justify-between hover:bg-accent hover:text-accent-foreground hover:border-accent hover:cursor-pointer",
                         !selectedOption && "text-muted-foreground",
                         className
                     )}
@@ -63,6 +63,7 @@ export function SearchableSelect({
                                 <CommandItem
                                     key={option.value}
                                     value={option.label}
+                                    className="hover:bg-accent hover:text-accent-foreground hover:border-accent hover:cursor-pointer"
                                     onSelect={() => {
                                         const next = value === option.value ? "" : option.value;
                                         onValueChange(next);
