@@ -23,6 +23,7 @@ export default function CreateOrder({
     suppliers,
     customer_id,
     shipment_id,
+    setSelectedCustomerId,
 }: Readonly<CreateOrderProps>) {
     const { data, setData, setError, post, reset, clearErrors, processing, errors } = useForm<OrderRequest>({
         order_number: '',
@@ -66,6 +67,9 @@ export default function CreateOrder({
             onSuccess: () => {
                 onOpenChange(false);
                 reset();
+                if(customer_id && setSelectedCustomerId){
+                    setSelectedCustomerId('');
+                }
             },
             onError: (error) => {
                 console.log('CreateOrder - handleSubmit => Error ', error);

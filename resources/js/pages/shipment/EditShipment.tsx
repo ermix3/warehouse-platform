@@ -61,8 +61,8 @@ export default function EditShipment({ open, onOpenChange, shipment }: Readonly<
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[60vh] w-full overflow-hidden p-0 sm:max-w-2xl">
-                <DialogHeader className="border-b px-5 py-3">
+            <DialogContent className="max-h-[65vh] w-full overflow-hidden p-0 sm:max-w-2xl">
+                <DialogHeader className="border-b px-5 py-4">
                     <DialogTitle>Edit Shipment {shipment.tracking_number ? `#${shipment.tracking_number}` : `ID: ${shipment.id}`}</DialogTitle>
                     <DialogDescription>
                         Update the shipment details.{' '}
