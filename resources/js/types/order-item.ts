@@ -21,7 +21,6 @@ export interface OrderItemUpdate extends OrderItem {
     unit_price: number;
 }
 
-
 export interface OrderItemUpdateRequest extends Record<string, FormDataConvertible> {
     ctn?: number;
     box_qtt?: number;

@@ -273,18 +273,23 @@ const AttachCustomerSection = ({
                     <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-end md:col-span-1">
                         <Button
                             type="button"
-                            className="w-full sm:w-auto hover:cursor-pointer"
+                            className="w-full hover:cursor-pointer sm:w-auto"
                             disabled={!selectedCustomerId}
                             onClick={() => onOpenCreateOrder(selectedCustomerId)}
                         >
                             Attach Order
                         </Button>
                         {selectedCustomerId ? (
-                            <Button type="button" variant="outline" className="w-full sm:w-auto hover:cursor-pointer" onClick={() => onCustomerSelect('')}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full hover:cursor-pointer sm:w-auto"
+                                onClick={() => onCustomerSelect('')}
+                            >
                                 Cancel
                             </Button>
                         ) : canAddCustomer ? (
-                            <Button type="button" variant="outline" className="w-full sm:w-auto hover:cursor-pointer" onClick={onOpenCreateCustomer}>
+                            <Button type="button" variant="outline" className="w-full hover:cursor-pointer sm:w-auto" onClick={onOpenCreateCustomer}>
                                 No customer found
                             </Button>
                         ) : null}
@@ -335,7 +340,7 @@ const CustomersTable = ({ customers, canAddOrder, onCreateOrder }: CustomersTabl
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => onCreateOrder(customer.id.toString())}
-                                                    className="w-full sm:w-auto hover:cursor-pointer"
+                                                    className="w-full hover:cursor-pointer sm:w-auto"
                                                 >
                                                     Attach Order
                                                 </Button>

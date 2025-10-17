@@ -24,7 +24,7 @@ export function ExportData({ label = 'Export', btnVariant = 'default', btnSize =
                 </MyTooltip>
             ) : (
                 <DropdownMenuTrigger asChild>
-                    <Button variant={btnVariant} className="hover:cursor-pointer">
+                    <Button variant={btnVariant} size={btnSize} className="hover:cursor-pointer">
                         {label}{' '}
                         <MyTooltip title="Export data">
                             <span style={{ display: 'inline-flex' }}>

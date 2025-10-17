@@ -4,10 +4,11 @@ import {
     Customer,
     CustomerLite,
     DataPagination,
-    OrderItemUpdate,
     OrderItemLite,
     OrderItemRequest,
+    OrderItemUpdate,
     ProductLite,
+    SelectOption,
     SharedData,
     Shipment,
     ShipmentLite,
@@ -65,4 +66,21 @@ export interface CreateOrderProps extends Omit<EditOrderProps, 'order'> {
 export interface ShowOrderProps extends Pick<SharedData, 'flash'>, RelatedItems {
     orderItems: DataPagination<OrderItemUpdate>;
     order: Order;
+}
+
+// Show order page
+export interface InfoShipmentCardProps extends Pick<ShowOrderProps, 'order'> {
+    canExportShipments: boolean;
+    canViewShipments: boolean;
+}
+
+export interface AttachProductSectionProps {
+    orderId: number;
+    productOptions: SelectOption[];
+    onOpenCreateProduct: () => void;
+    canAddProduct: boolean;
+}
+
+export interface OrderItemsTableProps extends Pick<ShowOrderProps, 'orderItems' | 'order'> {
+    canEditOrder: boolean;
 }
