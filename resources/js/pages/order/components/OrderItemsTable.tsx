@@ -156,12 +156,12 @@ export function OrderItemsTable({ order, orderItems, canEditOrder }: OrderItemsT
                                             />
                                         ) : (
                                             <div
-                                                className="group relative min-w-[60px] cursor-pointer rounded-md border border-transparent p-1.5 text-center transition-all hover:border-blue-200 hover:bg-blue-50"
+                                                className="group relative min-w-[60px] cursor-pointer rounded-md border border-transparent p-1.5 text-center transition-all hover:border-blue-200 hover:bg-blue-50 dark:hover:border-blue-700 dark:hover:bg-blue-900/40"
                                                 onClick={() => handleStartEdit({ id, ctn, product }, 'box_qtt', box_qtt)}
                                             >
                                                 <span className="flex items-center justify-between">
-                                                    <span className="flex-1">{box_qtt || '-'}</span>
-                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                                                    <span className="flex-1 dark:text-foreground">{box_qtt || '-'}</span>
+                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 dark:text-blue-300">
                                                         <Pencil className="h-4 w-4" />
                                                     </span>
                                                 </span>
@@ -184,12 +184,12 @@ export function OrderItemsTable({ order, orderItems, canEditOrder }: OrderItemsT
                                             />
                                         ) : (
                                             <div
-                                                className="group relative min-w-[60px] cursor-pointer rounded-md border border-transparent p-1.5 text-center transition-all hover:border-blue-200 hover:bg-blue-50"
+                                                className="group relative min-w-[60px] cursor-pointer rounded-md border border-transparent p-1.5 text-center transition-all hover:border-blue-200 hover:bg-blue-50 dark:hover:border-blue-700 dark:hover:bg-blue-900/40"
                                                 onClick={() => handleStartEdit({ id, ctn, product }, 'ctn', ctn)}
                                             >
                                                 <span className="flex items-center justify-between">
-                                                    <span className="flex-1">{ctn}</span>
-                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                                                    <span className="flex-1 dark:text-foreground">{ctn}</span>
+                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 dark:text-blue-300">
                                                         <Pencil className="h-4 w-4" />
                                                     </span>
                                                 </span>
@@ -212,12 +212,12 @@ export function OrderItemsTable({ order, orderItems, canEditOrder }: OrderItemsT
                                             />
                                         ) : (
                                             <div
-                                                className="group relative min-w-[60px] cursor-pointer rounded-md border border-transparent p-1.5 text-center transition-all hover:border-blue-200 hover:bg-blue-50"
+                                                className="group relative min-w-[60px] cursor-pointer rounded-md border border-transparent p-1.5 text-center transition-all hover:border-blue-200 hover:bg-blue-50 dark:hover:border-blue-700 dark:hover:bg-blue-900/40"
                                                 onClick={() => handleStartEdit({ id, ctn, product }, 'sum', sum)}
                                             >
                                                 <span className="flex items-center justify-between">
-                                                    <span className="flex-1">{sum}</span>
-                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                                                    <span className="flex-1 dark:text-foreground">{sum}</span>
+                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 dark:text-blue-300">
                                                         <Pencil className="h-4 w-4" />
                                                     </span>
                                                 </span>
@@ -241,12 +241,12 @@ export function OrderItemsTable({ order, orderItems, canEditOrder }: OrderItemsT
                                             />
                                         ) : (
                                             <div
-                                                className="group relative min-w-[60px] cursor-pointer rounded-md border border-transparent p-1.5 text-center transition-all hover:border-blue-200 hover:bg-blue-50"
+                                                className="group relative min-w-[60px] cursor-pointer rounded-md border border-transparent p-1.5 text-center transition-all hover:border-blue-200 hover:bg-blue-50 dark:hover:border-blue-700 dark:hover:bg-blue-900/40"
                                                 onClick={() => handleStartEdit({ id, ctn, product }, 'unit_price', unit_price)}
                                             >
                                                 <span className="flex items-center justify-between">
-                                                    <span className="flex-1 text-right">{getFormattedAmount(unit_price ?? 0)}</span>
-                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                                                    <span className="flex-1 dark:text-foreground">{getFormattedAmount(unit_price ?? 0)}</span>
+                                                    <span className="invisible ml-1 text-blue-500 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 dark:text-blue-300">
                                                         <Pencil className="h-4 w-4" />
                                                     </span>
                                                 </span>

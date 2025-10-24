@@ -5,7 +5,6 @@ import {
     CustomerLite,
     DataPagination,
     OrderItemLite,
-    OrderItemRequest,
     OrderItemUpdate,
     ProductLite,
     SelectOption,
@@ -23,7 +22,6 @@ export interface OrderRequest {
     customer_id: string;
     shipment_id: string;
     supplier_id: string;
-    order_items: OrderItemRequest[];
 }
 
 export interface OrderLite extends Pick<BaseEntity, 'id'> {

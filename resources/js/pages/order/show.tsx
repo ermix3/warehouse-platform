@@ -65,11 +65,13 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
                 <Card className="pt-3">
                     <CardHeader className="border-b-2 border-b-gray-100 py-0">
                         <CardTitle>Order Items</CardTitle>
-                        <CardDescription className="mb-1 w-fit rounded-xl bg-orange-100/50 px-2 py-1 text-sm text-black">
-                            <Info size={18} className={'mr-2 mb-2 -ml-4 inline-flex text-orange-500'} />
-                            Click on any value with <Asterisk size={12} className="inline-flex align-super text-blue-500" /> to edit, when finished
-                            editing press <b className="font-bold text-blue-500 underline decoration-wavy underline-offset-4">enter</b> to save or{' '}
-                            <b className="font-bold text-blue-500 underline decoration-wavy underline-offset-4"> escape </b> to cancel
+                        <CardDescription className="mb-1 w-fit rounded-xl bg-orange-100/50 px-2 py-1 text-sm text-black dark:bg-orange-400/5 dark:text-foreground">
+                            <Info size={18} className={'mr-2 mb-2 -ml-4 inline-flex text-orange-500 dark:text-orange-300'} />
+                            Click on any value with <Asterisk size={12} className="inline-flex align-super text-blue-500 dark:text-blue-300" /> to
+                            edit, when finished editing press{' '}
+                            <b className="font-bold text-blue-500 underline decoration-wavy underline-offset-4 dark:text-blue-300">enter</b> to save
+                            or <b className="font-bold text-blue-500 underline decoration-wavy underline-offset-4 dark:text-blue-300"> escape </b> to
+                            cancel
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

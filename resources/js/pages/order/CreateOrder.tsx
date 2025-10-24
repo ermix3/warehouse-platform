@@ -1,4 +1,3 @@
-import { MyDivider } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -7,32 +6,30 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { OrderStatusEnum } from '@/enums';
 import { OrderStatusIcons } from '@/lib/order-status-helper';
-import { orderStatusOptions } from '@/lib/utils';
+import { getCustomerOptions, getShipmentOptions, getSupplierOptions, orderStatusOptions } from '@/lib/utils';
 import { store } from '@/routes/orders';
-import { CreateOrderProps, OrderRequest, SelectOption } from '@/types';
+import { CreateOrderProps, OrderRequest } from '@/types';
 import { useForm } from '@inertiajs/react';
-import { Asterisk, CirclePlus, Clock, Loader2, Minus, Plus, Trash2 } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Asterisk, Clock, Loader2 } from 'lucide-react';
+import React, { useEffect } from 'react';
 
 export default function CreateOrder({
     open,
     onOpenChange,
     customers,
     shipments,
-    products,
     suppliers,
     customer_id,
     shipment_id,
     setSelectedCustomerId,
 }: Readonly<CreateOrderProps>) {
-    const { data, setData, setError, post, reset, clearErrors, processing, errors } = useForm<OrderRequest>({
+    const { data, setData, post, reset, clearErrors, processing, errors } = useForm<OrderRequest>({
         order_number: '',
         status: OrderStatusEnum.DRAFT,
         total: 0,
         customer_id: '',
         shipment_id: '',
         supplier_id: '',
-        order_items: [],
     });
 
     useEffect(() => {
@@ -41,21 +38,8 @@ export default function CreateOrder({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [customer_id]);
 
-    const [newItem, setNewItem] = useState<{ product_id: string; ctn: string }>({
-        product_id: '',
-        ctn: '1',
-    });
-
-    const itemsTotal = useMemo(() => {
-        return data.order_items?.reduce((sum, it) => {
-            const product = products.find((p) => p.id.toString() === it.product_id);
-            return sum + (product?.unit_price || 0) * (+it.ctn || 0);
-        }, 0);
-    }, [data.order_items, products]);
-
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setData('total', +itemsTotal.toFixed(2));
         const storeOrderUrl = customer_id
             ? store.url({
                   query: {
@@ -81,68 +65,13 @@ export default function CreateOrder({
         if (!isOpen) {
             reset();
             clearErrors();
-            setNewItem({ product_id: '', ctn: '1' });
         }
         onOpenChange(isOpen);
     };
 
     // Prepare options for SearchableSelect
-    const productOptions: SelectOption[] = products.map((p) => ({ value: p.id.toString(), label: `${p.barcode} - ${p.name}` }));
-    const customerOptions = customers.map((customer) => ({
-        value: customer.id.toString(),
-        label: customer.name,
-    }));
-    const shipmentOptions = [
-        { value: '', label: 'No shipment' },
-        ...shipments.map((shipment) => ({
-            value: shipment.id.toString(),
-            label: shipment.tracking_number ? `${shipment.tracking_number} (${shipment.carrier})` : `Shipment #${shipment.id}`,
-        })),
-    ];
-    const supplierOptions = [
-        { value: '', label: 'No supplier' },
-        ...suppliers.map((supplier) => ({
-            value: supplier.id.toString(),
-            label: supplier.name,
-        })),
-    ];
-
-    const addItem = () => {
-        if (!newItem.product_id) {
-            setError('order_items', 'Please select a product.');
-            return;
-        }
-        setData('order_items', [newItem, ...data.order_items]);
-        setNewItem({ product_id: '', ctn: '1' });
-    };
-
-    const removeItem = (idx: number) => {
-        const next = [...data.order_items];
-        next.splice(idx, 1);
-        setData('order_items', next);
-    };
-
-    // Per-row handlers for adjusting CTN on existing items
-    const setRowCtn = (idx: number, value: string) => {
-        const next = [...data.order_items];
-        const parsed = Math.max(1, Number.parseInt(value || '1') || 1);
-        next[idx] = { ...next[idx], ctn: parsed.toString() };
-        setData('order_items', next);
-    };
-
-    const incRowCtn = (idx: number) => {
-        const next = [...data.order_items];
-        const curr = Number.parseInt(next[idx]?.ctn || '0') || 0;
-        next[idx] = { ...next[idx], ctn: Math.max(1, curr + 1).toString() };
-        setData('order_items', next);
-    };
-
-    const decRowCtn = (idx: number) => {
-        const next = [...data.order_items];
-        const curr = Number.parseInt(next[idx]?.ctn || '0') || 0;
-        next[idx] = { ...next[idx], ctn: Math.max(1, curr - 1).toString() };
-        setData('order_items', next);
-    };
+    const shipmentOptions = [{ value: '', label: 'No shipment' }, ...getShipmentOptions(shipments)];
+    const supplierOptions = [{ value: '', label: 'No supplier' }, ...getSupplierOptions(suppliers)];
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
@@ -205,7 +134,7 @@ export default function CreateOrder({
                                 Customer <Asterisk size={12} className={`inline-flex align-super ${customer_id ? 'text-white' : 'text-red-600'}`} />
                             </Label>
                             <SearchableSelect
-                                options={customerOptions}
+                                options={getCustomerOptions(customers)}
                                 value={data.customer_id}
                                 onValueChange={(value) => setData('customer_id', value)}
                                 placeholder="Select a customer"
@@ -244,118 +173,7 @@ export default function CreateOrder({
                         </div>
                     </div>
 
-                    <div className={`px-5 ${customer_id ? 'hidden' : ''}`}>
-                        <div>
-                            <MyDivider label="Items" />
-                            <div className="grid grid-cols-12 gap-2">
-                                <div className="col-span-9">
-                                    <Label>
-                                        Product <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
-                                    </Label>
-                                    <SearchableSelect
-                                        options={productOptions}
-                                        value={newItem.product_id}
-                                        onValueChange={(v) => {
-                                            setNewItem((s) => ({ ...s, product_id: v }));
-                                            setError('order_items', '');
-                                        }}
-                                        placeholder="Select product"
-                                        emptyText="No products found."
-                                        className={errors.order_items ? 'border-red-500' : ''}
-                                        disabled={processing}
-                                    />
-                                </div>
-                                <div className="col-span-2">
-                                    <Label>
-                                        CTN <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
-                                    </Label>
-                                    <Input
-                                        type="number"
-                                        min={1}
-                                        step={1}
-                                        value={newItem.ctn}
-                                        onChange={(e) => setNewItem((s) => ({ ...s, ctn: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="col-span-1 flex items-end">
-                                    <Button type="button" onClick={addItem} variant={'outline'}>
-                                        <CirclePlus color={'green'} />
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                        {errors.order_items && <div className="text-sm text-red-600">{errors.order_items}</div>}
-                        <div className="my-1 rounded-md">
-                            {data.order_items.length === 0 ? (
-                                <div className="divide-y rounded-xl bg-secondary px-2 text-center">
-                                    <div className="p-4 text-sm text-muted-foreground">No items added yet.</div>
-                                </div>
-                            ) : (
-                                <div className="max-h-[200px] divide-y overflow-y-auto px-2">
-                                    {data.order_items.map((it, idx) => (
-                                        <div key={idx + it.product_id} className="grid grid-cols-12 items-center gap-2 p-2">
-                                            <div className="col-span-6">
-                                                {productOptions.find((o) => o.value === it.product_id)?.label || 'Product #' + it.product_id}
-                                            </div>
-                                            <div className="col-span-4">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="icon"
-                                                        onClick={() => decRowCtn(idx)}
-                                                        disabled={processing || (Number.parseInt(it.ctn || '1') || 1) <= 1}
-                                                        className="h-6 w-6 border-0"
-                                                    >
-                                                        <Minus className="h-4 w-4" />
-                                                    </Button>
-                                                    <Input
-                                                        type="text"
-                                                        value={it.ctn}
-                                                        onChange={(e) => setRowCtn(idx, e.target.value)}
-                                                        className="min-w-10 text-center"
-                                                        disabled={processing}
-                                                    />
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="icon"
-                                                        onClick={() => incRowCtn(idx)}
-                                                        disabled={processing}
-                                                        className="h-6 w-6 border-0"
-                                                    >
-                                                        <Plus className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                            <div className="col-span-2 text-right">
-                                                <Button type="button" variant="destructive" size="sm" onClick={() => removeItem(idx)}>
-                                                    <Trash2 color={'white'} />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
                     <DialogFooter className="sticky bottom-0 border-t bg-background px-5 py-3">
-                        <div className={`flex items-center gap-0 ${customer_id ? 'hidden' : ''}`}>
-                            <Label htmlFor="create-total" className={'font-bolder mb-0 flex-1'}>
-                                Total Amount (auto) : AED {itemsTotal.toFixed(2)}
-                            </Label>
-                            <Input
-                                id="create-total"
-                                className={'flex-1'}
-                                type="number"
-                                step="0.01"
-                                value={itemsTotal.toFixed(2)}
-                                hidden
-                                readOnly
-                                disabled
-                            />
-                        </div>
                         <Button type="submit" disabled={processing} className={'ml-auto cursor-pointer px-6'}>
                             <span
                                 className={

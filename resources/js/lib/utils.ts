@@ -1,5 +1,5 @@
 import { OrderStatusEnum, ShipmentStatusEnum } from '@/enums';
-import { Permission, RoleLite, SelectOption } from '@/types';
+import { CustomerLite, Permission, ProductLite, RoleLite, SelectOption, ShipmentLite, SupplierLite } from '@/types';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -47,16 +47,38 @@ export const orderStatusOptions: SelectOption<OrderStatusEnum>[] = Object.values
     label: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase().replace('_', ' '),
 }));
 
-export const getPermissionsOptions = (permissions: Permission[]) => {
-    return permissions.map((p) => ({
+export const getPermissionsOptions = (permissions: Permission[]) =>
+    permissions.map((p) => ({
         label: p.name.replaceAll('_', ' '),
         value: p.name,
     }));
-};
 
-export const getRolesOptions = (roles: RoleLite[]) => {
-    return roles.map((p) => ({
+export const getRolesOptions = (roles: RoleLite[]) =>
+    roles.map((p) => ({
         label: p.name.replaceAll('_', ' '),
         value: p.name,
     }));
-};
+
+export const getProductOptions = (products: ProductLite[]) =>
+    products.map((product) => ({
+        value: product.id.toString(),
+        label: `${product.barcode} - ${product.name}`,
+    }));
+
+export const getCustomerOptions = (customers: CustomerLite[]) =>
+    customers.map((customer) => ({
+        value: customer.id.toString(),
+        label: customer.name,
+    }));
+
+export const getShipmentOptions = (shipments: ShipmentLite[]) =>
+    shipments.map((shipment) => ({
+        value: shipment.id.toString(),
+        label: shipment.tracking_number ? `${shipment.tracking_number} (${shipment.carrier})` : `Shipment #${shipment.id}`,
+    }));
+
+export const getSupplierOptions = (suppliers: SupplierLite[]) =>
+    suppliers.map((supplier) => ({
+        value: supplier.id.toString(),
+        label: supplier.name,
+    }));
