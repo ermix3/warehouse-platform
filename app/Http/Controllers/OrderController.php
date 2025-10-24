@@ -14,7 +14,6 @@ use App\Models\Supplier;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -27,10 +26,10 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         if ($user->hasRole(RolesEnum::CUSTOMER)) {
-            $query = Order::with(['customer', 'supplier', 'items.product'])
+            $query = Order::with(['customer', 'supplier'])
                 ->where('customer_id', $user->id);
         } else {
-            $query = Order::with(['customer', 'supplier', 'shipment', 'items.product']);
+            $query = Order::with(['customer', 'supplier', 'shipment']);
         }
 
         if ($search = $request->get('search')) {
@@ -72,38 +71,13 @@ class OrderController extends Controller
      */
     public function store(OrderRequest $request)
     {
-        $isFromShipmentDetails = $request->fromShipmentDetails;
         $this->authorize('create', Order::class);
 
-        DB::beginTransaction();
         try {
             $validated = $request->validated();
-            unset($validated['fromShipmentDetails']);
-            $order = Order::create($validated);
-            if (!$isFromShipmentDetails) {
-                // Save order items
-                foreach ($request->order_items as $item) {
-                    $product = Product::find($item['product_id']);
-                    $order->items()->create([
-                        'product_id' => $item['product_id'],
-                        'ctn' => $item['ctn'],
-                        'unit_price' => $product->unit_price,
-                        'box_qtt' => $product->box_qtt,
-                        'sum' => $item['ctn'] * $product->box_qtt,
-                    ]);
-                }
-
-                // Recalculate order total based on items and products
-                $order->recalculateTotal();
-
-                // Update shipment total if applicable
-                $order->refreshShipmentTotal();
-            }
-
-            DB::commit();
+            Order::create($validated);
             return back()->with('success', 'Order created successfully.');
         } catch (Exception $e) {
-            DB::rollBack();
             return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
@@ -116,24 +90,10 @@ class OrderController extends Controller
     {
         $this->authorize('update', $order);
 
-        DB::beginTransaction();
         try {
             $order->update($request->validated());
-
-            // Replace order items
-            $order->items()->delete();
-            $order->items()->createMany($request->order_items);
-
-            // Recalculate order total based on items and products
-            $order->recalculateTotal();
-
-            // Refresh shipment totals (handle shipment change)
-            $order->refreshShipmentTotal();
-
-            DB::commit();
             return back()->with('success', 'Order updated successfully.');
         } catch (Exception $e) {
-            DB::rollBack();
             return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
@@ -193,7 +153,6 @@ class OrderController extends Controller
             'shipments' => $shipments,
         ]);
     }
-
 
     /**
      * Attach a product to the order (add an order item).

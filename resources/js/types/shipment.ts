@@ -2,7 +2,6 @@ import { ShipmentStatusEnum } from '@/enums';
 import { BaseEntity, DataPagination, SelectOption, SharedData, Timestamps } from '@/types';
 import type { Customer } from './customer';
 import type { Order } from './order';
-import type { Product } from './product';
 import type { SupplierLite } from './supplier';
 
 export interface ShipmentRequest {
@@ -45,7 +44,6 @@ export interface ShowShipmentProps extends Pick<SharedData, 'flash'> {
     customers: DataPagination<Pick<Customer, 'id' | 'code' | 'name' | 'phone' | 'address'>>;
     allCustomers: Customer[];
     shipments: ShipmentLite[];
-    products: Product[];
     suppliers: SupplierLite[];
     [key: string]: unknown;
 }

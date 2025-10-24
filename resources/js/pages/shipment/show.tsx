@@ -32,7 +32,7 @@ import CreateCustomer from '../customer/CreateCustomer';
 import CreateOrder from '../order/CreateOrder';
 
 export default function ShipmentShowPage() {
-    const { shipment, orders, customers, allCustomers, products, shipments, suppliers, flash } = usePage<ShowShipmentProps>().props;
+    const { shipment, orders, customers, allCustomers, shipments, suppliers, flash } = usePage<ShowShipmentProps>().props;
 
     const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
     const [selectedCustomerIdToAttachOrder, setSelectedCustomerIdToAttachOrder] = useState<string>('');
@@ -165,7 +165,6 @@ export default function ShipmentShowPage() {
                 shipments={shipments}
                 customer_id={selectedCustomerId}
                 shipment_id={shipment.id.toString()}
-                products={products}
                 setSelectedCustomerId={setSelectedCustomerIdToAttachOrder}
             />
 
@@ -279,20 +278,24 @@ const AttachCustomerSection = ({
                         >
                             Attach Order
                         </Button>
-                        {selectedCustomerId ? (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className={`w-full hover:cursor-pointer sm:w-auto ${selectedCustomerId ? '' : 'hidden'}`}
+                            onClick={() => onCustomerSelect('')}
+                        >
+                            Cancel
+                        </Button>
+                        {canAddCustomer && (
                             <Button
                                 type="button"
                                 variant="outline"
-                                className="w-full hover:cursor-pointer sm:w-auto"
-                                onClick={() => onCustomerSelect('')}
+                                className={`w-full hover:cursor-pointer sm:w-auto ${selectedCustomerId ? 'hidden' : ''}`}
+                                onClick={onOpenCreateCustomer}
                             >
-                                Cancel
-                            </Button>
-                        ) : canAddCustomer ? (
-                            <Button type="button" variant="outline" className="w-full hover:cursor-pointer sm:w-auto" onClick={onOpenCreateCustomer}>
                                 No customer found
                             </Button>
-                        ) : null}
+                        )}
                     </div>
                 </div>
             </details>

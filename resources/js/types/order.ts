@@ -42,7 +42,6 @@ export interface RelatedItems {
     customers: CustomerLite[];
     shipments: ShipmentLite[];
     suppliers: SupplierLite[];
-    products: ProductLite[];
 }
 
 export interface PageOrderProps extends SharedData, RelatedItems {
@@ -64,6 +63,7 @@ export interface CreateOrderProps extends Omit<EditOrderProps, 'order'> {
 export interface ShowOrderProps extends Pick<SharedData, 'flash'>, RelatedItems {
     orderItems: DataPagination<OrderItemUpdate>;
     order: Order;
+    products: ProductLite[];
 }
 
 // Show order page

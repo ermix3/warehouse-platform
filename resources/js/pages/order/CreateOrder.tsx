@@ -8,7 +8,7 @@ import { OrderStatusEnum } from '@/enums';
 import { OrderStatusIcons } from '@/lib/order-status-helper';
 import { getCustomerOptions, getShipmentOptions, getSupplierOptions, orderStatusOptions } from '@/lib/utils';
 import { store } from '@/routes/orders';
-import { CreateOrderProps, OrderRequest } from '@/types';
+import { CreateOrderProps, OrderRequest, SelectOption } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { Asterisk, Clock, Loader2 } from 'lucide-react';
 import React, { useEffect } from 'react';
@@ -40,14 +40,7 @@ export default function CreateOrder({
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const storeOrderUrl = customer_id
-            ? store.url({
-                  query: {
-                      fromShipmentDetails: true,
-                  },
-              })
-            : store.url();
-        post(storeOrderUrl, {
+        post(store.url(), {
             onSuccess: () => {
                 onOpenChange(false);
                 reset();
@@ -70,12 +63,12 @@ export default function CreateOrder({
     };
 
     // Prepare options for SearchableSelect
-    const shipmentOptions = [{ value: '', label: 'No shipment' }, ...getShipmentOptions(shipments)];
-    const supplierOptions = [{ value: '', label: 'No supplier' }, ...getSupplierOptions(suppliers)];
+    const shipmentOptions: SelectOption[] = [{ value: '', label: 'No shipment' }, ...getShipmentOptions(shipments)];
+    const supplierOptions: SelectOption[] = [{ value: '', label: 'No supplier' }, ...getSupplierOptions(suppliers)];
 
     return (
         <Dialog open={open} onOpenChange={handleDialogChange}>
-            <DialogContent className="max-h-[95vh] w-full overflow-hidden p-0 sm:max-w-xl">
+            <DialogContent className="max-h-[95vh] w-full overflow-hidden p-0 sm:max-w-3xl">
                 <DialogHeader className="sticky top-0 border-b px-5 py-3">
                     <DialogTitle>Create Order</DialogTitle>
                     <DialogDescription>

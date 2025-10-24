@@ -27,7 +27,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function OrdersPage() {
-    const { orders, customers, shipments, products, suppliers, filters, flash } = usePage<PageOrderProps>().props;
+    const { orders, customers, shipments, suppliers, filters, flash } = usePage<PageOrderProps>().props;
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -113,7 +113,6 @@ export default function OrdersPage() {
                 customers={customers}
                 suppliers={suppliers}
                 shipments={shipments}
-                products={products}
             />
 
             <EditOrder
@@ -123,7 +122,6 @@ export default function OrdersPage() {
                 customers={customers}
                 suppliers={suppliers}
                 shipments={shipments}
-                products={products}
             />
 
             <DeleteItem

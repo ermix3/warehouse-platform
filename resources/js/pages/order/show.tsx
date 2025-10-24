@@ -2,9 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ActionsEnum, ResourcesEnum } from '@/enums';
 import { usePermission } from '@/hooks/use-permission';
 import AppLayout from '@/layouts/app-layout';
+import { getProductOptions } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index, show } from '@/routes/orders';
-import { SelectOption, ShowOrderProps } from '@/types';
+import { ShowOrderProps } from '@/types';
 import { Head } from '@inertiajs/react';
 import { Asterisk, Info } from 'lucide-react';
 import { useState } from 'react';
@@ -17,8 +18,6 @@ import { OrderItemsTable } from './components/OrderItemsTable';
 
 export default function ShowOrder({ order, orderItems, products, flash }: Readonly<ShowOrderProps>) {
     const [showCreateProductDialog, setShowCreateProductDialog] = useState(false);
-
-    const productOptions: SelectOption[] = products.map((p) => ({ value: p.id.toString(), label: `${p.barcode} - ${p.name}` }));
 
     const breadcrumbs = [
         {
@@ -57,7 +56,7 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
 
                 <AttachProductSection
                     orderId={order.id}
-                    productOptions={productOptions}
+                    productOptions={getProductOptions(products)}
                     onOpenCreateProduct={() => setShowCreateProductDialog(true)}
                     canAddProduct={canAddProduct}
                 />
