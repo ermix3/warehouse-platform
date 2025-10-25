@@ -16,7 +16,7 @@ import { InfoOrderCard } from './components/InfoOrderCard';
 import { InfoShipmentCard } from './components/InfoShipmentCard';
 import { OrderItemsTable } from './components/OrderItemsTable';
 
-export default function ShowOrder({ order, orderItems, products, flash }: Readonly<ShowOrderProps>) {
+export default function ShowOrder({ order, orderItems, products, customers, shipments, suppliers, flash }: Readonly<ShowOrderProps>) {
     const [showCreateProductDialog, setShowCreateProductDialog] = useState(false);
 
     const breadcrumbs = [
@@ -49,7 +49,7 @@ export default function ShowOrder({ order, orderItems, products, flash }: Readon
 
             <div className="container mt-5 space-y-6 px-5 pb-5">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                    <InfoOrderCard order={order} />
+                    <InfoOrderCard order={order} customers={customers} suppliers={suppliers} shipments={shipments} />
                     <InfoCustomerCard order={order} />
                     <InfoShipmentCard order={order} canExportShipments={canExportShipments} canViewShipments={canViewShipments} />
                 </div>
