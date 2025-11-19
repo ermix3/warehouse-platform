@@ -77,8 +77,8 @@ export default function SuppliersPage() {
     //##############// Handle Permissions //##############
     //#############//####################//###############
     const { hasPermission } = usePermission();
-    const canAdd = hasPermission(ActionsEnum.DELETE, ResourcesEnum.SUPPLIERS);
-    const canEdit = hasPermission(ActionsEnum.DELETE, ResourcesEnum.SUPPLIERS);
+    const canAdd = hasPermission(ActionsEnum.CREATE, ResourcesEnum.SUPPLIERS);
+    const canEdit = hasPermission(ActionsEnum.EDIT, ResourcesEnum.SUPPLIERS);
     const canDelete = hasPermission(ActionsEnum.DELETE, ResourcesEnum.SUPPLIERS);
 
     const columns = createColumns(openEditDialog, openDeleteDialog, canEdit, canDelete);

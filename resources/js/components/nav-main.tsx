@@ -11,32 +11,28 @@ export function NavMain({ items = [], label = '' }: Readonly<NavMainProps>) {
             auth: { user },
         },
     } = usePage<SharedData>();
+    const data = items.filter((item) => {
+        return user.roles?.map((r: string) => r.toLowerCase())?.includes('admin') || item?.permissions?.some((p) => user?.permissions?.includes(p));
+    });
 
     return (
         <SidebarGroup className="px-2 py-0">
-            {label && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
+            {label && data.length > 0 && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
             <SidebarMenu>
-                {items
-                    .filter((item) => {
-                        return (
-                            user.roles?.map((r: string) => r.toLowerCase())?.includes('admin') ||
-                            item?.permissions?.some((p) => user?.permissions?.includes(p))
-                        );
-                    })
-                    .map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton
-                                asChild
-                                isActive={url.startsWith(typeof item.href === 'string' ? item.href : item.href.url)}
-                                tooltip={{ children: item.title }}
-                            >
-                                <Link href={item.href} prefetch>
-                                    {item.icon && <item.icon />}
-                                    <span>{item.title}</span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    ))}
+                {data.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                            asChild
+                            isActive={url.startsWith(typeof item.href === 'string' ? item.href : item.href.url)}
+                            tooltip={{ children: item.title }}
+                        >
+                            <Link href={item.href} prefetch>
+                                {item.icon && <item.icon />}
+                                <span>{item.title}</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                ))}
             </SidebarMenu>
         </SidebarGroup>
     );

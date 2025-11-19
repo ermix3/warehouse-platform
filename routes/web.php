@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -39,6 +40,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('{orderItem}', [OrderController::class, 'detachOrderItem'])->name('detachProduct');
             Route::patch('{orderItem}', [OrderController::class, 'updateOrderItem'])->name('updateOrderItem');
         });
+
+    Route::get('transactions/{type?}', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::apiResource('transactions', TransactionController::class)->except('index');
+    Route::get('transactions/{customer}/histories', [TransactionController::class, 'histories'])->name('transactions.histories');
 });
 
 require __DIR__ . '/settings.php';

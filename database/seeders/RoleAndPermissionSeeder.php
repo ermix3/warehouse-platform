@@ -66,6 +66,13 @@ class RoleAndPermissionSeeder extends Seeder
             'create_users',
             'edit_users',
             'delete_users',
+
+            // Transaction permissions
+            'view_transactions',
+            'view_own_transactions',
+            'create_transactions',
+            'edit_transactions',
+            'delete_transactions'
         ];
 
         foreach ($permissions as $permission) {
@@ -75,6 +82,16 @@ class RoleAndPermissionSeeder extends Seeder
         // Create roles and assign permissions
         $adminRole = Role::create(['name' => RolesEnum::ADMIN->value]);
         $adminRole->givePermissionTo(Permission::all());
+
+        // Officier - can view only transactions
+        $officierRole = Role::create(['name' => RolesEnum::OFFICER->value]);
+        $officierRole->givePermissionTo([
+            'view_transactions',
+            'view_own_transactions',
+            'create_transactions',
+            'edit_transactions',
+            'delete_transactions'
+        ]);
 
         // Staff - can manage products, orders, shipments
         $staffRole = Role::create(['name' => RolesEnum::STAFF->value]);
@@ -99,7 +116,10 @@ class RoleAndPermissionSeeder extends Seeder
             'edit_shipments',
 
             // Suppliers (view only)
-            'view_suppliers'
+            'view_suppliers',
+
+            // Transactions (view only)
+            'view_transactions'
         ]);
 
         // Accountant - can view all financial data
@@ -109,14 +129,16 @@ class RoleAndPermissionSeeder extends Seeder
             'view_orders',
             'view_products',
             'view_suppliers',
-            'view_shipments'
+            'view_shipments',
+            'view_transactions'
         ]);
 
         // Customer - can view their own orders and invoices
         $customerRole = Role::create(['name' => RolesEnum::CUSTOMER->value]);
         $customerRole->givePermissionTo([
             'view_own_orders',
-            'track_own_shipments'
+            'track_own_shipments',
+            'view_own_transactions'
         ]);
     }
 }

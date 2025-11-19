@@ -9,10 +9,11 @@ import products from '@/routes/products';
 import roles from '@/routes/roles';
 import shipments from '@/routes/shipments';
 import suppliers from '@/routes/suppliers';
+import transactions from '@/routes/transactions';
 import users from '@/routes/users';
 import type { NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Cog, Handshake, LayoutGrid, Ship, ShoppingBag, ShoppingCart, UserRoundCog, UsersRound } from 'lucide-react';
+import { Cog, Handshake, Landmark, LayoutGrid, Ship, ShoppingBag, ShoppingCart, UserRoundCog, UsersRound } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -64,6 +65,21 @@ const mainNavItems: NavItem[] = [
             `${ActionsEnum.CREATE}_${ResourcesEnum.CUSTOMERS}`,
             `${ActionsEnum.EDIT}_${ResourcesEnum.CUSTOMERS}`,
             `${ActionsEnum.DELETE}_${ResourcesEnum.CUSTOMERS}`,
+        ],
+    },
+];
+
+const officeNavItems: NavItem[] = [
+    {
+        title: 'Transactions',
+        href: transactions.index('date'),
+        icon: Landmark,
+        permissions: [
+            `${ActionsEnum.VIEW}_${ResourcesEnum.TRANSACTIONS}`,
+            `${ActionsEnum.VIEW_OWN}_${ResourcesEnum.TRANSACTIONS}`,
+            `${ActionsEnum.CREATE}_${ResourcesEnum.TRANSACTIONS}`,
+            `${ActionsEnum.EDIT}_${ResourcesEnum.TRANSACTIONS}`,
+            `${ActionsEnum.DELETE}_${ResourcesEnum.TRANSACTIONS}`,
         ],
     },
 ];
@@ -123,6 +139,7 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} label="Platform" />
+                <NavMain items={officeNavItems} label="Office" />
                 <hr className="my-2 border-1 border-gray-500 dark:border-gray-300" />
             </SidebarContent>
 
