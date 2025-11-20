@@ -10,6 +10,8 @@ import { TransactionTypeEnum } from '@/enums/transaction-type-enum';
 import { useForm } from '@inertiajs/react';
 import { Asterisk, Loader2 } from 'lucide-react';
 import React, { useCallback } from 'react';
+import { SearchableSelect } from '@/components/ui/searchable-select';
+import { getCustomerOptions } from '@/lib/utils';
 
 export default function CreateTransaction({ open, onOpenChange, customers }: Readonly<CreateTransactionProps>) {
     const { data, setData, errors, reset, clearErrors, post, processing } = useForm<TransactionRequest>({
@@ -63,26 +65,17 @@ export default function CreateTransaction({ open, onOpenChange, customers }: Rea
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 gap-4 px-5 md:grid-cols-3">
                         <div className="space-y-2">
-                            {/* TODO: should handle customer_id as number */}
                             <Label htmlFor="create-customer">
                                 Customer <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                             </Label>
-                            <Select
+                            <SearchableSelect
+                                options={getCustomerOptions(customers)}
                                 value={data.customer_id}
                                 onValueChange={(value) => setData('customer_id', value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select customer" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {customers.map((customer) => (
-                                        <SelectItem key={customer.id} value={customer.id.toString()}>
-                                            {customer.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                placeholder="Select a customer"
+                                emptyText="No customers found."
+                                className={errors.customer_id ? 'border-red-500' : ''}
+                            />
                             {errors.customer_id && <div className="mt-1 text-sm text-red-600">{errors.customer_id}</div>}
                         </div>
 

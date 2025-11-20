@@ -10,6 +10,8 @@ import { TransactionTypeEnum } from '@/enums/transaction-type-enum';
 import { useForm } from '@inertiajs/react';
 import { Asterisk, Loader2 } from 'lucide-react';
 import React, { useCallback, useEffect } from 'react';
+import { SearchableSelect } from '@/components/ui/searchable-select';
+import { getCustomerOptions } from '@/lib/utils';
 
 export default function EditTransaction({ open, onOpenChange, transaction, customers }: Readonly<EditTransactionProps>) {
     const { data, setData, errors, clearErrors, put, processing } = useForm<TransactionEditRequest>({
@@ -75,22 +77,14 @@ export default function EditTransaction({ open, onOpenChange, transaction, custo
                             <Label htmlFor="edit-customer">
                                 Customer <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                             </Label>
-                            <Select
+                            <SearchableSelect
+                                options={getCustomerOptions(customers)}
                                 value={data.customer_id}
                                 onValueChange={(value) => setData('customer_id', value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select customer" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {customers.map((customer) => (
-                                        <SelectItem key={customer.id} value={customer.id.toString()}>
-                                            {customer.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                placeholder="Select a customer"
+                                emptyText="No customers found."
+                                className={errors.customer_id ? 'border-red-500' : ''}
+                            />
                             {errors.customer_id && <div className="mt-1 text-sm text-red-600">{errors.customer_id}</div>}
                         </div>
 

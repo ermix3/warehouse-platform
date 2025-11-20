@@ -89,14 +89,12 @@ export default function TransactionsPage() {
 
     const handleTabChange = (tab: string) => {
         // reset the filters
-        filters.search = '';
-        filters.sort_by = tab === 'date' ? 'created_at' : 'id';
-        filters.sort_order = 'desc';
-        router.get(index(tab).url, {
+        const newFilters = {
             search: '',
-            sort_by: tab === 'date' ? 'created_at' : 'id',
+            sort_by: tab === 'date' ? 'created_at' : 'customer_id',
             sort_order: 'desc',
-        }, {
+        };
+        router.get(index(tab).url, newFilters, {
             preserveState: true,
             preserveScroll: true,
         });

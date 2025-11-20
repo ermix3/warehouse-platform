@@ -52,6 +52,7 @@ export const createColumnsByDate = (
     {
         accessorKey: 'notes',
         header: 'Notes',
+        enableSorting: false,
         cell: ({ row }) => {
             const notes: string | undefined = row.original.notes;
             const trimmedNotes = (notes && notes.length > 20) ? `${notes.slice(0, 20)}...` : notes || '-';
