@@ -16,6 +16,7 @@ class Transaction extends Model
         'value',
         'notes',
         'customer_id',
+        'created_at',
     ];
 
     protected $casts = [

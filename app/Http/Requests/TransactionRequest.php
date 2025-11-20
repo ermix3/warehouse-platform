@@ -18,12 +18,18 @@ class TransactionRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'type' => 'required|string|in:' . implode(',', TransactionType::values()),
             'value' => 'required|numeric|min:0',
             'notes' => 'nullable|string|max:2000',
             'customer_id' => 'required|exists:customers,id',
         ];
+
+        if ($this->isMethod('patch') || $this->isMethod('put')) {
+            $rules['created_at'] = 'required|date|before_or_equal:now';
+        }
+
+        return $rules;
     }
 
     public function messages(): array
@@ -37,16 +43,25 @@ class TransactionRequest extends FormRequest
             'customer_id.required' => 'Customer is required.',
             'customer_id.exists' => 'Selected customer does not exist.',
             'notes.max' => 'Notes may not be greater than 2000 characters.',
+            'created_at.required' => 'Created at is required.',
+            'created_at.date' => 'Created at must be a valid date.',
+            'created_at.before_or_equal' => 'Created at must be before or equal to today.',
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
+        $merge = [
             'type' => $this->type,
             'value' => is_numeric($this->value) ? (float) $this->value : $this->value,
             'notes' => isset($this->notes) ? trim((string) $this->notes) : null,
-        ]);
+        ];
+
+        if ($this->isMethod('patch') || $this->isMethod('put')) {
+            $merge['created_at'] = isset($this->created_at) ? $this->created_at : null;
+        }
+
+        $this->merge($merge);
     }
 }
 

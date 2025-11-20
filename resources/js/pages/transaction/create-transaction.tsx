@@ -63,6 +63,7 @@ export default function CreateTransaction({ open, onOpenChange, customers }: Rea
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 gap-4 px-5 md:grid-cols-3">
                         <div className="space-y-2">
+                            {/* TODO: should handle customer_id as number */}
                             <Label htmlFor="create-customer">
                                 Customer <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                             </Label>

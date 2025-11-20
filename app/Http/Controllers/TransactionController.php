@@ -171,6 +171,7 @@ class TransactionController extends Controller
             DB::beginTransaction();
 
             $oldData = $transaction->toArray();
+
             $transaction->update($request->validated());
 
             DB::commit();
@@ -236,15 +237,21 @@ class TransactionController extends Controller
         }
     }
 
-    public function histories(Customer $customer)
+    public function histories(Customer $customer,Request $request): Response
     {
-
         $this->authorize('viewAny', Transaction::class);
 
-        $transactions = Transaction::where('customer_id', $customer->id)->get();
+        // $transactions = $customer->transactions()
+        //     ->latest()
+        //     ->paginate(15)
+        //     ->withQueryString();
+        $transactions = $customer->transactions()->get();
 
-        return Inertia::render('transaction/index', [
-            'transactions' => $transactions
-        ]);
+        $totalIncome = $customer->transactions()->where('type', 'income')->sum('value');
+        $totalOutcome = $customer->transactions()->where('type', 'outcome')->sum('value');
+        $totalTransactions =$customer->transactions()->count();
+
+
+        return Inertia::render('transaction/customer-transaction-histories',compact('customer','transactions','totalIncome','totalOutcome','totalTransactions'));
     }
 }

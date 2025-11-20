@@ -50,4 +50,8 @@ export interface EditTransactionProps extends CreateTransactionProps {
 
 export interface PageCustomerTransactionHistoriesProps extends SharedData {
     customer: CustomerLite;
+    transactions: Transaction[];
+    totalIncome: number;
+    totalOutcome: number;
+    totalTransactions: number;
 }

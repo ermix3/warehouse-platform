@@ -130,7 +130,7 @@ export default function TransactionsPage() {
                             columns={columnsByDate}
                             data={transactionsByDate.data}
                             filters={filters}
-                            searchPlaceholder="Search transactions by name, email, phone, address, or notes..."
+                            searchPlaceholder="Search transactions by customer name, type, amount or notes..."
                         />
 
                         <Pagination
@@ -145,7 +145,7 @@ export default function TransactionsPage() {
                             columns={columnsByCustomer}
                             data={transactionsByCustomer.data}
                             filters={filters}
-                            searchPlaceholder="Search transactions by name, email, phone, address, or notes..."
+                            searchPlaceholder="Search transactions by customer name"
                         />
 
                         <Pagination
