@@ -1,6 +1,7 @@
 import { OrderStatusEnum, ShipmentStatusEnum } from '@/enums';
 import { CustomerLite, Permission, ProductLite, RoleLite, SelectOption, ShipmentLite, SupplierLite } from '@/types';
 import { type ClassValue, clsx } from 'clsx';
+import { DollarSignIcon, HandshakeIcon, PackageIcon, ShipIcon, ShoppingCartIcon, UsersRoundIcon } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -82,3 +83,22 @@ export const getSupplierOptions = (suppliers: SupplierLite[]) =>
         value: supplier.id.toString(),
         label: supplier.name,
     }));
+
+export const getIconByType = (type: string) => {
+    switch (type) {
+        case 'customer':
+            return UsersRoundIcon;
+        case 'supplier':
+            return HandshakeIcon;
+        case 'product':
+            return PackageIcon;
+        case 'order':
+            return ShoppingCartIcon;
+        case 'shipment':
+            return ShipIcon;
+        case 'transaction':
+            return DollarSignIcon;
+        default:
+            return PackageIcon;
+    }
+};
