@@ -2,16 +2,16 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { TransactionTypeEnum } from '@/enums/transaction-type-enum';
+import { getCustomerOptions } from '@/lib/utils';
 import { store } from '@/routes/transactions';
 import { CreateTransactionProps, TransactionRequest } from '@/types/transaction';
-import { TransactionTypeEnum } from '@/enums/transaction-type-enum';
 import { useForm } from '@inertiajs/react';
 import { Asterisk, Loader2 } from 'lucide-react';
 import React, { useCallback } from 'react';
-import { SearchableSelect } from '@/components/ui/searchable-select';
-import { getCustomerOptions } from '@/lib/utils';
 
 export default function CreateTransaction({ open, onOpenChange, customers }: Readonly<CreateTransactionProps>) {
     const { data, setData, errors, reset, clearErrors, post, processing } = useForm<TransactionRequest>({
@@ -83,11 +83,7 @@ export default function CreateTransaction({ open, onOpenChange, customers }: Rea
                             <Label htmlFor="create-type">
                                 Transaction Type <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                             </Label>
-                            <Select
-                                value={data.type}
-                                onValueChange={(value) => setData('type', value)}
-                                required
-                            >
+                            <Select value={data.type} onValueChange={(value) => setData('type', value)} required>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select transaction type" />
                                 </SelectTrigger>
@@ -110,7 +106,7 @@ export default function CreateTransaction({ open, onOpenChange, customers }: Rea
                                 min="0"
                                 inputMode="numeric"
                                 value={data.value.toString()}
-                                onChange={(e) => setData('value', parseFloat(e.target.value) || 0)}
+                                onChange={(e) => setData('value', Number.parseFloat(e.target.value) || 0)}
                                 placeholder="e.g. 100.00"
                                 required
                             />

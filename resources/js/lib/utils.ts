@@ -28,11 +28,12 @@ export const getRandomHexColor = () => {
  * @param amount - The numeric amount to format.
  * @param min - Minimum number of decimal places (default: 2).
  * @param max - Maximum number of decimal places (default: 2).
+ * @param currency - Currency symbol (default: 'AED').
  * @returns Formatted string, e.g. "AED 1,234.56"
  */
-export const getFormattedAmount = (amount: number, min: number = 2, max: number = 2) => {
-    if (!amount) return 'AED 0.00';
-    return `AED ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: min, maximumFractionDigits: max })}`;
+export const getFormattedAmount = (amount: number, currency: string = 'AED', min: number = 2, max: number = 2) => {
+    if (!amount) return `${currency} 0.00`;
+    return `${currency} ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: min, maximumFractionDigits: max })}`;
 };
 
 export const shipmentStatusOptions: SelectOption<ShipmentStatusEnum>[] = Object.values(ShipmentStatusEnum).map((status) => ({

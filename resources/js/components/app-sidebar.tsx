@@ -139,8 +139,8 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} label="Platform" />
-                <NavMain items={officeNavItems} label="Office" />
                 <hr className="my-2 border-1 border-gray-500 dark:border-gray-300" />
+                <NavMain items={officeNavItems} label="Office" />
             </SidebarContent>
 
             <SidebarFooter>

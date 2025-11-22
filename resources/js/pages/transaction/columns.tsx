@@ -38,7 +38,7 @@ export const createColumnsByDate = (
         header: 'Amount',
         cell: ({ row }) => {
             const value: number = row.original.value;
-            return <div className="text-sm text-muted-foreground">{value ? getFormattedAmount(value) : '-'}</div>;
+            return <div className="text-sm text-muted-foreground">{value ? getFormattedAmount(value, '₪') : '-'}</div>;
         },
     },
     {
@@ -55,12 +55,8 @@ export const createColumnsByDate = (
         enableSorting: false,
         cell: ({ row }) => {
             const notes: string | undefined = row.original.notes;
-            const trimmedNotes = (notes && notes.length > 20) ? `${notes.slice(0, 20)}...` : notes || '-';
-            return (
-                <div className="text-sm text-muted-foreground line-clamp-2">
-                    {trimmedNotes}
-                </div>
-            );
+            const trimmedNotes = notes && notes.length > 20 ? `${notes.slice(0, 20)}...` : notes || '-';
+            return <div className="line-clamp-2 text-sm text-muted-foreground">{trimmedNotes}</div>;
         },
     },
     ...(canEdit || canDelete

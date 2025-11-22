@@ -44,7 +44,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('{orderItem}', [OrderController::class, 'updateOrderItem'])->name('updateOrderItem');
         });
 
-    Route::get('transactions/{type?}', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('transactions/{type?}', [TransactionController::class, 'index'])
+        ->where('type', 'date|customer')
+        ->name('transactions.index');
     Route::apiResource('transactions', TransactionController::class)->except('index');
     Route::get('transactions/{customer}/histories', [TransactionController::class, 'histories'])->name('transactions.histories');
 });

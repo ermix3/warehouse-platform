@@ -2,16 +2,16 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { TransactionTypeEnum } from '@/enums/transaction-type-enum';
+import { getCustomerOptions } from '@/lib/utils';
 import { update } from '@/routes/transactions';
 import { EditTransactionProps, TransactionEditRequest } from '@/types/transaction';
-import { TransactionTypeEnum } from '@/enums/transaction-type-enum';
 import { useForm } from '@inertiajs/react';
 import { Asterisk, Loader2 } from 'lucide-react';
 import React, { useCallback, useEffect } from 'react';
-import { SearchableSelect } from '@/components/ui/searchable-select';
-import { getCustomerOptions } from '@/lib/utils';
 
 export default function EditTransaction({ open, onOpenChange, transaction, customers }: Readonly<EditTransactionProps>) {
     const { data, setData, errors, clearErrors, put, processing } = useForm<TransactionEditRequest>({
@@ -92,11 +92,7 @@ export default function EditTransaction({ open, onOpenChange, transaction, custo
                             <Label htmlFor="edit-type">
                                 Transaction Type <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                             </Label>
-                            <Select
-                                value={data.type}
-                                onValueChange={(value) => setData('type', value)}
-                                required
-                            >
+                            <Select value={data.type} onValueChange={(value) => setData('type', value)} required>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select transaction type" />
                                 </SelectTrigger>
@@ -118,7 +114,7 @@ export default function EditTransaction({ open, onOpenChange, transaction, custo
                                 step="0.01"
                                 min="0"
                                 value={data.value}
-                                onChange={(e) => setData('value', parseFloat(e.target.value) || 0)}
+                                onChange={(e) => setData('value', Number.parseFloat(e.target.value) || 0)}
                                 placeholder="e.g. 100.00"
                                 required
                             />
@@ -151,7 +147,6 @@ export default function EditTransaction({ open, onOpenChange, transaction, custo
                         />
                         {errors.notes && <div className="mt-1 text-sm text-red-600">{errors.notes}</div>}
                     </div>
-
 
                     <DialogFooter className="sticky bottom-0 border-t bg-background px-5 py-3">
                         <Button type="button" variant="outline" className="cursor-pointer" onClick={() => onOpenChange(false)} disabled={processing}>

@@ -107,6 +107,8 @@ export function OrderItemsTable({ order, orderItems, canEditOrder }: Readonly<Or
                 console.error('Failed to update order item:', error);
             }
         },
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [editingItem, editValue],
     );
 

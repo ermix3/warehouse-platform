@@ -1,8 +1,11 @@
-import AppLayout from '@/layouts/app-layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
 import { getFormattedAmount } from '@/lib/utils';
 import { index } from '@/routes/transactions';
 import { BreadcrumbItem } from '@/types';
@@ -11,13 +14,6 @@ import { Head, usePage } from '@inertiajs/react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { CalendarIcon, ListRestart, TrendingDown, TrendingUp, UserCircle2Icon, Wallet } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Calendar } from "@/components/ui/calendar"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function CustomerTransactionHistories() {
     const { customer, transactions, totalIncome, totalOutcome, totalTransactions } = usePage<PageCustomerTransactionHistoriesProps>().props;
@@ -27,19 +23,19 @@ export default function CustomerTransactionHistories() {
     const [transactionType, setTransactionType] = useState<'both' | 'income' | 'outcome'>('both');
 
     const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Transactions',
-        href: index.url(),
-    },
-    {
-        title: customer.name,
-        href: '',
-    },
-    {
-        title: 'Histories',
-        href: '',
-    },
-];
+        {
+            title: 'Transactions',
+            href: index.url(),
+        },
+        {
+            title: customer.name,
+            href: '',
+        },
+        {
+            title: 'Histories',
+            href: '',
+        },
+    ];
 
     const filteredTransactions = useMemo(() => {
         return transactions.filter((transaction) => {
@@ -94,10 +90,10 @@ export default function CustomerTransactionHistories() {
             <Head title={`Transactions history - ${customer.name}`} />
 
             <div className="container my-5 px-5">
-                <div className="flex items-center justify-between gap-4 mb-10">
+                <div className="mb-10 flex items-center justify-between gap-4">
                     <h1 className="text-xl font-semibold tracking-tight">Transaction History</h1>
                     <div className="flex items-center gap-2">
-                        <p className=" font-medium text-muted-foreground">{customer.name}</p>
+                        <p className="font-medium text-muted-foreground">{customer.name}</p>
                         <UserCircle2Icon size={28} className="text-muted-foreground" />
                     </div>
                 </div>
@@ -120,23 +116,22 @@ export default function CustomerTransactionHistories() {
 
                 <div className="space-y-6">
                     {Object.entries(groupedTransactions).map(([dateGroup, groupTransactions]) => {
-                        const groupTotal = groupTransactions.reduce(
-                            (sum, tx) => sum + tx.value * (tx.type === 'income' ? 1 : -1),
-                            0,
-                        );
+                        const groupTotal = groupTransactions.reduce((sum, tx) => sum + tx.value * (tx.type === 'income' ? 1 : -1), 0);
 
                         return (
                             <Card key={dateGroup} className="overflow-hidden pt-3">
-                                <CardHeader className="flex justify-between items-center py-0">
+                                <CardHeader className="flex items-center justify-between py-0">
                                     <div className="flex flex-col">
                                         <CardTitle className="text-md font-medium text-muted-foreground">{dateGroup}</CardTitle>
                                         <p className="text-sm text-muted-foreground">{groupTransactions.length} transactions</p>
                                     </div>
-                                    <div className={`flex items-center text-sm font-medium px-4 rounded-xl ${groupTotal < 0 ? 'bg-red-50' : 'bg-emerald-50'}`}>
+                                    <div
+                                        className={`flex items-center rounded-xl px-4 text-sm font-medium ${groupTotal < 0 ? 'bg-red-50' : 'bg-emerald-50'}`}
+                                    >
                                         <p className={`${groupTotal < 0 ? 'text-red-700' : 'text-green-700'}`}>
-                                            {getFormattedAmount(groupTotal)}
+                                            {getFormattedAmount(groupTotal, '₪')}
                                         </p>
-                                        <div className={`w-8 h-8 flex items-center justify-center`}>
+                                        <div className={`flex h-8 w-8 items-center justify-center`}>
                                             {groupTotal < 0 ? (
                                                 <TrendingDown size={20} className="text-red-700" />
                                             ) : (
@@ -163,22 +158,10 @@ export default function CustomerTransactionHistories() {
                                                         {format(new Date(transaction.created_at), 'HH:mm')}
                                                     </span>
                                                     <span className="text-[11px] text-muted-foreground">Transaction #{transaction.id}</span>
-                                                </div>
-
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="truncate font-medium text-foreground">
-                                                        {transaction.notes
-                                                            ? transaction.notes.length > 40
-                                                                ? `${transaction.notes.substring(0, 40)}...`
-                                                                : transaction.notes
-                                                            : transaction.type === 'income'
-                                                                ? 'Receipt of funds'
-                                                                : 'Transfer'}
-                                                    </span>
                                                     <div className="flex items-center gap-2">
                                                         <Badge
                                                             variant={transaction.type === 'income' ? 'outline' : 'secondary'}
-                                                            className={`border px-2 py-0 text-sm font-medium ${
+                                                            className={`border px-2 py-0 text-sm ${
                                                                 transaction.type === 'income'
                                                                     ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                                                                     : 'border-destructive/30 bg-destructive/5 text-destructive'
@@ -189,17 +172,18 @@ export default function CustomerTransactionHistories() {
                                                     </div>
                                                 </div>
 
+                                                <div className="flex flex-col gap-1">
+                                                    <NotesPreview text={transaction.notes} limit={60} />
+                                                </div>
 
                                                 <div className="text-right">
                                                     <p
                                                         className={`text-sm font-semibold ${
-                                                            transaction.type === 'income'
-                                                                ? 'text-emerald-600'
-                                                                : 'text-red-700'
+                                                            transaction.type === 'income' ? 'text-emerald-600' : 'text-red-700'
                                                         }`}
                                                     >
                                                         {transaction.type === 'income' ? '+' : '-'}
-                                                        {getFormattedAmount(transaction.value)}
+                                                        {getFormattedAmount(transaction.value, '₪')}
                                                     </p>
                                                 </div>
                                             </div>
@@ -212,7 +196,7 @@ export default function CustomerTransactionHistories() {
 
                     {filteredTransactions.length === 0 && (
                         <Card>
-                            <CardContent className="py-10 text-center text-md text-muted-foreground">
+                            <CardContent className="text-md py-10 text-center text-muted-foreground">
                                 No transactions found for this customer.
                             </CardContent>
                         </Card>
@@ -223,47 +207,47 @@ export default function CustomerTransactionHistories() {
     );
 }
 
-
-const GetOverview = ( { totalIncome, totalOutcome, totalTransactions }: { totalIncome: number; totalOutcome: number; totalTransactions: number } ) => {
+const GetOverview = ({ totalIncome, totalOutcome, totalTransactions }: { totalIncome: number; totalOutcome: number; totalTransactions: number }) => {
     return (
-        <Card className="my-4 py-2 border-none bg-white shadow-sm">
-            <CardHeader className="py-2 border-b border-gray-200 ">
+        // allow Card's default (bg-card / text-card-foreground) to handle light/dark themes
+        <Card className="my-4 border-none py-2 shadow-sm">
+            <CardHeader className="border-b border-gray-200 py-2 dark:border-gray-700">
                 <CardTitle className="text-md font-medium text-muted-foreground">Overview</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 px-4 py-3 text-sm md:grid-cols-3">
-                <div className="flex items-center gap-3 border-b pb-3 last:border-b-0 md:border-b-0 md:border-r md:pb-0 md:pr-4">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                        <span className="text-xs font-semibold">#{' '}</span>
+                <div className="flex items-center gap-3 border-b pb-3 last:border-b-0 md:border-r md:border-b-0 md:pr-4 md:pb-0">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-800 dark:text-amber-100">
+                        <span className="text-xs font-semibold"># </span>
                     </div>
                     <div>
                         <p className="text-md font-medium text-muted-foreground">Transactions</p>
-                        <p className="text-lg font-semibold leading-tight">{totalTransactions}</p>
+                        <p className="text-lg leading-tight font-semibold">{totalTransactions}</p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3 border-b pb-3 last:border-b-0 md:border-b-0 md:border-r md:pb-0 md:pr-4">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-100 text-red-700">
+                <div className="flex items-center gap-3 border-b pb-3 last:border-b-0 md:border-r md:border-b-0 md:pr-4 md:pb-0">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-100">
                         <Wallet className="h-4 w-4" />
                     </div>
                     <div>
                         <p className="text-md font-medium text-red-700/80">Total Outcome</p>
-                        <p className="text-lg font-semibold leading-tight">{getFormattedAmount(totalOutcome)}</p>
+                        <p className="text-lg leading-tight font-semibold">{getFormattedAmount(totalOutcome, '₪')}</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-3 md:pl-4">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-100">
                         <Wallet className="h-4 w-4" />
                     </div>
                     <div>
                         <p className="text-md font-medium text-emerald-700/80">Total Income</p>
-                        <p className="text-lg font-semibold leading-tight">{getFormattedAmount(totalIncome)}</p>
+                        <p className="text-lg leading-tight font-semibold">{getFormattedAmount(totalIncome, '₪')}</p>
                     </div>
                 </div>
             </CardContent>
         </Card>
     );
-}
+};
 
 const GetFilters = ({
     startDate,
@@ -286,76 +270,76 @@ const GetFilters = ({
     const [openEndDate, setOpenEndDate] = useState(false);
 
     return (
-        <Card className="my-3 border-none shadow-none bg-muted/40">
-            <CardContent className="grid gap-4 md:grid-cols-[minmax(0,_2fr)_minmax(0,_1.5fr)_minmax(0,_2fr)] items-end">
-                <div className="space-y-1 flex flex-col">
+        <Card className="my-3 border-none bg-muted/40 shadow-none">
+            <CardContent className="grid items-end gap-4 md:grid-cols-[minmax(0,_2fr)_minmax(0,_1.5fr)_minmax(0,_2fr)]">
+                <div className="flex flex-col space-y-1">
                     <Label className="font-medium text-muted-foreground">Start Date</Label>
                     <Popover open={openStartDate} onOpenChange={setOpenStartDate}>
                         <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full flex items-center justify-start pl-5 gap-2">
-                            <CalendarIcon className="h-4 w-4 ml-3" />
-                            {startDate ? <span>{startDate.toLocaleDateString()}</span> : "Select start date"}
-                        </Button>
+                            <Button variant="outline" className="flex w-full items-center justify-start gap-2 pl-5">
+                                <CalendarIcon className="ml-3 h-4 w-4" />
+                                {startDate ? <span>{startDate.toLocaleDateString()}</span> : 'Select start date'}
+                            </Button>
                         </PopoverTrigger>
-                        <PopoverContent className=" overflow-hidden p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={startDate}
-                            captionLayout="dropdown"
-                            onSelect={(date) => {
-                                onChangeStartDate(date);
-                                setOpenStartDate(false);
-                            }}
-                            className="w-full"
-                            disabled={{
-                                after: new Date(),
-                            }}
-                        />
+                        <PopoverContent className="overflow-hidden p-0" align="start">
+                            <Calendar
+                                mode="single"
+                                selected={startDate}
+                                captionLayout="dropdown"
+                                onSelect={(date) => {
+                                    onChangeStartDate(date);
+                                    setOpenStartDate(false);
+                                }}
+                                className="w-full"
+                                disabled={{
+                                    after: new Date(),
+                                }}
+                            />
                         </PopoverContent>
                     </Popover>
                 </div>
-                <div className="space-y-1 flex flex-col">
+                <div className="flex flex-col space-y-1">
                     <Label className="font-medium text-muted-foreground">End Date</Label>
                     <Popover open={openEndDate} onOpenChange={setOpenEndDate}>
                         <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full flex items-center justify-start pl-5 gap-2">
-                            <CalendarIcon className="h-4 w-4 ml-3" />
-                            {endDate ? endDate.toLocaleDateString() : "Select end date"}
-                        </Button>
+                            <Button variant="outline" className="flex w-full items-center justify-start gap-2 pl-5">
+                                <CalendarIcon className="ml-3 h-4 w-4" />
+                                {endDate ? endDate.toLocaleDateString() : 'Select end date'}
+                            </Button>
                         </PopoverTrigger>
-                        <PopoverContent className=" overflow-hidden p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={endDate}
-                            captionLayout="dropdown"
-                            onSelect={(date) => {
-                                onChangeEndDate(date);
-                                setOpenEndDate(false);
-                            }}
-                            className='w-full'
-                            disabled={{
-                                after: new Date(),
-                            }}
-                        />
+                        <PopoverContent className="overflow-hidden p-0" align="start">
+                            <Calendar
+                                mode="single"
+                                selected={endDate}
+                                captionLayout="dropdown"
+                                onSelect={(date) => {
+                                    onChangeEndDate(date);
+                                    setOpenEndDate(false);
+                                }}
+                                className="w-full"
+                                disabled={{
+                                    after: new Date(),
+                                }}
+                            />
                         </PopoverContent>
                     </Popover>
                 </div>
 
-                <div className="space-y-1 flex flex-col">
+                <div className="flex flex-col space-y-1">
                     <Label className="font-medium text-muted-foreground">Type</Label>
                     <Select
                         defaultValue="both"
                         value={transactionType}
                         onValueChange={(value) => onChangeTransactionType(value as 'both' | 'income' | 'outcome')}
                     >
-                        <SelectTrigger >
+                        <SelectTrigger>
                             <SelectValue placeholder="Select transaction type" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
-                            <SelectItem value="both">Both</SelectItem>
-                            <SelectItem value="income">Income</SelectItem>
-                            <SelectItem value="outcome">Outcome</SelectItem>
+                                <SelectItem value="both">Both</SelectItem>
+                                <SelectItem value="income">Income</SelectItem>
+                                <SelectItem value="outcome">Outcome</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                     </Select>
@@ -366,7 +350,7 @@ const GetFilters = ({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className='text-sm bg-primary text-white rounded-md px-2 py-1 transition-colors duration-200 cursor-pointer'
+                        className="cursor-pointer rounded-md bg-primary px-2 py-1 text-sm text-white transition-colors duration-200"
                         onClick={onReset}
                     >
                         <span className="flex items-center gap-1">
@@ -377,5 +361,34 @@ const GetFilters = ({
                 </div>
             </CardContent>
         </Card>
+    );
+};
+
+function NotesPreview({ text, limit = 50 }: Readonly<{ text?: string | null; limit?: number }>) {
+    const [expanded, setExpanded] = useState(false);
+
+    if (!text) {
+        return <span className="font-medium text-foreground">-</span>;
+    }
+
+    const isLong = text.length > limit;
+    const displayed = !isLong ? text : expanded ? text : `${text.substring(0, limit)}...`;
+
+    return (
+        <div className="flex flex-col flex-wrap items-start">
+            <span className={`font-medium text-foreground ${expanded ? 'block' : 'block truncate'}`} title={text}>
+                {displayed}
+            </span>
+
+            {isLong && (
+                <button
+                    type="button"
+                    onClick={() => setExpanded((s) => !s)}
+                    className="hover:text-primary-hover cursor-pointer text-sm font-medium text-indigo-700 underline decoration-wavy transition-colors duration-200"
+                >
+                    {expanded ? 'less' : 'more'}
+                </button>
+            )}
+        </div>
     );
 }

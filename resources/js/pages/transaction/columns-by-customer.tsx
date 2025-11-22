@@ -1,10 +1,10 @@
+import { Button } from '@/components/ui/button';
+import { getFormattedAmount } from '@/lib/utils';
+import { histories } from '@/routes/transactions';
+import { TransactionByCustomer } from '@/types/transaction';
+import { Link } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { TextSearch } from 'lucide-react';
-import { TransactionByCustomer } from '@/types/transaction';
-import { getFormattedAmount } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Link } from '@inertiajs/react';
-import { histories } from '@/routes/transactions';
 
 export const createColumnsByCustomer = (): ColumnDef<TransactionByCustomer>[] => [
     {
@@ -19,12 +19,12 @@ export const createColumnsByCustomer = (): ColumnDef<TransactionByCustomer>[] =>
     {
         accessorKey: 'incomes',
         header: 'Income',
-        cell: ({ row }) => getFormattedAmount(row.original.incomes),
+        cell: ({ row }) => getFormattedAmount(row.original.incomes, '₪'),
     },
     {
         accessorKey: 'outcomes',
         header: 'Outcome',
-        cell: ({ row }) => getFormattedAmount(row.original.outcomes),
+        cell: ({ row }) => getFormattedAmount(row.original.outcomes, '₪'),
     },
     {
         accessorKey: 'difference',
@@ -32,11 +32,7 @@ export const createColumnsByCustomer = (): ColumnDef<TransactionByCustomer>[] =>
         cell: ({ row }) => {
             const difference = row.original.difference;
             const colorClass = difference >= 0 ? 'text-green-600' : 'text-red-600';
-            return (
-                <span className={colorClass}>
-                    {getFormattedAmount(difference)}
-                </span>
-            );
+            return <span className={colorClass}>{getFormattedAmount(difference, '₪')}</span>;
         },
     },
     {

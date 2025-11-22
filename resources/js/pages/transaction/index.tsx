@@ -30,8 +30,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function TransactionsPage() {
+    const { url } = usePage();
+    // console.log('url: ', url);
     const { transactionsByDate, transactionsByCustomer, filters, flash, customers } = usePage<PageTransactionProps>().props;
-    const [activeTab, setActiveTab] = useState('date');
+    const [activeTab, setActiveTab] = useState(url?.startsWith('/transactions/customer') ? 'customer' : 'date');
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -89,15 +91,7 @@ export default function TransactionsPage() {
 
     const handleTabChange = (tab: string) => {
         // reset the filters
-        const newFilters = {
-            search: '',
-            sort_by: tab === 'date' ? 'created_at' : 'customer_id',
-            sort_order: 'desc',
-        };
-        router.get(index(tab).url, newFilters, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        router.get(index(tab).url);
         setActiveTab(tab);
     };
 
@@ -105,7 +99,7 @@ export default function TransactionsPage() {
         <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
             <Head title="Transactions" />
 
-            <div className="container mt-5 px-5">
+            <div className="container my-5 px-5">
                 <TitleActionsSection
                     title="Transactions"
                     description="Manage your transactions"
@@ -114,7 +108,7 @@ export default function TransactionsPage() {
                     canAdd={canCreate}
                 />
 
-                <Tabs defaultValue="account" value={activeTab} onValueChange={handleTabChange} className=" space-y-4">
+                <Tabs defaultValue="account" value={activeTab} onValueChange={handleTabChange} className="space-y-4">
                     <TabsList>
                         <TabsTrigger value="date" className="hover:cursor-pointer">
                             By date
