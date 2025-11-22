@@ -6,12 +6,23 @@ use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Scout\Searchable;
 
 class Product extends Model
 {
 
     /** @use HasFactory<ProductFactory> */
-    use HasFactory;
+    use HasFactory, Searchable;
+
+    public function toSearchableArray()
+    {
+        return [
+            'name'     => $this->name,
+            'barcode'  => $this->barcode,
+            'hs_code'  => $this->hs_code,
+            'origin'   => $this->origin,
+        ];
+    }
 
     protected $fillable = [
         'barcode',

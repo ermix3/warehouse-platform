@@ -1,10 +1,10 @@
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
-import { GlobalSearchDialog } from './global-search-dialog';
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Command, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { GlobalSearchDialog } from './global-search-dialog';
 
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -30,16 +30,16 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                     <Button
                         variant="ghost"
                         size="default"
-                        className="group cursor-pointer flex items-center gap-1 text-muted-foreground rounded-md hover:bg-muted-background/10 focus:bg-muted-background/20  focus:ring-inset focus:ring-foreground shadow-xs"
+                        className="group flex cursor-pointer items-center gap-1 rounded-md bg-accent/50 text-muted-foreground shadow-xs hover:bg-accent/60 dark:bg-accent/50 dark:hover:bg-accent/60"
                         onClick={() => setIsSearchOpen(true)}
                         aria-label="Open global search (Ctrl+K)"
                     >
                         <Search className="h-4 w-4" />
-                        <div className="hidden md:flex items-center justify-center gap-2 text-sm">
-                            <p className="font-medium mr-20">Search</p>
-                            <div className="flex items-center gap-1 rounded-md bg-muted-background/20 px-2 py-1 hover:bg-muted-background/30 transition-colors">
+                        <div className="hidden items-center justify-center gap-2 text-sm md:flex">
+                            <p className="mr-20 font-medium">Search</p>
+                            <div className="bg-muted-background/20 hover:bg-muted-background/30 flex items-center gap-1 rounded-md px-2 py-1 transition-colors">
                                 <Command size={16} strokeWidth={1} className="text-foreground-alt" />
-                                <p className="font-bold text-foreground-alt">K</p>
+                                <p className="text-foreground-alt font-bold">K</p>
                             </div>
                         </div>
                     </Button>

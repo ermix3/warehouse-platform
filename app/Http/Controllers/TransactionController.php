@@ -9,39 +9,68 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\AbstractPaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+use LaravelIdea\Helper\App\Models\_IH_Transaction_C;
 
 class TransactionController extends Controller
 {
     /**
      * Display a listing of transactions with search and sorting.
      */
-    public function index(Request $request, string $type='date'): Response
+    public function index(Request $request, string $type = 'date'): Response
     {
+        // Only allow explicit types routed from web.php (route constraint also helps)
+        $allowedTypes = ['date', 'customer'];
+        if (!in_array($type, $allowedTypes, true)) {
+            abort(404);
+        }
+
         $this->authorize('viewAny', Transaction::class);
 
-        $sortOrder = $request->get('sort_order', 'desc');
-        $sortBy = $request->get('sort_by', $type == 'date' ? 'created_at' : 'id');
-        $search = $request->get('search', '');
+        $filters = [
+            'search' => $request->get('search', ''),
+            'sort_by' => $request->get('sort_by', $type == 'date' ? 'created_at' : 'customer_id'),
+            'sort_order' => $request->get('sort_order', 'desc'),
+        ];
+
         $customers = Customer::all();
 
-        $allowedSortFields = ['id', 'type', 'value', 'customer_name', 'created_at', 'updated_at'];
-        $allowedSortOrders = ['asc', 'desc'];
+        return Inertia::render('transaction/index', [
+            'customers' => $customers,
+            'transactionsByDate' => $this->getTransactionsByDate($filters),
+            'transactionsByCustomer' => $this->getTransactionsByCustomer($filters),
+            'filters' => $filters,
+        ]);
+    }
+
+    /**
+     * @param array $filters
+     * @return Transaction[]|AbstractPaginator|LengthAwarePaginator|_IH_Transaction_C
+     */
+    private function getTransactionsByDate(array $filters)
+    {
+        $search = $filters['search'];
+        $sortBy = $filters['sort_by'];
+        $sortOrder = $filters['sort_order'];
 
         $query = Transaction::query()->with('customer');
 
-        if ($search = $request->get('search')) {
+        if ($search) {
             $query->where(function ($subQ) use ($search) {
                 $subQ->whereAny(['notes', 'value', 'type'], 'like', "%{$search}%")
                     ->orWhereRelation('customer', 'name', 'like', "%{$search}%");
             });
         }
 
+        $allowedSortOrders = ['asc', 'desc'];
+        $allowedSortFields = ['id', 'type', 'value', 'customer_name', 'created_at', 'updated_at'];
         if (in_array($sortBy, $allowedSortFields) && in_array($sortOrder, $allowedSortOrders)) {
             if ($sortBy === 'customer_name') {
                 $query->orderBy(
@@ -56,10 +85,19 @@ class TransactionController extends Controller
             $query->orderBy('id', 'desc');
         }
 
-        // Get transactions by date
-        $transactionsByDate = $query->paginate(15)->withQueryString();
+        return $query->paginate(15)->withQueryString();
+    }
 
-        // Get transactions grouped by customer for the summary
+    /**
+     * @param array $filters
+     * @return Transaction[]|AbstractPaginator|LengthAwarePaginator|_IH_Transaction_C
+     */
+    private function getTransactionsByCustomer(array $filters)
+    {
+        $search = $filters['search'];
+        $sortBy = $filters['sort_by'];
+        $sortOrder = $filters['sort_order'];
+
         $transactionsByCustomer = Transaction::query()
             ->selectRaw("
                 customer_id,
@@ -67,8 +105,7 @@ class TransactionController extends Controller
                 SUM(CASE WHEN type = ? THEN value ELSE 0 END) as outcomes,
                 SUM(CASE WHEN type = ? THEN value ELSE -value END) as difference
             ", ['income', 'outcome', 'income'])
-            ->when($request->get('search'), fn (Builder $q, $search) =>
-                $q->whereRelation('customer', 'name', 'like', "%{$search}%")
+            ->when($search, fn(Builder $q, $search) => $q->whereRelation('customer', 'name', 'like', "%{$search}%")
             )
             ->groupBy('customer_id')
             ->with('customer')
@@ -78,7 +115,8 @@ class TransactionController extends Controller
                 'difference' => 'float',
             ]);
 
-        $allowedSummarySorts = ['customer_id', 'incomes', 'outcomes', 'difference', 'customer_name'];
+        $allowedSortOrders = ['asc', 'desc'];
+        $allowedSummarySorts = ['customer_id', 'customer_name', 'incomes', 'outcomes', 'difference'];
         if (in_array($sortBy, $allowedSummarySorts) && in_array($sortOrder, $allowedSortOrders)) {
             if ($sortBy === 'customer_name') {
                 $transactionsByCustomer->orderBy(
@@ -93,18 +131,7 @@ class TransactionController extends Controller
             $transactionsByCustomer->orderBy('difference', 'desc');
         }
 
-        $transactionsByCustomer = $transactionsByCustomer->paginate(15)->withQueryString();
-
-        return Inertia::render('transaction/index', [
-            'customers' => $customers,
-            'transactionsByDate' => $transactionsByDate,
-            'transactionsByCustomer' => $transactionsByCustomer,
-            'filters' => [
-                'search' => $search,
-                'sort_by' => $sortBy,
-                'sort_order' => $sortOrder,
-            ],
-        ]);
+        return $transactionsByCustomer->paginate(15)->withQueryString();
     }
 
     /**
@@ -237,21 +264,17 @@ class TransactionController extends Controller
         }
     }
 
-    public function histories(Customer $customer,Request $request): Response
+    public function histories(Customer $customer): Response
     {
         $this->authorize('viewAny', Transaction::class);
 
-        // $transactions = $customer->transactions()
-        //     ->latest()
-        //     ->paginate(15)
-        //     ->withQueryString();
-        $transactions = $customer->transactions()->get();
+        $transactions = $customer->transactions()->orderBy('created_at', 'desc')->get();
 
         $totalIncome = $customer->transactions()->where('type', 'income')->sum('value');
         $totalOutcome = $customer->transactions()->where('type', 'outcome')->sum('value');
-        $totalTransactions =$customer->transactions()->count();
+        $totalTransactions = $customer->transactions()->count();
 
 
-        return Inertia::render('transaction/customer-transaction-histories',compact('customer','transactions','totalIncome','totalOutcome','totalTransactions'));
+        return Inertia::render('transaction/customer-transaction-histories', compact('customer', 'transactions', 'totalIncome', 'totalOutcome', 'totalTransactions'));
     }
 }
