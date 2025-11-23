@@ -31,6 +31,9 @@ export interface PageTransactionProps extends SharedData {
     transactionsByDate: DataPagination<Transaction>;
     transactionsByCustomer: DataPagination<TransactionByCustomer>;
     customers: CustomerLite[];
+    totalIncome: number;
+    totalOutcome: number;
+    totalTransactions: number;
 }
 
 export interface TransactionShowProps extends Pick<SharedData, 'flash'> {

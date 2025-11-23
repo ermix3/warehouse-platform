@@ -41,12 +41,18 @@ class TransactionController extends Controller
         ];
 
         $customers = Customer::all();
+        $totalIncome = Transaction::where('type', 'income')->sum('value');
+        $totalOutcome = Transaction::where('type', 'outcome')->sum('value');
+        $totalTransactions = Transaction::count();
 
         return Inertia::render('transaction/index', [
             'customers' => $customers,
             'transactionsByDate' => $this->getTransactionsByDate($filters),
             'transactionsByCustomer' => $this->getTransactionsByCustomer($filters),
             'filters' => $filters,
+            'totalIncome' => $totalIncome,
+            'totalOutcome' => $totalOutcome,
+            'totalTransactions' => $totalTransactions,
         ]);
     }
 
