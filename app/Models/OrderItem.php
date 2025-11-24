@@ -19,6 +19,7 @@ class OrderItem extends Model
         'box_qtt',
         'sum',
         'unit_price',
+        'box_code'
     ];
 
     public function order(): BelongsTo
@@ -29,5 +30,13 @@ class OrderItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public static function getGenerateBoxCode(): string
+    {
+        $prefix = 'BOX-';
+        $date = now()->format('ymd');
+        $time = now()->format('His');
+        return $prefix . $date . $time;
     }
 }

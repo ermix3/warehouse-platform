@@ -77,8 +77,11 @@ export interface AttachProductSectionProps {
     productOptions: SelectOption[];
     onOpenCreateProduct: () => void;
     canAddProduct: boolean;
+    selectedBoxCode: string | null;
 }
 
 export interface OrderItemsTableProps extends Pick<ShowOrderProps, 'orderItems' | 'order'> {
     canEditOrder: boolean;
+    selectedBoxCode: string | null;
+    handleBoxCodeSelected: (boxCode: string | null) => void;
 }
