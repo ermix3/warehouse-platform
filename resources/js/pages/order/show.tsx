@@ -18,6 +18,7 @@ import { OrderItemsTable } from './components/OrderItemsTable';
 
 export default function ShowOrder({ order, orderItems, products, customers, shipments, suppliers, flash }: Readonly<ShowOrderProps>) {
     const [showCreateProductDialog, setShowCreateProductDialog] = useState(false);
+    const [selectedBoxCode, setSelectedBoxCode] = useState<string | null>(null);
 
     const breadcrumbs = [
         {
@@ -59,6 +60,7 @@ export default function ShowOrder({ order, orderItems, products, customers, ship
                     productOptions={getProductOptions(products)}
                     onOpenCreateProduct={() => setShowCreateProductDialog(true)}
                     canAddProduct={canAddProduct}
+                    selectedBoxCode={selectedBoxCode}
                 />
 
                 <Card className="pt-3">
@@ -74,7 +76,13 @@ export default function ShowOrder({ order, orderItems, products, customers, ship
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <OrderItemsTable order={order} orderItems={orderItems} canEditOrder={canEditOrder} />
+                        <OrderItemsTable
+                            order={order}
+                            orderItems={orderItems}
+                            canEditOrder={canEditOrder}
+                            selectedBoxCode={selectedBoxCode}
+                            handleBoxCodeSelected={setSelectedBoxCode}
+                        />
                     </CardContent>
                 </Card>
             </div>

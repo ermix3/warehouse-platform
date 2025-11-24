@@ -136,7 +136,11 @@ class OrderController extends Controller
             });
         }
 
-        $orderItems = $itemsQuery->orderByDesc('id')->paginate(10)->appends($request->query());
+        $orderItems = $itemsQuery
+                    ->orderByDesc('box_code')
+                    ->orderByDesc('id')
+                    ->paginate(10)
+                    ->appends($request->query());
 
         // Get related data for the form
         $products = Product::latest()->get();
@@ -162,6 +166,11 @@ class OrderController extends Controller
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'ctn' => 'required|integer|min:1',
+            'box_code' => ['nullable', 'string', function ($attribute, $value, $fail) {
+                if ($value && !in_array($value, OrderItem::pluck('box_code')->toArray())) {
+                    $fail("The $attribute must be a valid box_code.");
+                }
+            }]
         ]);
         $product=Product::find($request->product_id);
         $order->items()->create([
@@ -170,6 +179,7 @@ class OrderController extends Controller
             'unit_price' => $product->unit_price,
             'box_qtt' => $product->box_qtt,
             'sum' => $request->ctn * $product->box_qtt,
+            'box_code' => $request->box_code ?? OrderItem::getGenerateBoxCode(),
         ]);
         $order->recalculateTotal();
         $order->refreshShipmentTotal();
@@ -183,7 +193,7 @@ class OrderController extends Controller
     {
         $this->authorize('update', $order);
 
-        // To check if the order item exist in the order
+        // To check if the order item exists in the order
         $order->items()->findOrFail($orderItem->id);
         $orderItem->delete();
 
@@ -194,7 +204,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Patch a item in the order
+     * Patch an item in the order
      *
      */
     public function updateOrderItem(Order $order, OrderItem $orderItem, OrderItemRequest $request)

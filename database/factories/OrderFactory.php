@@ -32,7 +32,7 @@ class OrderFactory extends Factory
             /** @var array<OrderItem> $items */
             $items = OrderItem::factory()
                 ->count(rand(1, 10))
-                ->create(['order_id' => $order->id]);
+                ->create(['order_id' => $order->id, 'box_code' => OrderItem::getGenerateBoxCode()]);
 
             // Recalculate totals using product box quantity and unit price
             $items->load('product');
