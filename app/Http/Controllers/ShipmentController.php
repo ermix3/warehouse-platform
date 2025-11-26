@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Enums\RolesEnum;
 use App\Exports\ShipmentsExport;
+use App\Helpers\NumberToWords;
 use App\Http\Requests\ShipmentRequest;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Shipment;
 use App\Models\Supplier;
+use Barryvdh\DomPDF\Facade\Pdf as DomPdf;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -230,6 +232,8 @@ class ShipmentController extends Controller
     public function exportData(Request $request, Shipment $shipment)
     {
         $this->authorize('view', $shipment);
+
+        /** @var string $type contains the export type. Default is 'xlsx'. */
         $type = strtolower($request->get('type', 'xlsx'));
 
         if ($type === 'excel') {
@@ -238,25 +242,79 @@ class ShipmentController extends Controller
 
         Log::info("Exporting detailed shipment '$shipment->id' for type '$type'.");
 
-        $allowed = ['csv', 'xlsx', 'xls', 'ods', 'excel'];
-        if (!in_array($type, $allowed)) {
-            return back()->withErrors(['error' => 'Invalid export type. Allowed types: csv, xlsx, xls, ods']);
-        }
+        $allowed = ['csv', 'xlsx', 'xls', 'excel', 'pdf'];
 
         $export = new ShipmentsExport($shipment->id);
+        $data = $export->collection();
 
         $filename = sprintf(
-            'shipment_%s_details_%s.%s',
+            'invoice_%s_details_%s.%s',
             $shipment->tracking_number ?? $shipment->id,
-            now()->format('Y-m-d_H-i-s'),
+            now()->format('YmdHis'),
             $type
         );
 
-        try {
-            return Excel::download($export, $filename);
-        } catch (\PhpOffice\PhpSpreadsheet\Exception $e) {
-            Log::error('Failed to export shipment (Spreadsheet Exception): ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Failed to export shipment.']);
+        $response = null;
+
+        if (!in_array($type, $allowed)) {
+            $response = back()->withErrors(['error' => 'Invalid export type. Allowed types: csv, xlsx, xls, pdf']);
+        } else {
+            try {
+                if ($type === 'pdf') {
+                    $groupedData = $data->reduce(function ($carry, $item) {
+                        $code = $item->customer_code;
+                        if (!isset($carry[$code])) {
+                            $carry[$code] = collect([$item]);
+                        } else {
+                            $carry[$code]->push((object)[
+                                'customer_code' => $code,
+                                'customer_index' => $item->customer_index,
+                                'item_index' => $item->item_index,
+                                'product' => $item->product,
+                                'order_item' => $item->order_item,
+                                'order' => $item->order,
+                                'shipment' => $item->shipment,
+                            ]);
+                        }
+
+                        return $carry;
+                    }, []);
+
+                    // Calculate totals
+                    $totalAmount = $data->sum(fn($item) => $item->order_item->ctn * $item->product->unit_price);
+
+                    $totalCartons = $data->sum('order_item.ctn');
+                    $totalNetWeight = $data->sum(fn($item) => $item->product->net_weight * $item->order_item->ctn * $item->order_item->box_qtt);
+                    $totalGrossWeight = $data->sum(fn($item) => $item->product->box_weight * $item->order_item->ctn);
+
+                    // Convert total to words
+                    $amountInWords = NumberToWords::toWords($totalAmount);
+                    $totalCartonsInWords = NumberToWords::toWords($totalCartons, 'CARTONS');
+
+                    $theView = 'exports.invoice';
+                    if (!$request->get('category') !== null && $request->get('category') === 'packing-list') {
+                        $theView = 'exports.list';
+                        $filename = str_replace('invoice', 'packing_list', $filename);
+                    }
+                    $response = DomPdf::loadView($theView, [
+                        'groupedData' => $groupedData,
+                        'totalAmount' => $totalAmount,
+                        'totalCartons' => $totalCartons,
+                        'totalNetWeight' => $totalNetWeight,
+                        'totalGrossWeight' => $totalGrossWeight,
+                        'amountInWords' => $amountInWords,
+                        'totalCartonsInWords' => $totalCartonsInWords,
+                        'date' => now()->format('Y-m-d'),
+                    ])->setPaper('A4', 'portrait')->download($filename);
+                } else {
+                    $response = Excel::download($export, $filename);
+                }
+            } catch (Exception $e) {
+                Log::error('Failed to export shipment: ' . $e->getMessage() . '\n' . $e->getTraceAsString());
+                $response = back()->withErrors(['error' => 'Failed to export shipment: ' . $e->getMessage()]);
+            }
         }
+
+        return $response;
     }
 }
