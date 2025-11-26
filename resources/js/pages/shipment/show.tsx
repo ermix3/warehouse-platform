@@ -204,8 +204,8 @@ const ShipmentInfoCard = ({ shipment, canEditShipments, canExportShipments, onEd
                         {canExportShipments && (
                             <ExportData
                                 btnSize={'icon'}
-                                onExport={(type) => {
-                                    const q = { type };
+                                onExport={(type, extra) => {
+                                    const q = { type, ...extra };
                                     window.location.href = exportData.url({ shipment: shipment.id }, { query: q });
                                 }}
                             />

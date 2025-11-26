@@ -11,8 +11,8 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { createColumnsByDate } from './columns';
 import { createColumnsByCustomer } from './columns-by-customer';
-import CurrentStatusSection from './current-status-section';
 import CreateTransaction from './create-transaction';
+import CurrentStatusSection from './current-status-section';
 import EditTransaction from './edit-transaction';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -33,7 +33,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function TransactionsPage() {
     const { url } = usePage();
     // console.log('url: ', url);
-    const { transactionsByDate, transactionsByCustomer, filters, flash, customers, totalIncome, totalOutcome, totalTransactions } = usePage<PageTransactionProps>().props;
+    const { transactionsByDate, transactionsByCustomer, filters, flash, customers, totalIncome, totalOutcome, totalTransactions } =
+        usePage<PageTransactionProps>().props;
     const [activeTab, setActiveTab] = useState(url?.startsWith('/transactions/customer') ? 'customer' : 'date');
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);

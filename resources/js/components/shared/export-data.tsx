@@ -8,7 +8,7 @@ type ExportProps = {
     label?: string;
     btnVariant?: Pick<VariantProps<typeof buttonVariants>, 'variant'>['variant'];
     btnSize?: Pick<VariantProps<typeof buttonVariants>, 'size'>['size'];
-    onExport: (type: 'csv' | 'excel') => void;
+    onExport: (type: 'csv' | 'excel' | 'pdf', extra?: { [key: string]: string }) => void;
 };
 
 export function ExportData({ label = 'Export', btnVariant = 'default', btnSize = 'default', onExport }: Readonly<ExportProps>) {
@@ -40,6 +40,12 @@ export function ExportData({ label = 'Export', btnVariant = 'default', btnSize =
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => onExport('excel')} className="hover:cursor-pointer">
                     Excel
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onExport('pdf')} className="hover:cursor-pointer">
+                    Pdf (invoice)
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onExport('pdf', { category: 'packing-list' })} className="hover:cursor-pointer">
+                    Pdf (packing-list)
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

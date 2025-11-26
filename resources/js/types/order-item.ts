@@ -4,7 +4,7 @@ import type { FormDataConvertible } from '@inertiajs/core';
 export interface OrderItemRequest {
     product_id: string;
     ctn: number;
-    box_code: string|null;
+    box_code: string | null;
 }
 
 export interface OrderItemLite extends Pick<BaseEntity, 'id'> {
