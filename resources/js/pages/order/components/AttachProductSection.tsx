@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { attachProduct } from '@/routes/orders';
-import { AttachProductSectionProps, OrderItemRequest } from '@/types';
+import type { AttachProductSectionProps, OrderItemRequest } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { Asterisk } from 'lucide-react';
 import { useEffect } from 'react';
@@ -18,13 +18,11 @@ export function AttachProductSection({
     const { data, setData, post, processing, errors, reset, isDirty } = useForm<OrderItemRequest>({
         product_id: '',
         ctn: 1,
-        box_code: selectedBoxCode,
+        box_code: selectedBoxCode || null,
     });
 
     useEffect(() => {
-        if (selectedBoxCode) {
-            setData('box_code', selectedBoxCode);
-        }
+        setData('box_code', selectedBoxCode || null);
     }, [selectedBoxCode, setData]);
 
     const handleAttach = (e: React.FormEvent) => {

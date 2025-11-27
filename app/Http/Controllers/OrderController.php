@@ -163,6 +163,7 @@ class OrderController extends Controller
      */
     public function attachOrderItem(Request $request, Order $order)
     {
+        // dd($request->all());
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'ctn' => 'required|integer|min:1',

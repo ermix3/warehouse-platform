@@ -8,15 +8,16 @@ type MyTooltipProps = {
         contentWrapper?: string;
         subContent?: string;
     };
+    side?: 'top' | 'right' | 'bottom' | 'left';
 };
 
-export default function MyTooltip({ children, title, className }: Readonly<MyTooltipProps>) {
+export default function MyTooltip({ children, title, className, side }: Readonly<MyTooltipProps>) {
     return (
         <Tooltip>
             <TooltipTrigger asChild className={className?.trigger}>
                 {children}
             </TooltipTrigger>
-            <TooltipContent className={className?.contentWrapper}>
+            <TooltipContent className={className?.contentWrapper} side={side}>
                 <p className={className?.subContent}>{title}</p>
             </TooltipContent>
         </Tooltip>
