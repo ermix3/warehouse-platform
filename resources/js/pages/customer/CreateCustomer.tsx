@@ -93,7 +93,6 @@ export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCu
                         <div className="flex-1">
                             <Label htmlFor="create-email">
                                 Email
-                                <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
                             </Label>
                             <Input
                                 id="create-email"
@@ -101,7 +100,6 @@ export default function CreateCustomer({ open, onOpenChange }: Readonly<CreateCu
                                 placeholder="e.g. john@example.com"
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
-                                required
                             />
                             {errors.email && <div className="mt-1 text-sm text-red-600">{errors.email}</div>}
                         </div>

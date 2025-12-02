@@ -67,7 +67,10 @@ export default function EditCustomer({ open, onOpenChange, customer }: Readonly<
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="px-5 md:flex md:space-x-4">
                         <div className="flex-1">
-                            <Label htmlFor="edit-code">Customer Code *</Label>
+                            <Label htmlFor="edit-code">
+                                Customer Code
+                                <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                            </Label>
                             <Input
                                 id="edit-code"
                                 type="text"
@@ -79,7 +82,10 @@ export default function EditCustomer({ open, onOpenChange, customer }: Readonly<
                             {errors.code && <div className="mt-1 text-sm text-red-600">{errors.code}</div>}
                         </div>
                         <div className="mt-4 flex-1 md:mt-0">
-                            <Label htmlFor="edit-name">Name *</Label>
+                            <Label htmlFor="edit-name">
+                                Name
+                                <Asterisk color={'red'} size={12} className={'inline-flex align-super'} />
+                            </Label>
                             <Input
                                 id="edit-name"
                                 type="text"

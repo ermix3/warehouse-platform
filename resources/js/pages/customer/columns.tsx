@@ -26,28 +26,32 @@ export const createColumns = (
     {
         accessorKey: 'email',
         header: 'Email',
+        cell: ({ row }) => row.original?.email ?? '-',
     },
     {
         accessorKey: 'phone',
         header: 'Phone',
+        cell: ({ row }) => row.original?.phone ?? '-',
     },
     {
         accessorKey: 'address',
         header: 'Address',
+        cell: ({ row }) => row.original?.address ?? '-',
     },
     {
         accessorKey: 'notes',
         header: 'Notes',
+        cell: ({ row }) => row.original?.notes ?? '-',
     },
     {
         accessorKey: 'shipping_tax',
         header: 'Shipping Tax (%)',
-        cell: ({ row }) => (row.original?.shipping_tax != null ? `${row.original.shipping_tax}%` : ''),
+        cell: ({ row }) => (row.original?.shipping_tax != null ? `${row.original.shipping_tax}%` : '0'),
     },
     {
         accessorKey: 'handling_tax',
         header: 'Handling Tax (%)',
-        cell: ({ row }) => (row.original?.handling_tax != null ? `${row.original.handling_tax}%` : ''),
+        cell: ({ row }) => (row.original?.handling_tax != null ? `${row.original.handling_tax}%` : '0'),
     },
     {
         accessorKey: 'unique_products_bought_count',
