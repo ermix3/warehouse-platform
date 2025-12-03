@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Commercial Invoice</title>
+    <title>PACKING LIST</title>
     <style>
         /* Page setup for DomPDF */
         @page {
@@ -18,10 +18,11 @@
             padding: 0;
             background: #fff;
             color: #222;
+            font-size: 13px;
         }
 
         .invoice-container {
-            padding: 16px;
+            padding: 3px;
             box-sizing: border-box;
         }
 
@@ -53,13 +54,14 @@
             text-align: center;
             font-weight: bold;
             text-decoration: underline;
-            font-size: 24px;
+            font-size: 18px;
             margin: 20px 0;
         }
 
         .table-data {
             width: 100%;
             border-collapse: collapse;
+            font-size: 12px;
         }
 
         .table-data th,
@@ -172,9 +174,9 @@
                         TEL: 00972-9 2377-070 <br>
                     </div>
                 </td>
-                <td style="vertical-align:top; width:40%; padding-left:10px;">
+                <td style="vertical-align:top; width:40%; padding-left:0;">
                     <div class="info-box" style="padding:0;">
-                        <strong>Invoice Number:</strong> INV-001<br>
+                        <strong>Invoice Number:</strong>{{ $invoiceNumber }}<br>
                         <strong>Date:</strong> {{ $date }}
                     </div>
                 </td>
@@ -222,9 +224,9 @@
                     Total
                 </td>
                 <td style="text-align: center; font-weight: bold; text-transform: uppercase;">
-                    {{ number_format($totalCartons, 2) }}
+                    {{ $totalCartons }}
                 </td>
-                <td colspan="2" >
+                <td colspan="2">
                     CARTONS
                 </td>
                 <td>

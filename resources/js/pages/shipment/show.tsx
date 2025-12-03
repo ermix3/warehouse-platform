@@ -23,7 +23,7 @@ import {
     OrdersTableProps,
     SelectOption,
     ShipmentInfoCardProps,
-    ShowShipmentProps,
+    ShowShipmentProps
 } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Pencil, TextSearch, Trash2 } from 'lucide-react';
@@ -204,8 +204,8 @@ const ShipmentInfoCard = ({ shipment, canEditShipments, canExportShipments, onEd
                         {canExportShipments && (
                             <ExportData
                                 btnSize={'icon'}
-                                onExport={(type, extra) => {
-                                    const q = { type, ...extra };
+                                onExport={(format, extra) => {
+                                    const q = { format, ...extra };
                                     window.location.href = exportData.url({ shipment: shipment.id }, { query: q });
                                 }}
                             />

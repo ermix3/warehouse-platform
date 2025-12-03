@@ -231,18 +231,12 @@ class ShipmentController extends Controller
      */
     public function exportData(Request $request, Shipment $shipment)
     {
-        $this->authorize('view', $shipment);
+        /** @var string $format contains the export format. Default is 'xlsx'. */
+        $format = strtolower($request->get('format', 'xlsx'));
 
-        /** @var string $type contains the export type. Default is 'xlsx'. */
-        $type = strtolower($request->get('type', 'xlsx'));
+        Log::info("Exporting detailed shipment '$shipment->id' for format '$format'.");
 
-        if ($type === 'excel') {
-            $type = 'xlsx';
-        }
-
-        Log::info("Exporting detailed shipment '$shipment->id' for type '$type'.");
-
-        $allowed = ['csv', 'xlsx', 'xls', 'excel', 'pdf'];
+        $allowed = ['csv', 'xlsx', 'xls', 'pdf'];
 
         $export = new ShipmentsExport($shipment->id);
         $data = $export->collection();
@@ -251,68 +245,70 @@ class ShipmentController extends Controller
             'invoice_%s_details_%s.%s',
             $shipment->tracking_number ?? $shipment->id,
             now()->format('YmdHis'),
-            $type
+            $format
         );
 
+        if (!in_array($format, $allowed)) {
+            return back()->withErrors(['error' => 'Invalid export format. Allowed types: csv, xlsx, xls, pdf']);
+        }
+
         $response = null;
-
-        if (!in_array($type, $allowed)) {
-            $response = back()->withErrors(['error' => 'Invalid export type. Allowed types: csv, xlsx, xls, pdf']);
-        } else {
-            try {
-                if ($type === 'pdf') {
-                    $groupedData = $data->reduce(function ($carry, $item) {
-                        $code = $item->customer_code;
-                        if (!isset($carry[$code])) {
-                            $carry[$code] = collect([$item]);
-                        } else {
-                            $carry[$code]->push((object)[
-                                'customer_code' => $code,
-                                'customer_index' => $item->customer_index,
-                                'item_index' => $item->item_index,
-                                'product' => $item->product,
-                                'order_item' => $item->order_item,
-                                'order' => $item->order,
-                                'shipment' => $item->shipment,
-                            ]);
-                        }
-
-                        return $carry;
-                    }, []);
-
-                    // Calculate totals
-                    $totalAmount = $data->sum(fn($item) => $item->order_item->ctn * $item->product->unit_price);
-
-                    $totalCartons = $data->sum('order_item.ctn');
-                    $totalNetWeight = $data->sum(fn($item) => $item->product->net_weight * $item->order_item->ctn * $item->order_item->box_qtt);
-                    $totalGrossWeight = $data->sum(fn($item) => $item->product->box_weight * $item->order_item->ctn);
-
-                    // Convert total to words
-                    $amountInWords = NumberToWords::toWords($totalAmount);
-                    $totalCartonsInWords = NumberToWords::toWords($totalCartons, 'CARTONS');
-
-                    $theView = 'exports.invoice';
-                    if (!$request->get('category') !== null && $request->get('category') === 'packing-list') {
-                        $theView = 'exports.list';
-                        $filename = str_replace('invoice', 'packing_list', $filename);
+        try {
+            if ($format === 'pdf') {
+                $groupedData = $data->reduce(function ($carry, $item) {
+                    $code = $item->customer_code;
+                    if (!isset($carry[$code])) {
+                        $carry[$code] = collect([$item]);
+                    } else {
+                        $carry[$code]->push((object)[
+                            'customer_code' => $code,
+                            'customer_index' => $item->customer_index,
+                            'item_index' => $item->item_index,
+                            'product' => $item->product,
+                            'order_item' => $item->order_item,
+                            'order' => $item->order,
+                            'shipment' => $item->shipment,
+                        ]);
                     }
-                    $response = DomPdf::loadView($theView, [
-                        'groupedData' => $groupedData,
-                        'totalAmount' => $totalAmount,
-                        'totalCartons' => $totalCartons,
-                        'totalNetWeight' => $totalNetWeight,
-                        'totalGrossWeight' => $totalGrossWeight,
-                        'amountInWords' => $amountInWords,
-                        'totalCartonsInWords' => $totalCartonsInWords,
-                        'date' => now()->format('Y-m-d'),
-                    ])->setPaper('A4', 'portrait')->download($filename);
-                } else {
-                    $response = Excel::download($export, $filename);
+
+                    return $carry;
+                }, []);
+
+                // Calculate totals
+                $totalAmount = $data->sum(fn($item) => $item->order_item->sum * $item->order_item->unit_price);
+
+                $totalCartons = $data->sum('order_item.ctn');
+                $totalNetWeight = $data->sum(fn($item) => $item->product->net_weight * $item->order_item->sum);
+                $totalGrossWeight = $data->sum(fn($item) => $item->product->box_weight * $item->order_item->ctn);
+
+                // Convert total to words
+                $amountInWords = NumberToWords::toWords($totalAmount);
+                $totalCartonsInWords = NumberToWords::toWords($totalCartons, 'CARTONS');
+
+                $theView = 'exports.invoice';
+                if (!$request->get('category') !== null && $request->get('category') === 'packing-list') {
+                    $theView = 'exports.list';
+                    $filename = str_replace('invoice', 'packing_list', $filename);
                 }
-            } catch (Exception $e) {
-                Log::error('Failed to export shipment: ' . $e->getMessage() . '\n' . $e->getTraceAsString());
-                $response = back()->withErrors(['error' => 'Failed to export shipment: ' . $e->getMessage()]);
+                $response = DomPdf::loadView($theView, [
+                    'groupedData' => $groupedData,
+                    'totalAmount' => $totalAmount,
+                    'totalCartons' => $totalCartons,
+                    'totalNetWeight' => $totalNetWeight,
+                    'totalGrossWeight' => $totalGrossWeight,
+                    'amountInWords' => $amountInWords,
+                    'totalCartonsInWords' => $totalCartonsInWords,
+                    'date' => $shipment->created_at->format('Y-m-d'),
+                    'invoiceNumber' => 'INV-' . now()->format('Ymd') . ($shipment->tracking_number ? substr($shipment->tracking_number, -4) : random_int(1000, 9999)),
+                ])
+                    ->setPaper('A4', 'portrait')->download($filename);
+//                return $response->stream($filename);
+            } else {
+                $response = Excel::download($export, $filename);
             }
+        } catch (Exception $e) {
+            Log::error('Failed to export shipment: ' . $e->getMessage() . '\n' . $e->getTraceAsString());
+            $response = back()->withErrors(['error' => 'Failed to export shipment: ' . $e->getMessage()]);
         }
 
         return $response;

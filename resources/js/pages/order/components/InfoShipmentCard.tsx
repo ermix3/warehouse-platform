@@ -59,8 +59,8 @@ export function InfoShipmentCard({ order, canExportShipments, canViewShipments }
                     {canExportShipments && (
                         <ExportData
                             btnSize="icon"
-                            onExport={(type, extra) => {
-                                const q = { type, ...extra };
+                            onExport={(format, extra) => {
+                                const q = { format, ...extra };
                                 window.location.href = exportData.url({ shipment: order.shipment!.id }, { query: q });
                             }}
                         />

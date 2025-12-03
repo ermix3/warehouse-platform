@@ -8,8 +8,15 @@ type ExportProps = {
     label?: string;
     btnVariant?: Pick<VariantProps<typeof buttonVariants>, 'variant'>['variant'];
     btnSize?: Pick<VariantProps<typeof buttonVariants>, 'size'>['size'];
-    onExport: (type: 'csv' | 'excel' | 'pdf', extra?: { [key: string]: string }) => void;
+    onExport: (format: 'csv' | 'xlsx' | 'pdf', extra?: { [key: string]: string }) => void;
 };
+
+const formatList: { label: string; value: 'csv' | 'xlsx' | 'pdf'; extra?: { [key: string]: string } }[] = [
+    { label: 'CSV', value: 'csv' },
+    { label: 'Excel', value: 'xlsx' },
+    { label: 'Pdf (invoice)', value: 'pdf' },
+    { label: 'Pdf (packing list)', value: 'pdf', extra: { category: 'packing-list' } },
+];
 
 export function ExportData({ label = 'Export', btnVariant = 'default', btnSize = 'default', onExport }: Readonly<ExportProps>) {
     return (
@@ -35,18 +42,11 @@ export function ExportData({ label = 'Export', btnVariant = 'default', btnSize =
                 </DropdownMenuTrigger>
             )}
             <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => onExport('csv')} className="hover:cursor-pointer">
-                    CSV
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onExport('excel')} className="hover:cursor-pointer">
-                    Excel
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onExport('pdf')} className="hover:cursor-pointer">
-                    Pdf (invoice)
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onExport('pdf', { category: 'packing-list' })} className="hover:cursor-pointer">
-                    Pdf (packing-list)
-                </DropdownMenuItem>
+                {formatList.map((format) => (
+                    <DropdownMenuItem onSelect={() => onExport(format.value, format?.extra)} className="hover:cursor-pointer">
+                        {format.label}
+                    </DropdownMenuItem>
+                ))}
             </DropdownMenuContent>
         </DropdownMenu>
     );
