@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/shipments/{shipment}/export-data', [ShipmentController::class, 'exportData'])->name('shipments.exportData');
 
     Route::apiResource('orders', OrderController::class);
+    Route::get('/orders/{order}/export-data', [OrderController::class, 'exportData'])->name('orders.exportData');
 
     Route::apiResource('roles', RoleController::class)->except('show');
     Route::prefix('orders/{order}/order-items')

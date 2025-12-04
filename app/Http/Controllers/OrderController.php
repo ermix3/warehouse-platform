@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\RolesEnum;
+use App\Exports\OrdersExport;
+use App\Helpers\NumberToWords;
 use App\Http\Requests\OrderItemRequest;
 use App\Http\Requests\OrderRequest;
 use App\Models\Customer;
@@ -11,11 +13,15 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Shipment;
 use App\Models\Supplier;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class OrderController extends Controller
 {
@@ -137,10 +143,10 @@ class OrderController extends Controller
         }
 
         $orderItems = $itemsQuery
-                    ->orderByDesc('box_code')
-                    ->orderByDesc('id')
-                    ->paginate(10)
-                    ->appends($request->query());
+            ->orderByDesc('box_code')
+            ->orderByDesc('id')
+            ->paginate(10)
+            ->appends($request->query());
 
         // Get related data for the form
         $products = Product::latest()->get();
@@ -173,7 +179,7 @@ class OrderController extends Controller
                 }
             }]
         ]);
-        $product=Product::find($request->product_id);
+        $product = Product::find($request->product_id);
         $order->items()->create([
             'product_id' => $request->input('product_id'),
             'ctn' => $request->ctn,
@@ -228,5 +234,68 @@ class OrderController extends Controller
         $order->refreshShipmentTotal();
 
         return redirect()->route('orders.show', $order->id)->with('success', 'Product updated in order.');
+    }
+
+    /**
+     * Export order data in different formats.
+     *
+     * @param Request $request
+     * @param Order $order
+     * @return BinaryFileResponse|\Illuminate\Http\Response|View
+     */
+    public function exportData(Request $request, Order $order)
+    {
+        // $this->authorize('view', Order::class);
+
+        $format = strtolower($request->get('format', 'xlsx'));
+
+        // Handle Excel/CSV exports
+        $export = new OrdersExport($order->id);
+        $filename = "invoice-{$order->id}-" . now()->format('YmdHis');
+
+        // Handle PDF export separately
+        if ($format === 'pdf') {
+            $data = $export->collection();
+            $date = $order->created_at->format('Y-m-d');
+            $invoiceNumber = 'INV-' . now()->format('Ymd') . ($order->order_number ? substr($order->order_number, -4) : random_int(1000, 9999));
+
+            // Calculate totals
+            $totalAmount = $data->sum(fn($item) => $item['totalAmount']);
+            $totalCartons = $data->sum(fn($item) => $item['ctn']);
+            $totalGrossWeight = $data->sum(fn($item) => $item['grossWeight']);
+            $totalNetWeight = $data->sum(fn($item) => $item['netWeight']);
+
+
+            // Convert total to words
+            $amountInWords = NumberToWords::toWords($totalAmount);
+            $totalCartonsInWords = NumberToWords::toWords($totalCartons, 'CARTONS');
+
+            $filename .= '.pdf';
+
+            $theView = 'exports.order-invoice';
+            if (!$request->get('category') !== null && $request->get('category') === 'packing-list') {
+                $theView = 'exports.order-list';
+                $filename = str_replace('invoice', 'packing_list', $filename);
+            }
+
+            $pdf = Pdf::loadView($theView, compact('data', 'date', 'invoiceNumber', 'totalAmount', 'totalCartons', 'amountInWords', 'totalCartonsInWords', 'totalGrossWeight', 'totalNetWeight'));
+//            return $pdf->stream($filename);
+            return $pdf->download($filename);
+        }
+
+        switch ($format) {
+            case 'csv':
+                $filename .= '.csv';
+                return Excel::download($export, $filename, \Maatwebsite\Excel\Excel::CSV, [
+                    'Content-Type' => 'text/csv',
+                ]);
+
+            case 'xlsx':
+            default:
+                $filename .= '.xlsx';
+                return Excel::download($export, $filename, \Maatwebsite\Excel\Excel::XLSX, [
+                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                ]);
+        }
     }
 }
