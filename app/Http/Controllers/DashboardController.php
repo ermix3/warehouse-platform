@@ -50,7 +50,8 @@ class DashboardController extends Controller
     private function getOrdersByMonthChart()
     {
         $orders = Order::select(
-            DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
+//            DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
+            DB::raw("TO_CHAR(created_at, 'YYYY-MM') as month"),
             DB::raw('count(*) as count'),
             DB::raw('sum(total) as revenue')
         )
